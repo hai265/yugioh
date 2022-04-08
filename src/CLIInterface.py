@@ -7,6 +7,27 @@ from src.card import Card
 from src.card import Monster
 import csv
 
+def create_card(card_name: str, ):
+    """Returns an array of Card objects which are created using the names in a preset file"""
+    with open('sources/cards.csv', 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if row[0].lower() == card_name.lower():
+                return Monster(name=row[0], card_type=row[1], attribute=row[2], type=row[3], level=row[4],
+                               attackpoints=row[5],
+                               defensepoints=row[6])
+
+
+def create_deck_from_preset(preset_path: str):
+    """Method that creates a card object given the name of a card and returns it"""
+    with open(preset_path, 'r') as csvfile:
+        deck = []
+        reader = csv.reader(csvfile)
+        for row in reader:
+            for name in row:
+                deck.append(create_card(name))
+        return deck
+
 
 class CLIInterface:
     def __init__(self):
@@ -32,27 +53,25 @@ class CLIInterface:
         self.game.currentPlayer = self.players[random.randint(0, 1)]
 
         #         Initialize each player's deck
-        self.game.players[0] = self.create_deck_from_preset("preset1")
-        self.game.players[1] = self.create_deck_from_preset("preset1")
-
-    """Method that creates a card object given the name of a card and returns it"""
-
-    def create_card(self, card_name: str, ):
-        with open('sources/cards.csv', 'r') as csvfile:
-            reader = csv.reader(csvfile)
-            for row in reader:
-                if row[0].lower() == card_name.lower():
-                    return Monster(name=row[0], card_type=row[1], attribute=row[2], type=row[3], level=row[4],
-                                   attackpoints=row[5],
-                                   defensepoints=row[6])
-
-    """Returns an array of Card objects which are created using the names in a preset file"""
-
-    def create_deck_from_preset(self, preset_path: str):
-        with open(preset_path, 'r') as csvfile:
-            deck = []
-            reader = csv.reader(csvfile)
-            for row in reader:
-                for name in row:
-                    deck.append(self.create_card(name))
-            return deck
+        self.game.players[0] = create_deck_from_preset("preset1")
+        self.game.players[1] = create_deck_from_preset("preset1")
+#       Start the game
+        while not self.game.isThereWinner():
+            print("It is currently " + str(self.game.currentPlayer)+"'s turn")
+            print(self.game.currentPlayer.name + "'s hand: " + self.game.currentPlayer.hand)
+            print(self.game.currentPlayer.name + "'s field: " + self.game.currentPlayer.field)
+            monster_to_summon = input("Choose a monster to summon to the field (0 to go to battle phase)")
+            if monster_to_summon != 0:
+                self.game.summonMonster()
+            attacking_monster = input("Target a monster (0 to go to end turn)")
+            if attacking_monster != 0:
+                targeted_monster = input("Target a monster to attack (0 to go to end turn)")
+                if targeted_monster != 0:
+                    self.game.attackMonster(attacking_monster, targeted_monster)
+            self.game.changeTurn()
+        if self.game.players[1].lifepoints < 0:
+            print(self.game.players[0] + "won!")
+        elif self.game.players[0].lifepoints < 0:
+            print(self.game.players[1] + "won!")
+        else:
+            print("Tie")
