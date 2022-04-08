@@ -6,9 +6,10 @@ class Card:
 
 
 class Monster(Card):
-    def __init__(self, attribute, attackpoints, defensepoints, level, type):
+    def __init__(self, name, description, attribute, attackpoints, defensepoints, level, monster_type):
+        super().__init__(name, description, "monster")
         self.attribute = attribute
         self.attackPoints = attackpoints
         self.defensePoints = defensepoints
         self.level = level
-        self.type = type
+        self.type = monster_type
