@@ -3,9 +3,9 @@ import random
 
 from src.game import Game
 from src.player import Player
-from src.card import Card
 from src.card import Monster
 import csv
+
 
 def create_card(card_name: str, ):
     """Returns an array of Card objects which are created using the names in a preset file"""
@@ -55,9 +55,9 @@ class CLIInterface:
         #         Initialize each player's deck
         self.game.players[0] = create_deck_from_preset("preset1")
         self.game.players[1] = create_deck_from_preset("preset1")
-#       Start the game
+        #       Start the game
         while not self.game.isThereWinner():
-            print("It is currently " + str(self.game.currentPlayer)+"'s turn")
+            print("It is currently " + str(self.game.currentPlayer) + "'s turn")
             print(self.game.currentPlayer.name + "'s hand: " + self.game.currentPlayer.hand)
             print(self.game.currentPlayer.name + "'s field: " + self.game.currentPlayer.field)
             monster_to_summon = input("Choose a monster to summon to the field (0 to go to battle phase)")
