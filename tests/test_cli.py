@@ -16,7 +16,9 @@ class TestCli(unittest.TestCase):
 
     def test_create_deck_from_preset(self):
         deck = create_deck_from_preset("../sources/preset1")
-        real_deck =[create_card("Hitotsu - Me Giant"), create_card("Dark Magician"), create_card("The Fierce Knight"),
-                    create_card("Mammoth Graveyard"), create_card("Silver Fang"), create_card("monster")
-            , create_card("Curtian of the Dark One"), create_card("Tomozaurus")]
-        self.assertEqual(deck, real_deck)
+        real_deck = [create_card("Hitotsu-Me Giant"), create_card("Dark Magician"), create_card("The Fierce Knight"),
+                     create_card("Mammoth Graveyard"), create_card("Silver Fang"), create_card("monster"),
+                     create_card("Curtian of the Dark One"), create_card("Tomozaurus")]
+        self.assertEqual(len(real_deck), len(deck))
+        for i in range(8):
+            self.assertEqual(deck[0].name, real_deck[0].name)

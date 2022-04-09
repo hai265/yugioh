@@ -12,7 +12,7 @@ def create_card(card_name: str, ):
     with open('../sources/cards.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
-            if row[0].lower() == card_name.lower():
+            if row[0].lower().replace(" ", "") == card_name.lower().replace(" ", ""):
                 return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=row[4],
                                attackpoints=row[5],
                                defensepoints=row[6], description=row[7])
@@ -56,11 +56,16 @@ class CLIInterface:
         #         Initialize each player's deck
         self.game.players[0].deck = create_deck_from_preset("../sources/preset1")
         self.game.players[1].deck = create_deck_from_preset("../sources/preset1")
+        # Start each player off with 3 cards
+        for i in range(3):
+            self.game.players[0].drawCard()
+            self.game.players[1].drawCard()
         #       Start the game
         while not self.game.isThereWinner():
             print("It is currently " + str(self.game.currentPlayer) + "'s turn")
-            print(self.game.currentPlayer.name + "'s hand: " + self.game.currentPlayer.hand)
-            print(self.game.currentPlayer.name + "'s field: " + self.game.currentPlayer.field)
+            self.game.currentPlayer.drawCard()
+            print(self.game.currentPlayer.name + "'s hand: " + str(self.game.currentPlayer.hand))
+            print(self.game.currentPlayer.name + "'s field: " + str(self.game.currentPlayer.field))
             monster_to_summon = input("Choose a monster to summon to the field (0 to go to battle phase)")
             if monster_to_summon != 0:
                 self.game.summonMonster()
