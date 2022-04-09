@@ -9,11 +9,11 @@ import csv
 
 def create_card(card_name: str, ):
     """Returns an array of Card objects which are created using the names in a preset file"""
-    with open('sources/cards.csv', 'r') as csvfile:
+    with open('../sources/cards.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             if row[0].lower() == card_name.lower():
-                return Monster(name=row[0], card_type=row[1], attribute=row[2], type=row[3], level=row[4],
+                return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=row[4],
                                attackpoints=row[5],
                                defensepoints=row[6])
 
@@ -50,11 +50,11 @@ class CLIInterface:
         print("Enter the name of the second player")
         name2 = input()
         self.game.players.append(Player(8000, name2))
-        self.game.currentPlayer = self.players[random.randint(0, 1)]
+        self.game.currentPlayer = self.game.players[random.randint(0, 1)]
 
         #         Initialize each player's deck
-        self.game.players[0] = create_deck_from_preset("preset1")
-        self.game.players[1] = create_deck_from_preset("preset1")
+        self.game.players[0].deck = create_deck_from_preset("../sources/preset1")
+        self.game.players[1].deck = create_deck_from_preset("../sources/preset1")
         #       Start the game
         while not self.game.isThereWinner():
             print("It is currently " + str(self.game.currentPlayer) + "'s turn")
