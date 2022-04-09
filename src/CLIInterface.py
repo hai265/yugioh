@@ -9,7 +9,7 @@ import csv
 
 def create_card(card_name: str, ):
     """Returns an array of Card objects which are created using the names in a preset file"""
-    with open('../sources/cards.csv', 'r') as csvfile:
+    with open('sources/cards.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
         for row in reader:
             if row[0].lower().replace(" ", "") == card_name.lower().replace(" ", ""):
