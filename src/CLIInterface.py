@@ -15,7 +15,8 @@ def create_card(card_name: str, ):
             if row[0].lower() == card_name.lower():
                 return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=row[4],
                                attackpoints=row[5],
-                               defensepoints=row[6])
+                               defensepoints=row[6], description=row[7])
+        return None
 
 
 def create_deck_from_preset(preset_path: str):
