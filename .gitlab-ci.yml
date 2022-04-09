@@ -30,6 +30,9 @@ before_script:
   - pip install pytest-cov flake8
 
 test:
+    stage: test
     script:
     - pytest --cov=src tests/
 #    - flake8 ./src  --max-line-length=120
+    rules:
+      - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
