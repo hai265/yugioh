@@ -58,17 +58,17 @@ class CLIInterface:
         self.game.players[1].deck = create_deck_from_preset("/sources/preset1")
         # Start each player off with 3 cards
         for i in range(3):
-            self.game.players[0].drawCard()
-            self.game.players[1].drawCard()
+            self.game.players[0].draw_card()
+            self.game.players[1].draw_card()
         #       Start the game
         while not self.game.isThereWinner():
             print("It is currently " + str(self.game.currentPlayer) + "'s turn")
-            self.game.currentPlayer.drawCard()
+            self.game.currentPlayer.draw_card()
             print(self.game.currentPlayer.name + "'s hand: " + str(self.game.currentPlayer.hand))
             print(self.game.currentPlayer.name + "'s field: " + str(self.game.currentPlayer.field))
             monster_to_summon = input("Choose a monster to summon to the field (0 to go to battle phase)")
             if monster_to_summon != 0:
-                self.game.summonMonster()
+                self.game.summon_monster()
             attacking_monster = input("Target a monster (0 to go to end turn)")
             if attacking_monster != 0:
                 targeted_monster = input("Target a monster to attack (0 to go to end turn)")
