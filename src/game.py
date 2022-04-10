@@ -3,12 +3,12 @@
 import random
 
 
-class Game:
+class GameController:
     def __init__(self):
         self.players = []
         self.current_player = None
         self.other_player = None
-        self.field = []
+        self.field = [None for _ in range(5)]
 
     def determine_first_player(self):
         """
@@ -24,7 +24,7 @@ class Game:
         """
         self.current_player, self.other_player = self.other_player, self.current_player
 
-    def attack_monster(self, attacking_monster, attacked_monster):
+    def attack_monster(self, attacking_monster: int, attacked_monster: int):
         """
         Conducts an attack from attacking_monster onto attacked_monster
         :param attacking_monster: Monster that is attacking
@@ -55,15 +55,15 @@ class Game:
     def read_game(self):
         pass
 
-    def summon_monster(self, hand_idx, field_idx):
+    def summon_monster(self, hand_idx: int):
         """
         Summons monster from  current_players's hand onto current_player's field
         :param hand_idx: index in current_player's hand of monster to summon
-        :param field_idx: index on field to where monster will be summoned to
 
         Note: Currently summoning only supports summoning monsters in attack position.
         """
-        self.current_player.summon_mosnter(hand_idx, field_idx)
+        field_idx = self.current_player.field.index(None)
+        self.current_player.summon_monster(hand_idx, field_idx)
 
     def tribute_summon_monster(self):
         pass
