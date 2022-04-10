@@ -4,13 +4,13 @@ class Card:
         self.description = description
         self.card_type = card_type
 
-    def display_card(self) -> dict
+    def display_card(self) -> dict:
         return {"name": self.name, "card_type": self.card_type, "description": self.description}
 
 
 class Monster(Card):
-    def __init__(self, name, description, attribute, attackpoints, defensepoints, level, monster_type):
-        super().__init__(name, description, "monster")
+    def __init__(self, name, description, attribute, monster_type, level, attackpoints, defensepoints):
+        super().__init__(name, description, "Monster")
         self.attribute = attribute
         self.attackPoints = attackpoints
         self.defensePoints = defensepoints
@@ -25,4 +25,3 @@ class Monster(Card):
         display_info["ATK"] = self.attackPoints
         display_info["DEF"] = self.defensePoints
         return display_info
-
