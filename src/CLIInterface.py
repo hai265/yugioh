@@ -54,8 +54,8 @@ class CLIInterface:
         self.game.currentPlayer = self.game.players[random.randint(0, 1)]
 
         #         Initialize each player's deck
-        self.game.players[0].deck = create_deck_from_preset("../sources/preset1")
-        self.game.players[1].deck = create_deck_from_preset("../sources/preset1")
+        self.game.players[0].deck = create_deck_from_preset("/sources/preset1")
+        self.game.players[1].deck = create_deck_from_preset("/sources/preset1")
         # Start each player off with 3 cards
         for i in range(3):
             self.game.players[0].drawCard()
