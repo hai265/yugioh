@@ -23,6 +23,14 @@ Rules:
 
 This scrum focused on implementing the individual components of the Yu-Gi-Oh! card game. As it stands right now, there is no method (terminal/UI) to allow the user to send inputs into the game. These components are planned to be implemented in later sprints. For now, the individual components have been developed, along with unit testing to test the functionality of each.
 
+To run the tests, run:
+`
+pip install virtualenv
+virtualenv venv
+source venv/bin/activate
+pip install pytest-cov
+pytest --cov=src tests/
+`
 ### `card.py`
 
 This class defined the structure and initialization of Yu-Gi-Oh! cards. It also allow has functions to allow the user to display the information of the card. The unit testing for this is located in `test_card.py`.
