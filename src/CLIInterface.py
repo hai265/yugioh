@@ -14,8 +14,8 @@ def create_card(card_name: str, ):
         for row in reader:
             if row[0].lower().replace(" ", "") == card_name.lower().replace(" ", ""):
                 return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=row[4],
-                               attackpoints=row[5],
-                               defensepoints=row[6], description=row[7])
+                               attackpoints=int(row[5]),
+                               defensepoints=int(row[6]), description=row[7])
         return None
 
 
@@ -68,12 +68,12 @@ class CLIInterface:
             print(self.game.currentPlayer.name + "'s field: " + str(self.game.currentPlayer.field))
             monster_to_summon = int(input("Choose a monster to summon to the field (0 to go to battle phase)"))
             if monster_to_summon != 0:
-                self.game.summon_monster(monster_to_summon)
+                self.game.summon_monster(monster_to_summon - 1)
             attacking_monster = int(input("Target a monster (0 to go to end turn)"))
             if attacking_monster != 0:
                 targeted_monster = int(input("Target a monster to attack (0 to go to end turn)"))
                 if targeted_monster != 0:
-                    self.game.attack_monster(attacking_monster, targeted_monster)
+                    self.game.attack_monster(attacking_monster - 1, targeted_monster - 1)
             self.game.change_turn()
         if self.game.players[1].lifepoints < 0:
             print(self.game.players[0] + "won!")

@@ -9,7 +9,7 @@ class Player:
         self.deck = []
         self.hand = []
         self.graveyard = []
-        self.field = [None]*10  # There are a total of 10 field spots in yugioh
+        self.field = [None]*3  # There are a total of 10 field spots in yugioh
 
     def draw_card(self):
         """Draw a card from the top of the player's deck and add it to the player's hand"""
@@ -49,6 +49,7 @@ class Player:
             hand_index:int The card in the player's hand to be summoned
             field_index:int The location on the field to place the card
         """
+        self.field[field_index] = self.hand.pop(hand_index)
 
     def tribute_summon(self, hand_index: int, field_index: int):
         """ Removes a card from the player's hand and adds it to the field at a specific location

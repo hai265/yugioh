@@ -8,7 +8,7 @@ class GameController:
         self.players = []
         self.current_player = None
         self.other_player = None
-        self.field = [None for _ in range(5)]
+        # self.field = [None for _ in range(5)]
 
     def determine_first_player(self):
         """
@@ -27,8 +27,8 @@ class GameController:
     def attack_monster(self, attacking_monster: int, attacked_monster: int):
         """
         Conducts an attack from attacking_monster onto attacked_monster
-        :param attacking_monster: Monster that is attacking
-        :param attacked_monster: Monster that is being attacked
+        :param attacking_monster: field_idx of monster that is attacking
+        :param attacked_monster: field_idx of monster that is being attacked
 
         Note: Currently attacking only supports dealing with monster in attack position.
         """
@@ -43,7 +43,7 @@ class GameController:
             self.current_player.send_card_to_graveyard(attacking_monster, -1)
             self.other_player.send_card_to_graveyard(attacked_monster, -1)
         elif atk_difference < 0:
-            self.current_player.decrease_life_points(atk_difference)
+            self.current_player.decrease_life_points(abs(atk_difference))
             self.current_player.send_card_to_graveyard(attacking_monster, -1)
 
     def is_there_winner(self):
