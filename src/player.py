@@ -49,6 +49,7 @@ class Player:
             hand_index:int The card in the player's hand to be summoned
             field_index:int The location on the field to place the card
         """
+        # self.field[field_index] = self.hand.pop(hand_index)
 
         # Store card from player's hand
         card = self.hand.pop(hand_index)

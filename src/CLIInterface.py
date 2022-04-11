@@ -1,7 +1,7 @@
 # Class for a command line interface to control the yugioh game
 import random
 
-from src.game import Game
+from src.game import GameController
 from src.player import Player
 from src.card import Monster
 import csv
@@ -14,8 +14,8 @@ def create_card(card_name: str, ):
         for row in reader:
             if row[0].lower().replace(" ", "") == card_name.lower().replace(" ", ""):
                 return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=row[4],
-                               attackpoints=row[5],
-                               defensepoints=row[6], description=row[7])
+                               attackpoints=int(row[5]),
+                               defensepoints=int(row[6]), description=row[7])
         return None
 
 
@@ -36,15 +36,15 @@ class CLIInterface:
         self.currentPlayer = None
         self.game = None
 
-    def displaycurrentplayerhand(self):
+    def display_current_player_hand(self):
         pass
 
     def set_current_player(self):
         pass
 
     def start_game(self):
-        # Initalize players
-        self.game = Game()
+        # Initialize players
+        self.game = GameController()
         print("Enter the name of the first player")
         name1 = input()
         self.game.players.append(Player(8000, name1))
@@ -61,20 +61,20 @@ class CLIInterface:
             self.game.players[0].draw_card()
             self.game.players[1].draw_card()
         #       Start the game
-        while not self.game.isThereWinner():
+        while not self.game.is_there_winner():
             print("It is currently " + str(self.game.currentPlayer) + "'s turn")
             self.game.currentPlayer.draw_card()
             print(self.game.currentPlayer.name + "'s hand: " + str(self.game.currentPlayer.hand))
             print(self.game.currentPlayer.name + "'s field: " + str(self.game.currentPlayer.field))
-            monster_to_summon = input("Choose a monster to summon to the field (0 to go to battle phase)")
+            monster_to_summon = int(input("Choose a monster to summon to the field (0 to go to battle phase)"))
             if monster_to_summon != 0:
-                self.game.summon_monster()
-            attacking_monster = input("Target a monster (0 to go to end turn)")
+                self.game.summon_monster(monster_to_summon - 1)
+            attacking_monster = int(input("Target a monster (0 to go to end turn)"))
             if attacking_monster != 0:
-                targeted_monster = input("Target a monster to attack (0 to go to end turn)")
+                targeted_monster = int(input("Target a monster to attack (0 to go to end turn)"))
                 if targeted_monster != 0:
-                    self.game.attackMonster(attacking_monster, targeted_monster)
-            self.game.changeTurn()
+                    self.game.attack_monster(attacking_monster - 1, targeted_monster - 1)
+            self.game.change_turn()
         if self.game.players[1].lifepoints < 0:
             print(self.game.players[0] + "won!")
         elif self.game.players[0].lifepoints < 0:
