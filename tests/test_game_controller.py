@@ -1,6 +1,6 @@
 import unittest
-from src.CLIInterface import create_card
-from src.CLIInterface import create_deck_from_preset
+from src.cli import create_card
+from src.cli import create_deck_from_preset
 
 from src.player import Player
 from src.card import Card
@@ -60,8 +60,8 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(1, self.game.current_player.get_graveyard_size())
         self.assertEqual(0, self.game.other_player.get_graveyard_size())
 
-        self.assertEqual(4400, self.game.current_player.lifePoints)
-        self.assertEqual(5000, self.game.other_player.lifePoints)
+        self.assertEqual(4400, self.game.current_player.life_points)
+        self.assertEqual(5000, self.game.other_player.life_points)
 
     def test_attack_monster_attacker_ties(self):
         # summon monsters
@@ -79,8 +79,8 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(1, self.game.current_player.get_graveyard_size())
         self.assertEqual(1, self.game.other_player.get_graveyard_size())
 
-        self.assertEqual(5000, self.game.current_player.lifePoints)
-        self.assertEqual(5000, self.game.other_player.lifePoints)
+        self.assertEqual(5000, self.game.current_player.life_points)
+        self.assertEqual(5000, self.game.other_player.life_points)
 
     def test_attack_monster_attacker_wins(self):
         # summon monsters
@@ -99,5 +99,5 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(0, self.game.current_player.get_graveyard_size())
         self.assertEqual(1, self.game.other_player.get_graveyard_size())
 
-        self.assertEqual(5000, self.game.current_player.lifePoints)
-        self.assertEqual(4400, self.game.other_player.lifePoints)
+        self.assertEqual(5000, self.game.current_player.life_points)
+        self.assertEqual(4400, self.game.other_player.life_points)
