@@ -4,7 +4,7 @@ from src.card import Card
 
 class Player:
     def __init__(self, lifepoints: int, name: str):
-        self.lifePoints = lifepoints
+        self.life_points = lifepoints
         self.name = name
         self.deck = []
         self.hand = []
@@ -91,5 +91,5 @@ class Player:
         Params:
             life_points:int The number of points to decrease life points by
         """
-        self.lifePoints -= life_points
+        self.life_points -= life_points
 

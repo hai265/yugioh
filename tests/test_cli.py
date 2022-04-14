@@ -1,6 +1,6 @@
 import unittest
-from src.CLIInterface import create_card
-from src.CLIInterface import create_deck_from_preset
+from src.cli import create_card
+from src.cli import create_deck_from_preset
 
 
 class TestCli(unittest.TestCase):

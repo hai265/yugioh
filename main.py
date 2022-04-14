@@ -1,8 +1,8 @@
-from src.CLIInterface import CLIInterface
+from src.cli import Cli
 
 
 def main():
-    cli = CLIInterface()
+    cli = Cli()
     cli.start_game()
 
 
