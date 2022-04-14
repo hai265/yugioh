@@ -34,7 +34,7 @@ class GameController:
         """
         atk_monster = self.current_player.field[attacking_monster]
         target_monster = self.other_player.field[attacked_monster]
-        atk_difference = atk_monster.attackPoints - target_monster.attackPoints
+        atk_difference = atk_monster.attack_points - target_monster.attack_points
 
         if atk_difference > 0:
             self.other_player.decrease_life_points(atk_difference)

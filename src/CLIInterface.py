@@ -14,8 +14,8 @@ def create_card(card_name: str, ):
         for row in reader:
             if row[0].lower().replace(" ", "") == card_name.lower().replace(" ", ""):
                 return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=row[4],
-                               attackpoints=int(row[5]),
-                               defensepoints=int(row[6]), description=row[7])
+                               attack_points=int(row[5]),
+                               defense_points=int(row[6]), description=row[7])
         return None
 
 
