@@ -84,6 +84,9 @@ celerybeat-schedule
 venv/
 ENV/
 
+# dotvscode
+.vscode/
+
 # Spyder project settings
 .spyderproject
 
@@ -149,3 +152,4 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
