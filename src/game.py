@@ -1,6 +1,5 @@
 # Game manages the logic of the game, determines the winner of game if one player's health reaches 0,
 # manages putting monsters on each player's field.
-import random
 
 
 class GameController:

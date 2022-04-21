@@ -1,6 +1,5 @@
 import unittest
-from src.cli import create_card
-from src.cli import create_deck_from_preset
+from src.card import create_card, create_deck_from_preset
 from src.player import Player
 
 
@@ -199,4 +198,3 @@ class TestPlayer(unittest.TestCase):
         self.assertTrue(player.life_points == 5000)
         player.decrease_life_points(1000)
         self.assertTrue(player.life_points == 4000)
-
