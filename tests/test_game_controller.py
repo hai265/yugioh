@@ -1,9 +1,6 @@
 import unittest
-from src.cli import create_card
-from src.cli import create_deck_from_preset
-
+from src.card import create_card
 from src.player import Player
-from src.card import Card
 from src.game import GameController
 
 
@@ -101,3 +98,4 @@ class TestGameController(unittest.TestCase):
 
         self.assertEqual(5000, self.game.current_player.life_points)
         self.assertEqual(4400, self.game.other_player.life_points)
+

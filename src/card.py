@@ -1,3 +1,6 @@
+import csv
+
+
 class Card:
     """
         A class representing a Yu-Gi-Oh! Card.
@@ -62,3 +65,43 @@ class Monster(Card):
         display_info["ATK"] = self.attack_points
         display_info["DEF"] = self.defense_points
         return display_info
+
+
+def create_card(card_name: str):
+    """
+        Args: card_name: The name of the card to be created
+        Returns: a Card type corresponding to the card name, or None if no card exists with that name
+    """
+    with open('sources/cards.csv', 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        for row in reader:
+            if row[0].lower().replace(" ", "") == card_name.lower().replace(" ", ""):
+                return Monster(name=row[0], attribute=row[2], monster_type=row[3], level=int(row[4]),
+                               attack_points=int(row[5]),
+                               defense_points=int(row[6]), description=row[7])
+        return None
+
+
+def create_deck_from_preset(preset_path: str):
+    """Method that creates a card object given the name of a card and returns it
+        Args:
+            preset_path: the path of the file that contains a card preset in csv
+        Returns:
+            a list containing Card objects
+    """
+    with open(preset_path, 'r') as csvfile:
+        deck = []
+        reader = csv.reader(csvfile)
+        for row in reader:
+            for name in row:
+                deck.append(create_card(name))
+        return deck
+
+
+def monster_card_to_string(card: Monster):
+    """
+    :param: card: The card to convert to a string
+    :return: A string in format {cardName} {attack}/{defense}
+    """
+    return "{cardName} {attack}/{defense}".format(cardName=card.name, attack=card.attack_points,
+                                                  defense=card.attack_points)
