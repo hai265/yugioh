@@ -3,13 +3,19 @@ from src.card import Card
 
 
 class Player:
+    default_life_points = 8000
     def __init__(self, lifepoints: int, name: str):
+        """
+        Class to represent a player in a yugioh game
+        :param lifepoints: amount of lifepoints that the player has
+        :param name: name of the player
+        """
         self.life_points = lifepoints
         self.name = name
         self.deck = []
         self.hand = []
         self.graveyard = []
-        self.field = [None]*5  # There are a total of 10 field spots in yugioh
+        self.field = [None] * 5  # There are a total of 10 field spots in yugioh
 
     def draw_card(self):
         """Draw a card from the top of the player's deck and add it to the player's hand"""
@@ -92,4 +98,3 @@ class Player:
             life_points:int The number of points to decrease life points by
         """
         self.life_points -= life_points
-

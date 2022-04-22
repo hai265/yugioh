@@ -7,13 +7,13 @@ from src.player import Player
 from src.card import Monster
 
 from src import game_network_proxy
-# Class for a command line interface to control the yugioh game
+# Class for a command line interface to control the yugioh yugioh_game
 import os
 
 
 # Status codes:
 # -1: invalid command sent
-# 0: game is not running or is over
+# 0: yugioh_game is not running or is over
 # 1: valid input
 def monster_card_to_string(card: dict):
     """
@@ -31,8 +31,8 @@ class Client:
 
     def display_board(self, board: dict):
         """
-        Displays the game and the current player's hand to the command line
-        :arg: dictionary representing the state of the game
+        Displays the yugioh_game and the current player's hand to the command line
+        :arg: dictionary representing the state of the yugioh_game
         :return: None
         """
         if os.name == 'nt':
@@ -84,7 +84,7 @@ class Client:
                 data = json.loads(received)
                 if data["status"] == 1:
                     break
-        print("Running game")
+        print("Running yugioh_game")
 
         # Initialize players
         while not self.game.is_there_winner():

@@ -95,7 +95,7 @@ class YugiohServer:
             if self.id_count % 2 == 1:
                 # TODO: Add gameid variable to GameController()
                 self.games[game_id] = GameController()
-                print("Creating a new game...")
+                print("Creating a new yugioh_game...")
             else:
                 self.games[game_id].ready = True
                 player = 1

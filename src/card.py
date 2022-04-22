@@ -82,8 +82,20 @@ def create_card(card_name: str):
         return None
 
 
-def create_deck_from_preset(preset_path: str):
-    """Method that creates a card object given the name of a card and returns it
+def create_deck_from_array(card_name_array: list):
+    """Method that creates a deck given an array of strings of card names
+        Args:
+            card_name_array: an array of strings of card names to build the deck
+        Returns:
+            a list containing Card objects
+    """
+    deck = []
+    for card_name in card_name_array:
+        deck.append(create_card(card_name))
+    return deck
+
+def create_deck_from_csv(preset_path: str):
+    """Method that creates a deck form a csv file of card names
         Args:
             preset_path: the path of the file that contains a card preset in csv
         Returns:

@@ -1,5 +1,5 @@
 import unittest
-from src.card import create_card, create_deck_from_preset
+from src.card import create_card, create_deck_from_csv
 from src.player import Player
 
 
@@ -10,7 +10,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_preset("sources/preset1")
+        deck = create_deck_from_csv("sources/preset1")
         player.deck = deck
 
         # Hand should be empty
@@ -65,7 +65,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_preset("sources/preset1")
+        deck = create_deck_from_csv("sources/preset1")
         player.deck = deck
 
         # Deck should have 8
@@ -103,7 +103,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_preset("sources/preset1")
+        deck = create_deck_from_csv("sources/preset1")
         player.deck = deck
 
         # Draw three cards for the player
@@ -144,7 +144,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_preset("sources/preset1")
+        deck = create_deck_from_csv("sources/preset1")
         player.deck = deck
 
         # Draw five cards for the player
