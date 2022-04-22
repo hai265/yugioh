@@ -1,5 +1,5 @@
 import unittest
-from src.card import Card, create_card, create_deck_from_preset
+from src.card import Card, create_card, create_deck_from_csv, create_deck_from_array
 from src.card import Monster
 
 
@@ -14,11 +14,21 @@ class TestGameMethods(unittest.TestCase):
         card = create_card("vcwefw")
         self.assertEqual(None, card)
 
-    def test_create_deck_from_preset(self):
-        deck = create_deck_from_preset("sources/preset1")
+    def test_create_deck_from_csvt(self):
+        deck = create_deck_from_csv("sources/preset1")
         real_deck = [create_card("Hitotsu-Me Giant"), create_card("Dark Magician"), create_card("The Fierce Knight"),
-                     create_card("Mammoth Graveyard"), create_card("Silver Fang"), create_card("monster"),
-                     create_card("Curtian of the Dark One"), create_card("Tomozaurus")]
+                     create_card("Mammoth Graveyard"), create_card("Silver Fang"),
+                     create_card("Curtian of the Dark One"), create_card("Tomozaurus"), create_card("Feral Imp")]
+        self.assertEqual(len(real_deck), len(deck))
+        for i in range(8):
+            self.assertEqual(deck[0].name, real_deck[0].name)
+
+    def test_create_deck_from_array(self):
+        deck = create_deck_from_array(["Hitotsu-Me Giant", "Dark Magician", "The Fierce Knight", "Mammoth Graveyard",
+                                       "Silver Fang", "Curtian of the Dark One", "Tomozaurus", "Feral Imp"])
+        real_deck = [create_card("Hitotsu-Me Giant"), create_card("Dark Magician"), create_card("The Fierce Knight"),
+                     create_card("Mammoth Graveyard"), create_card("Silver Fang"),
+                     create_card("Curtian of the Dark One"), create_card("Tomozaurus"), create_card("Feral Imp")]
         self.assertEqual(len(real_deck), len(deck))
         for i in range(8):
             self.assertEqual(deck[0].name, real_deck[0].name)

@@ -1,12 +1,13 @@
-# Game manages the logic of the game, determines the winner of game if one player's health reaches 0,
+# Game manages the logic of the yugioh_game, determines the winner of yugioh_game if one player's health reaches 0,
 # manages putting monsters on each player's field.
 
 
 class GameController:
-    def __init__(self):
+    def __init__(self, session_id=0):
         self.players = []
         self.current_player = None
         self.other_player = None
+        self.session_id = session_id
         # self.field = [None for _ in range(5)]
 
     def determine_first_player(self):
