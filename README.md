@@ -65,3 +65,15 @@ pip install virtualenv`
 - Implemented `game.py` and `test_game_controller.py`
 
 **Mo Goldberger**| Effort - 0%
+
+## Scrum 04/10 - 04/24
+
+**Hai Nguyen**| Effort - 100%
+
+<ins>Work completed</ins>
+- Wrote `client.py` and `server.py` 
+- Wrote tests for CRUD version of yugioh
+
+
+**Mo Goldberger**| Effort - 0%
+
