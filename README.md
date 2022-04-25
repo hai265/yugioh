@@ -67,5 +67,12 @@ pip install virtualenv`
 - Began initial development for UI using Flask
 
 
+**Pratulya Santharam**| Effort - 80%
+<ins>Work completed</ins>
+- Created database tables for users and cards
+- Implemented functions for user registration/login
+- Implemented function for reading cards in `cards.csv` into the database
+- Wrote tests for above functions on nominal inputs
+
 **Mo Goldberger**| Effort - 0%
 
