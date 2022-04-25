@@ -35,25 +35,6 @@ pip install virtualenv`
 `pip install pytest-cov`  
 `pytest --cov=src tests/`  
 
-### `card.py`
-
-This class defined the structure and initialization of Yu-Gi-Oh! cards. It also allow has functions to allow the user to display the information of the card. The unit testing for this is located in `test_card.py`.
-
-### `player.py`
-
-This class handles all activity relating to the player. This includes drawing cards, summoning monsters, sending monsters to the graveyard, and other various getters/setters. The unit testing for this is located in `test_player.py`.
-
-### `game.py`
-This class deals with controlling the actual functionality of the Yu-Gi-Oh! game. This controller is involved with determining the first player, changing turns, having monsters attack, determining a winner, etc. The testing for this class is in `test_game_controller.py`.
-
-### `CLIInterface.py`
-
-This file contains quite a few classes. The first of these classes is a class that aids in the creation of cards. This file also contains a class to create an entire deck made from a preset file.
-
-Finally, this file contains an interface for displaying the current player's hand, setting the current player, and starting a game. This function allows the player to interact with the terminal to play the game. As it stands right now however, this interface is not complete as displaying player hands and setting current players is planned to be implemented in the future scrums.
-
-The testing for this file is located in `test_cli.py`.
-
 
 ## Scrum 04/03 - 04/10
 
