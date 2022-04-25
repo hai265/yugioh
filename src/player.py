@@ -1,9 +1,6 @@
-from src.card import Monster
-from src.card import Card
-
-
 class Player:
     default_life_points = 8000
+
     def __init__(self, lifepoints: int, name: str):
         """
         Class to represent a player in a yugioh game
