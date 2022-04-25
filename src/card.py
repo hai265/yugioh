@@ -5,17 +5,15 @@ class Card:
     """
         A class representing a Yu-Gi-Oh! Card.
     """
-
-    def __init__(self, name: str, description: str, card_type: str):
+    def __init__(self, name: str, description: str):
         """
         Initializes the generic fields of a Yu-Gi-Oh! Card.
-        :param: name: A string containing the name of the card.
-        :param: description: A string containing a Yu-Gi-Oh! card description.
-        :param: card_type: A string containing the card's type (Monster, Spell, Trap)
+
+        :param name: A string containing the name of the card.
+        :param description: A string containing a Yu-Gi-Oh! card description.
         """
         self.name = name
         self.description = description
-        self.card_type = card_type
 
     def display_card(self) -> dict:
         """
@@ -24,34 +22,43 @@ class Card:
             display_info:
                 Dictionary containing the instance variables of the Card class.
         """
-        return {"name": self.name, "card_type": self.card_type, "description": self.description}
+        return {"name": self.name, "description": self.description}
 
 
 class Monster(Card):
-    """
-        A class representing a Yu-Gi-Oh! Monster Card.
+    """A class representing a Yu-Gi-Oh! Monster Card.
 
         Note: This class only supports Normal monsters in the current build.
     """
-
     def __init__(self, name: str, description: str, attribute: str, monster_type: str,
                  level: int, attack_points: int, defense_points: int):
+        """Initializes the Monster class with the specified parameters.
+
+        Args:
+            name: A string containing the name of the monster card.
+            description: A string containing a Yu-Gi-Oh! card description.
+            attribute: A string containing the attribute of the monster (DARK LIGHT WATER FIRE EARTH WIND DIVINE).
+            monster_type: A string containing the monster's type (Warrior, Beast-Warrior, Spellcaster, Fiend, etc.).
+            level: An integer defining the level of the monster (Ranges from 1 to 12).
+            attack_points: An integer defining the monster's attack points.
+            defense_points: An integer defining the monster's defense points.
         """
-        Initializes the Monster class with the specified parameters
-        :param name: A string containing the name of the monster card.
-        :param description: A string containing a Yu-Gi-Oh! card description.
-        :param attribute: A string containing the attribute of the monster (DARK LIGHT WATER FIRE EARTH WIND DIVINE)
-        :param monster_type: A string containing the monster's type (Warrior, Beast-Warrior, Spellcaster, Fiend, etc.)
-        :param level: An integer defining the level of the monster. (Ranges from 1 to 12)
-        :param attack_points: An integer defining the monster's attack points.
-        :param defense_points: An integer defining the monster's defense points.
-        """
-        super().__init__(name, description, "Monster")
+        super().__init__(name, description)
         self.attribute = attribute
         self.attack_points = attack_points
         self.defense_points = defense_points
         self.level = level
         self.monster_type = monster_type
+        self.position = 'atk'
+
+    def __eq__(self, other_monster):
+        return isinstance(other_monster, Monster) and self.name == other_monster.name
+
+    def __repr__(self):
+        str_repr = "name:%s, level:%d, attribute:%s, type:%s, atk:%d, def:%d, position:%s" % \
+                   (self.name, self.level, self.attribute, self.monster_type, self.attack_points, self.defense_points,
+                    self.position)
+        return str_repr
 
     def display_card(self) -> dict:
         """
