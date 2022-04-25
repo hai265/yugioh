@@ -1,5 +1,6 @@
 import unittest
-from src.card import Card, create_card, create_deck_from_csv, create_deck_from_array
+from src.card import Card, create_card, create_deck_from_preset, create_deck_from_array, \
+    monster_card_dict_to_card_object
 from src.card import Monster
 
 
@@ -14,8 +15,8 @@ class TestGameMethods(unittest.TestCase):
         card = create_card("vcwefw")
         self.assertEqual(None, card)
 
-    def test_create_deck_from_csvt(self):
-        deck = create_deck_from_csv("sources/preset1")
+    def test_create_deck_from_csv(self):
+        deck = create_deck_from_preset("sources/preset1")
         real_deck = [create_card("Hitotsu-Me Giant"), create_card("Dark Magician"), create_card("The Fierce Knight"),
                      create_card("Mammoth Graveyard"), create_card("Silver Fang"),
                      create_card("Curtian of the Dark One"), create_card("Tomozaurus"), create_card("Feral Imp")]
@@ -87,3 +88,17 @@ class TestMonster(unittest.TestCase):
         self.assertEqual(result_3["level"], 7)
         self.assertEqual(result_3["ATK"], 2300)
         self.assertEqual(result_3["DEF"], 2100)
+
+    def test_monster_dict_to_object(self):
+        obj = monster_card_dict_to_card_object(
+            {"name": "Hitotsu-Me Giant", "card_type": "Monster", "attribute": "Earth",
+             "monster_type": "Beast-Warrior",
+             "level": 4, "attack_points": 1200, "defense_points": 1000, "id": 76184692, "description": "test"})
+        self.assertEqual(obj.name, "Hitotsu-Me Giant")
+        self.assertEqual(obj.card_type, "Monster")
+        self.assertEqual(obj.attribute, "Earth")
+        self.assertEqual(obj.monster_type, "Beast-Warrior")
+        self.assertEqual(obj.attack_points, 1200)
+        self.assertEqual(obj.defense_points, 1000)
+        self.assertEqual(obj.description, "test")
+

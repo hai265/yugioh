@@ -1,5 +1,5 @@
 import unittest
-from src.card import create_card, create_deck_from_csv
+from src.card import create_card, create_deck_from_preset
 from src.player import Player
 
 
@@ -10,7 +10,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_csv("sources/preset1")
+        deck = create_deck_from_preset("sources/preset1")
         player.deck = deck
 
         # Hand should be empty
@@ -65,7 +65,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_csv("sources/preset1")
+        deck = create_deck_from_preset("sources/preset1")
         player.deck = deck
 
         # Deck should have 8
@@ -103,7 +103,7 @@ class TestPlayer(unittest.TestCase):
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_csv("sources/preset1")
+        deck = create_deck_from_preset("sources/preset1")
         player.deck = deck
 
         # Draw three cards for the player
@@ -139,12 +139,13 @@ class TestPlayer(unittest.TestCase):
         # This will be implemented later
         pass
 
+    # TODO: This test fails
     def send_card_to_graveyard(self):
         # Create a player
         player = Player(5000, "Yugi")
 
         # Create a deck for the player
-        deck = create_deck_from_csv("sources/preset1")
+        deck = create_deck_from_preset("sources/preset1")
         player.deck = deck
 
         # Draw five cards for the player
@@ -167,7 +168,7 @@ class TestPlayer(unittest.TestCase):
         self.assertTrue(player.graveyard[0].description == card.description)
         self.assertTrue(player.graveyard[0].card_type == card.card_type)
         self.assertTrue(len(player.hand) == 2)
-        self.asserTrue(player.field[0] is None)
+        self.assertTrue(player.field[0] is None)
 
         # Send monster from only hand to graveyard
         card = player.hand[0]

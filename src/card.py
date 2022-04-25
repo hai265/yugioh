@@ -5,12 +5,13 @@ class Card:
     """
         A class representing a Yu-Gi-Oh! Card.
     """
+
     def __init__(self, name: str, description: str, card_type: str):
         """
         Initializes the generic fields of a Yu-Gi-Oh! Card.
-        :param name: A string containing the name of the card.
-        :param description: A string containing a Yu-Gi-Oh! card description.
-        :param card_type: A string containing the card's type (Monster, Spell, Trap)
+        :param: name: A string containing the name of the card.
+        :param: description: A string containing a Yu-Gi-Oh! card description.
+        :param: card_type: A string containing the card's type (Monster, Spell, Trap)
         """
         self.name = name
         self.description = description
@@ -32,6 +33,7 @@ class Monster(Card):
 
         Note: This class only supports Normal monsters in the current build.
     """
+
     def __init__(self, name: str, description: str, attribute: str, monster_type: str,
                  level: int, attack_points: int, defense_points: int):
         """
@@ -94,7 +96,8 @@ def create_deck_from_array(card_name_array: list):
         deck.append(create_card(card_name))
     return deck
 
-def create_deck_from_csv(preset_path: str):
+
+def create_deck_from_preset(preset_path: str):
     """Method that creates a deck form a csv file of card names
         Args:
             preset_path: the path of the file that contains a card preset in csv
@@ -108,6 +111,30 @@ def create_deck_from_csv(preset_path: str):
             for name in row:
                 deck.append(create_card(name))
         return deck
+
+
+def deck_to_card_name_list(cards: list):
+    """
+    Method to convert a list of Card objects to a list of their names only
+    :param cards:
+    :return: a list of card names
+    """
+    preset_deck_string_list = []
+    for card in cards:
+        preset_deck_string_list.append(card.name)
+    return preset_deck_string_list
+
+
+def monster_card_dict_to_card_object(card_dict: dict):
+    """
+    Method to convert a dictionary representation of a card to a card Object
+    :param card_dict: a dict or json representation of a card
+    :return: a card object using the attriburts in the card_dict
+    """
+
+    return Monster(name=card_dict["name"], description=card_dict["description"], attribute=card_dict["attribute"],
+                   monster_type=card_dict["monster_type"], level=card_dict["level"],
+                   attack_points=card_dict["attack_points"], defense_points=card_dict["defense_points"])
 
 
 def monster_card_to_string(card: Monster):
