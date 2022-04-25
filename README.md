@@ -10,9 +10,9 @@ This team project is for CMSC435: Software Development at the University of Mary
 This scrum focused on implementing the individual components of the Yu-Gi-Oh! card game. As it stands right now, there is no method (terminal/UI) to allow the user to send inputs into the game. These components are planned to be implemented in later sprints. For now, the individual components have been developed, along with unit testing to test the functionality of each.
 
 To run the server , run `docker build --tag yugioh-server -f Dockerfile.server .`, and then after building the image, run 
-`docker run -p 5555:5555 -it yugioh-server`  
+`docker run --net host -it yugioh-server`  
 To run the client , run `docker build --tag yugioh-client -f Dockerfile.client .`, and then after building the image, run 
-`docker run -it yugioh-client`  
+`docker run --net host -it yugioh-client`  
 To run the tests, run:  
 `
 pip install virtualenv`  
