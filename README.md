@@ -1,23 +1,9 @@
 # Yu-Gi-Oh!
 
 ## Overview
-This team project looks to implement a simplified version of the Yu-Gi-Oh! card game. The following are the rules of our simplified version of Yu-Gi-Oh!
+This team project is for CMSC435: Software Development at the University of Maryland. This project strives to recreate the popular Yu-Gi-Oh! card game, derived from the highly popular Japanese animated series Yu-Gi-Oh!. The Yu-Gi-Oh! card game has evolved significantly since the release of the TV's shows various spin offs. For the sake of this project, we will be creating a simplified version of the original Yu-Gi-Oh! card game. For more information on this project, please visit the following link for documentation:
 
-Rules:
-- Players play against each other with a deck of Monster Cards
-- Players start the game with a set number of cards in their hand
-- At the beginning of their turn, players can draw a card from the top of their deck
-- Players can place monster cards in attack position or defense position
-- At the end of their turn, players can choose to attack other players monsters
-
-    <ins>When attacking:</ins>
-    - Only monsters in the attack position can attack
-    - When attacking an opponent's monster that is also in attack position, the weaker monster gets sent to the graveyard and the difference in attack strength is subtracted from the life points of the owner of the weaker monster
-    - When attacking an opponent's monster that is in defense position, the defensive monster is destroyed *only* if the attacking monster has more attack points than the defending monster's defense points
-    - If attacking a defensive monster with defense points greater than the attacking monster's attack points, the owner of the attacking monster loses life points equivalent to the difference in attack and defense points.
-
-- After this, the player ends their turn and allows other players to go
-- The game ends when one player's life points reaches zero or the player runs out of cards in their deck
+[Yu-Gi-Oh! Documentation](https://devakmurali.github.io/yugiohwebsite/index.html)
 
 ## How To Run the Software
 
@@ -33,8 +19,7 @@ pip install virtualenv`
 `virtualenv venv`  
 `source venv/bin/activate`  
 `pip install pytest-cov`  
-`pytest --cov=src tests/`  
-
+`pytest --cov=src tests/`
 
 ## Scrum 04/03 - 04/10
 
@@ -73,6 +58,13 @@ pip install virtualenv`
 <ins>Work completed</ins>
 - Wrote `client.py` and `server.py` 
 - Wrote tests for CRUD version of yugioh
+
+**Devak Murali**| Effort - 100%
+
+<ins>Work completed</ins>
+- Created documentation for game using Sphinx in PyCharm and pushed to directory
+- Hosted HTML documentation on GitHub pages
+- Began initial development for UI using Flask
 
 
 **Mo Goldberger**| Effort - 0%
