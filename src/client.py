@@ -34,7 +34,7 @@ class NetworkCli:
         for player in self.yugioh_game.players:
             print("{} ({}) 's field:".format(player.name, player.life_points))
             print_str = ""
-            for card in player.field:
+            for card in player.monster_field:
                 if card:
                     print_str += monster_card_to_string(card) + " | "
                 else:
@@ -115,7 +115,7 @@ class NetworkCli:
                     break
             attacking_monster = int(input("Choose a monster from your field (6 to attack hero, 0 to go to end turn)"))
             while attacking_monster != 0:
-                if self.yugioh_game.get_current_player().field[attacking_monster - 1] is None:
+                if self.yugioh_game.get_current_player().monster_field[attacking_monster - 1] is None:
                     self.display_board()
                     print("Target is not valid")
                     attacking_monster = int(input("Choose a monster from your field (6 to attack hero, 0 to go to end "
@@ -124,7 +124,7 @@ class NetworkCli:
                     targeted_monster = int(input("Target a monster to attack (0 to go to end turn)"))
                     if targeted_monster == 0:
                         break
-                    if self.yugioh_game.get_other_player().field[targeted_monster - 1] is None:
+                    if self.yugioh_game.get_other_player().monster_field[targeted_monster - 1] is None:
                         self.display_board()
                         print("Target is not valid")
                     else:
