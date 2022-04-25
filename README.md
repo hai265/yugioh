@@ -67,7 +67,8 @@ pip install virtualenv`
 - Began initial development for UI using Flask
 
 
-**Pratulya Santharam**| Effort - 80%
+**Pratulya Santharam**| Effort - 100%
+
 <ins>Work completed</ins>
 - Created database tables for users and cards
 - Implemented functions for user registration/login
