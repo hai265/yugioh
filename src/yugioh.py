@@ -10,7 +10,17 @@ from typing import Union, Any
 def to_dict(obj):
     """ Converts a yugioh yugioh_game session to a dictionary recursively
     """
-    return json.loads(json.dumps(obj, default=lambda o: o.__dict__))
+    json_dict = json.loads(json.dumps(obj, default=lambda o: o.__dict__))
+    return json_dict
+
+
+def replace_game_property_values(game_dict):
+    """
+    Replace _current_player and _other_player with current_player and other_player
+    :param game_dict:
+    :return: game_dict
+    """
+    return game_dict
 
 
 class Yugioh:
@@ -30,15 +40,15 @@ class Yugioh:
         'get_pickle' optional false. If true, instead returns a pickled version of the game
         :return: dict version of Game
         """
-        player = Player(5000, name=request["player_name"])
+        player = Player(8000, name=request["player_name"])
         player.deck = create_deck_from_array(request["deck"])
         self.game.players.append(player)
         self.game.session_id = request["session_id"]
         if len(self.game.players) == 2:
-            self.game.determine_first_player()
+            self.game.game_status = GameStatus.ONGOING
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        return to_dict(self.game)
+        return replace_game_property_values(to_dict(self.game))
 
     def read_game(self, request: dict) -> Union[dict, bytes]:
         """
@@ -51,7 +61,8 @@ class Yugioh:
         """
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        return to_dict(self.game)
+        json_dict = to_dict(self.game)
+        return json_dict
 
     def update_game(self, request: dict) -> dict:
         """
@@ -68,9 +79,13 @@ class Yugioh:
         """
         if request["move"] == "change_turn":
             self.game.change_turn()
+
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        return to_dict(self.game)
+        json_dict = to_dict(self.game)
+        json_dict["current_player"] = json_dict.pop("_current_player")
+        json_dict["other_player"] = json_dict.pop("_other_player")
+        return replace_game_property_values(to_dict(self.game))
 
     def delete_game(self, request: dict) -> Union[dict, bytes]:
         """
@@ -83,8 +98,11 @@ class Yugioh:
             integer unique to all ongoing yugioh_game sessions.
         """
 
-#         TODO: THIS IS TEMPORARY
+        #         TODO: THIS IS TEMPORARY
         self.game.game_status = GameStatus.ENDED
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        return to_dict(self.game)
+        json_dict = to_dict(self.game)
+        json_dict["current_player"] = json_dict.pop("_current_player")
+        json_dict["other_player"] = json_dict.pop("_other_player")
+        return replace_game_property_values(to_dict(self.game))

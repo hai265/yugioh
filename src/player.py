@@ -22,11 +22,11 @@ class Player:
         self.monster_field = [None] * Player.FIELD_CARD_LIMIT  # There are a total of 10 field spots in yugioh
         self.spell_trap_field = [None] * Player.FIELD_CARD_LIMIT
 
-    def draw_card(self, quantity: int) -> None:
+    def draw_card(self, quantity=1) -> None:
         """Draw a specified number cards from the top of the player's deck.
 
         Args:
-            quantity: number of cards to draw
+            quantity: number of cards to draw. If not specified, defaults to 1
         """
         for _ in range(quantity):
             self.hand.append(self.deck.pop(0))
