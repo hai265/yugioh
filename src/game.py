@@ -1,101 +1,119 @@
-# Game manages the logic of the yugioh_game, determines the winner of yugioh_game if one player's health reaches 0,
+# Game manages the logic of the game, determines the winner of game if one player's health reaches 0,
 # manages putting monsters on each player's field.
-from enum import IntEnum
+import random
 from src.player import Player
-
-
-class GameStatus(IntEnum):
-    """
-    Enum for representing the state of the yugioh game
-    WAITING: Game has not started yet since another player is needed to connect
-    ONGOING: Yugioh game is currently ongoing
-    ENDED: Yugioh game has ended
-    """
-    WAITING = 1
-    ONGOING = 2
-    ENDED = 3
+from src.card import Monster
 
 
 class GameController:
-    def __init__(self, session_id=0, game_data=None):
-        if game_data is None:
-            self.players = []
-            self.current_player = 0
-            self.other_player = 1
-            self.session_id = session_id
-            self.game_status = GameStatus.WAITING
-        else:
-            self.players = [Player(game_data["players"][0]["life_points"], game_data["players"][0]["name"]),
-                            Player(game_data["players"][1]["life_points"], game_data["players"][1]["name"])]
-            self.current_player = game_data["current_player"]
-            self.other_player = game_data["other_player"]
-            self.session_id = game_data["session_id"]
-            self.game_status = game_data["session_id"]
-
-        # self.field = [None for _ in range(5)]
+    def __init__(self, player1: Player, player2: Player, session_id=0):
+        self.current_player = player1
+        self.other_player = player2
+        self.session_id = session_id
 
     def determine_first_player(self):
+        """Sets starting turn order.
         """
-        Sets starting turn order. Also sets game_staus to ONGOING
-        """
-        # TODO: randomize starting turn order
-        self.current_player = 0
-        self.other_player = 1
-        self.game_status = GameStatus.ONGOING
+        self.current_player, self.other_player = random.sample([self.current_player, self.other_player], 2)
 
     def change_turn(self):
-        """
-        Changes player turn
+        """Changes player turn.
         """
         self.current_player, self.other_player = self.other_player, self.current_player
 
     def attack_monster(self, attacking_monster: int, attacked_monster: int):
-        """
-        Conducts an attack from attacking_monster onto attacked_monster
-        :param attacking_monster: field_idx of monster that is attacking
-        :param attacked_monster: field_idx of monster that is being attacked
+        """Conducts an attack from one of current player's monsters to one of other player's monsters.
 
-        Note: Currently attacking only supports dealing with monster in attack position.
+        Args:
+            attacking_monster: Index on the current player's field of the monster that is attacking. Must be in attack
+                position.
+            attacked_monster: Index on the other player's field of the monster that is being attacked.
         """
-        atk_monster = self.get_current_player().field[attacking_monster]
-        target_monster = self.get_other_player().field[attacked_monster]
-        atk_difference = atk_monster.attack_points - target_monster.attack_points
+        atk_monster = self.current_player.monster_field[attacking_monster]
+        if atk_monster.position == 'def':
+            return
 
-        if atk_difference > 0:
-            self.get_other_player().decrease_life_points(atk_difference)
-            self.get_other_player().send_card_to_graveyard(attacked_monster, -1)
-        elif atk_difference == 0:
-            self.get_current_player().send_card_to_graveyard(attacking_monster, -1)
-            self.get_other_player().send_card_to_graveyard(attacked_monster, -1)
-        elif atk_difference < 0:
-            self.get_current_player().decrease_life_points(abs(atk_difference))
-            self.get_current_player().send_card_to_graveyard(attacking_monster, -1)
+        target_monster = self.other_player.monster_field[attacked_monster]
+
+        if target_monster.position == 'atk':
+            atk_difference = atk_monster.attack_points - target_monster.attack_points
+
+            if atk_difference > 0:
+                self.other_player.decrease_life_points(atk_difference)
+                self.other_player.send_card_to_graveyard(attacked_monster, -1)
+            elif atk_difference == 0:
+                self.current_player.send_card_to_graveyard(attacking_monster, -1)
+                self.other_player.send_card_to_graveyard(attacked_monster, -1)
+            elif atk_difference < 0:
+                self.current_player.decrease_life_points(abs(atk_difference))
+                self.current_player.send_card_to_graveyard(attacking_monster, -1)
+        elif target_monster.position == 'def':
+            atk_difference = atk_monster.attack_points - target_monster.defense_points
+
+            if atk_difference > 0:
+                self.other_player.send_card_to_graveyard(attacked_monster, -1)
+            elif atk_difference == 0:
+                pass
+            elif atk_difference < 0:
+                self.current_player.decrease_life_points(abs(atk_difference))
+
+    def attack_directly(self, attacking_monster):
+        """Conducts an attack from one of current player's monsters directly towards the other player's life points.
+
+        Args:
+            attacking_monster: Index on the current player's field of the monster that is attacking.
+        """
+        position = self.current_player.monster_field[attacking_monster].position
+
+        if all([monster is None for monster in self.other_player.monster_field]) and position == 'atk':
+            atk = self.current_player.monster_field[attacking_monster].attack_points
+            self.other_player.decrease_life_points(atk)
 
     def is_there_winner(self):
+        """Checks if either player has won. A player has won if their opponent's life_points have reached 0.
+
+        Returns:
+            True if either player's life point total is 0, False otherwise.
         """
-        Checks if either player has won. A player has won if their opponent's life_points have reached 0.
+        return self.current_player.life_points == 0 or self.other_player.life_points == 0
+
+    def get_winner(self):
+        """Returns the player that won the game or None if the game was tied.
+
+        Should only be called after is_there_winner returns True.
+
+        Returns:
+            Player that won or None if there was a tie
         """
-        if self.players[0].life_points <= 0 or self.players[1].life_points <= 0:
-            self.game_status = GameStatus.ENDED
+        if self.is_there_winner():
+            if self.current_player.life_points > 0:
+                return self.current_player
+            elif self.other_player.life_points > 0:
+                return self.other_player
+            elif self.current_player.life_points == 0 and self.other_player.life_points == 0:
+                return None
 
     def read_game(self):
         pass
 
-    def summon_monster(self, hand_idx: int):
+    def normal_summon(self, hand_idx: int, position: str):
+        """Summons monster from current_players's hand onto current_player's field.
+
+        Args:
+            hand_idx: index in current_player's hand of monster to summon
+            position: Position to summon monster in.
         """
-        Summons monster from  current_players's hand onto current_player's field
-        :param hand_idx: index in current_player's hand of monster to summon
+        field_idx = self.current_player.monster_field.index(None)
+        self.current_player.normal_summon(hand_idx, field_idx, position)
 
-        Note: Currently summoning only supports summoning monsters in attack position.
+    def tribute_summon_monster(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int, position: str):
+        """Tribute summon monster from current player's hand onto current player's field.
+
+        Args:
+            hand_idx: index in current_player's hand of monster to summon
+            tribute1_idx: index in current_player's field of first tribute monster
+            tribute2_idx: index in current_player's field of second tribute monster, only needed when summoning a
+                level 7 or higher monster
+            position: Position to summon monster in.
         """
-        field_idx = self.get_current_player().field.index(None)
-        self.get_current_player().summon_monster(hand_idx, field_idx)
-
-    def tribute_summon_monster(self):
-        pass
-
-    def get_current_player(self):
-        return self.players[self.current_player]
-
-    def get_other_player(self):
-        return self.players[self.other_player]
+        self.current_player.tribute_summon(hand_idx, tribute1_idx, tribute2_idx, position)
