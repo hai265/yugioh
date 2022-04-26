@@ -18,7 +18,6 @@ class NetworkCli:
         self.player_place = 0
         self.session_id = 0
         self.name = ""
-        self.this_player = Player(0, "none")
         self.network = Network()
 
     def display_board(self):
@@ -42,7 +41,8 @@ class NetworkCli:
             print(print_str)
         print()
         print(
-            self.yugioh_game.get_current_player().name + " cards in deck: " + str(len(self.yugioh_game.get_current_player().deck)))
+            self.yugioh_game.get_current_player().name + " cards in deck: " + str(
+                len(self.yugioh_game.get_current_player().deck)))
         print(self.yugioh_game.get_current_player().name + " cards in graveyard: " + str(
             len(self.yugioh_game.get_current_player().graveyard)))
         print(self.yugioh_game.get_current_player().name + "'s hand: ", )
@@ -84,7 +84,6 @@ class NetworkCli:
                         "deck": preset_deck, "get_pickle": True}).encode('utf-8'))
         data = self.network.recv_data(self.client_socket)
         self.yugioh_game = pickle.loads(data)
-        self.this_player = self.yugioh_game.players[self.player_place]
         # Keep listening until game state changes to ONGOING
         print("Waiting for other player to connect...")
         while self.yugioh_game.game_status == GameStatus.WAITING:
@@ -99,45 +98,78 @@ class NetworkCli:
                     data = self.network.recv_data(self.client_socket)
                     self.yugioh_game = pickle.loads(data)
                     self.display_board()
-                    
-                self.yugioh_game.get_current_player().draw_card()
+                if self.yugioh_game.is_there_winner():
+                    if self.yugioh_game.players[1].life_points <= 0:
+                        print(self.yugioh_game.players[0].name + " won!")
+                        self.yugioh_game.game_status = GameStatus.ENDED
+                        self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    elif self.yugioh_game.players[0].life_points <= 0:
+                        print(self.yugioh_game.players[1].name + " won!")
+                        self.yugioh_game.game_status = GameStatus.ENDED
+                        self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    else:
+                        print("Tie")
+                        self.yugioh_game.game_status = GameStatus.ENDED
+                        self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    return
+
+                self.send_data_and_update_game({"operation": "update", "player":self.player_place, "session_id": self.session_id,
+                                                "move": "draw_card", "args": [1], "get_pickle": True})
                 self.display_board()
                 monster_to_summon = int(input("Choose a monster to summon to the field (0 to go to battle phase)"))
                 if monster_to_summon == 0:
                     break
-                if self.this_player.hand[monster_to_summon - 1] is None:
-                    self.display_board()
-                    print("Target is not valid")
                 if monster_to_summon != 0:
-                    self.send_data_and_update_game({"operation": "update", "move": "summon_monster", "args":
-                                                    [monster_to_summon - 1], "get_pickle": True})
+                    self.send_data_and_update_game({"operation": "update", "session_id": self.session_id,
+                                                    "move": "summon_monster", "args":
+                                                    [monster_to_summon - 1, "atk"], "get_pickle": True})
                     self.display_board()
                     break
-            attacking_monster = int(input("Choose a monster from your field (6 to attack hero, 0 to go to end turn)"))
-            while attacking_monster != 0:
-                if self.yugioh_game.get_current_player().monster_field[attacking_monster - 1] is None:
-                    self.display_board()
-                    print("Target is not valid")
-                    attacking_monster = int(input("Choose a monster from your field (6 to attack hero, 0 to go to end "
-                                                  "turn)"))
+            attacking_monster = int(input("Choose a monster from your field (0 to go to end turn)"))
+            while attacking_monster != 0 and not self.yugioh_game.is_there_winner():
+                self.display_board()
+                targeted_monster = int(input("Target a monster to attack (6 to attack player 0 to go to end turn)"))
+                if targeted_monster == 0:
+                    break
                 else:
-                    targeted_monster = int(input("Target a monster to attack (0 to go to end turn)"))
-                    if targeted_monster == 0:
-                        break
-                    if self.yugioh_game.get_other_player().monster_field[targeted_monster - 1] is None:
-                        self.display_board()
-                        print("Target is not valid")
+                    if targeted_monster == 6:
+                        self.send_data_and_update_game({"operation": "update", "session_id": self.session_id,
+                                                        "move": "attack_player", "args": [attacking_monster - 1],
+                                                        "get_pickle": True})
                     else:
                         self.send_data_and_update_game({"operation": "update", "move": "attack_monster", "args":
                                                         [attacking_monster - 1, targeted_monster - 1],
                                                         "get_pickle": True})
-                    attacking_monster = int(input("Choose a monster from your field (6 to attack hero, 0 to go to end "
-                                                  "turn)"))
-            self.send_data_and_update_game({"operation": "update", "move": "change_turn", "args":
-                                            [], "get_pickle": True})
-        if self.yugioh_game.players[1].life_points < 0:
-            print(self.yugioh_game.players[0] + "won!")
-        elif self.yugioh_game.players[0].life_points < 0:
-            print(self.yugioh_game.players[1] + "won!")
-        else:
-            print("Tie")
+                self.display_board()
+                if self.yugioh_game.is_there_winner():
+                    break
+                attacking_monster = int(input("Choose a monster from your field (6 to attack player, 0 to go to end "
+                                                "turn)"))
+            if self.yugioh_game.is_there_winner():    
+                if self.yugioh_game.players[1].life_points <= 0:
+                    print(self.yugioh_game.players[0].name + " won!")
+                    self.yugioh_game.game_status = GameStatus.ENDED
+                    self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    self.send_data_and_update_game({"operation": "update", "session_id": self.session_id, "move": "change_turn",
+                                            "args": [], "get_pickle": True})
+                    break
+                elif self.yugioh_game.players[0].life_points <= 0:
+                    print(self.yugioh_game.players[1].name + " won!")
+                    self.yugioh_game.game_status = GameStatus.ENDED
+                    self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    self.send_data_and_update_game({"operation": "update", "session_id": self.session_id, "move": "change_turn",
+                                            "args": [], "get_pickle": True})
+                    break
+                else:
+                    print("Tie")
+                    self.yugioh_game.game_status = GameStatus.ENDED
+                    self.send_data_and_update_game({"operation": "delete", "session_id": self.session_id,"get_pickle": True})
+                    self.send_data_and_update_game({"operation": "update", "session_id": self.session_id, "move": "change_turn",
+                                            "args": [], "get_pickle": True})
+                    break
+            self.send_data_and_update_game({"operation": "update", "session_id": self.session_id, "move": "change_turn",
+                                            "args": [], "get_pickle": True})
+            
+        
+        
