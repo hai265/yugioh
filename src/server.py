@@ -42,6 +42,12 @@ class YugiohServer:
                     data = network.recv_data(client_sock)
                     logging.info("Recieved data from " + str(client_sock.getpeername()))
                     if len(data) == 0:
+                        # pop socket that disconnected
+                        for sock in self.id_to_sockets[session_id]:
+                            if sock == client_sock:
+                                self.id_to_sockets[session_id].remove(sock)
+                                logging.info(f"Client {client_sock.getpeername()} disconnected")
+
                         break
                     data = json.loads(data)
                     if session_id in self.games:
