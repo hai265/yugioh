@@ -75,5 +75,14 @@ pip install virtualenv`
 - Implemented function for reading cards in `cards.csv` into the database
 - Wrote tests for above functions on nominal inputs
 
+**Aravind Ganeshan**| Effort - 100%
+
+<ins>Work completed</ins>
+- Refactored game logic components.
+- Implemented tribute summoning functionality.
+- Implemented monster position switching and direct attacking.
+- Created test suites for the above components.
+- Contributed to development of Yugioh interface.
+
 **Mo Goldberger**| Effort - 0%
 
