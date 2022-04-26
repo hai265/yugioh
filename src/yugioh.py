@@ -68,7 +68,7 @@ class Yugioh:
         """
         Args:
             request: dictionary describing the "move" to be made in the yugioh_game keys:
-            :arg: "session_id": value assosiated with a yugioh game session
+            :arg: "session_id": value associated with a yugioh game session
             "player": player to make the move as. 1 for player 1 or 2 for player 2
             "move": Move to take in the yugioh game. Values can be , "summon_monster", "change_turn", "attack",
             "tribute_summon".
@@ -77,14 +77,25 @@ class Yugioh:
         Returns:
             reply: dictionary describing the yugioh_game's new state.
         """
+        if request["move"] == "attack_player":
+            self.game.attack_player(*request["args"])
         if request["move"] == "change_turn":
             self.game.change_turn()
+        elif request["move"] == "draw_card":
+            if "args" in request:
+                self.game.players[request["player"]].draw_card(*request["args"])
+            else:
+                self.game.players[request["player"]].draw_card()
+        elif request["move"] == "summon_monster":
+            self.game.normal_summon(*request["args"])
+        elif request["move"] == "tribute_summon":
+            self.game.tribute_summon_monster(*request["args"])
+        elif request["move"] == "attack_monster":
+            self.game.attack_monster(*request["args"])
 
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
         json_dict = to_dict(self.game)
-        json_dict["current_player"] = json_dict.pop("_current_player")
-        json_dict["other_player"] = json_dict.pop("_other_player")
         return replace_game_property_values(to_dict(self.game))
 
     def delete_game(self, request: dict) -> Union[dict, bytes]:
@@ -98,11 +109,8 @@ class Yugioh:
             integer unique to all ongoing yugioh_game sessions.
         """
 
-        #         TODO: THIS IS TEMPORARY
         self.game.game_status = GameStatus.ENDED
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
         json_dict = to_dict(self.game)
-        json_dict["current_player"] = json_dict.pop("_current_player")
-        json_dict["other_player"] = json_dict.pop("_other_player")
         return replace_game_property_values(to_dict(self.game))

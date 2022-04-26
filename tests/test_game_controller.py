@@ -132,7 +132,7 @@ class TestGameController(unittest.TestCase):
         # skip second player's turn
         self.game.change_turn()
 
-        self.game.attack_directly(0)
+        self.game.attack_player(0)
 
         current = self.game.get_current_player()
         other = self.game.get_other_player()
@@ -211,7 +211,7 @@ class TestGameController(unittest.TestCase):
         self.game.normal_summon(1, 'atk')
         self.game.change_turn()
 
-        self.game.attack_directly(0)
+        self.game.attack_player(0)
 
         current = self.game.get_current_player()
         other = self.game.get_other_player()
@@ -231,7 +231,7 @@ class TestGameController(unittest.TestCase):
         # skip second player's turn
         self.game.change_turn()
 
-        self.game.attack_directly(0)
+        self.game.attack_player(0)
 
         current = self.game.get_current_player()
         other = self.game.get_other_player()
