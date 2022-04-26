@@ -5,6 +5,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .pytest_cache
+.vscode
 # C extensions
 *.so
 
@@ -84,6 +85,9 @@ celerybeat-schedule
 venv/
 ENV/
 
+# dotvscode
+.vscode/
+
 # Spyder project settings
 .spyderproject
 
@@ -92,7 +96,6 @@ ENV/
 ### VirtualEnv template
 # Virtualenv
 # http://iamzed.com/2009/05/07/a-primer-on-virtualenv/
-.Python
 [Bb]in
 [Ii]nclude
 [Ll]ib
@@ -149,3 +152,4 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
