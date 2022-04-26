@@ -74,7 +74,7 @@ class GameController:
             elif atk_difference < 0:
                 current.decrease_life_points(abs(atk_difference))
 
-    def attack_directly(self, attacking_monster):
+    def attack_player(self, attacking_monster):
         """Conducts an attack from one of current player's monsters directly towards the other player's life points.
 
         Args:
@@ -118,9 +118,6 @@ class GameController:
             elif current.life_points == 0 and other.life_points == 0:
                 return None
 
-    def read_game(self):
-        pass
-
     def normal_summon(self, hand_idx: int, position: str):
         """Summons monster from current_players's hand onto current_player's field.
 
@@ -145,9 +142,9 @@ class GameController:
         current = self.players[self.current_player]
         current.tribute_summon(hand_idx, tribute1_idx, tribute2_idx, position)
 
-    def get_current_player(self):
+    def get_current_player(self) -> Player:
         return self.players[self.current_player]
 
-    def get_other_player(self):
+    def get_other_player(self) -> Player:
         return self.players[self.other_player]
 

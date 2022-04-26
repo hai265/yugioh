@@ -6,6 +6,7 @@ class Player:
     """Class which represents a player in a Yugioh game.
     """
     FIELD_CARD_LIMIT = 5
+    DEFAULT_LIFE_POINTS = 8000
 
     def __init__(self, life_points: int, name: str):
         """Initializes Player with a starting amount of life points and a name.
