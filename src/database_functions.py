@@ -20,7 +20,7 @@ def login(name: str, password: str) -> bool:
     return success
 
 
-def register(name, password) -> bool:
+def register(name: str, password: str) -> bool:
     """
     A function which facilitates login via the SQL database.
     :param name: A username (maximum 30 characters) that the user wants to register with
@@ -43,7 +43,7 @@ def register(name, password) -> bool:
 
 def read_cards_into_db():  # @staticmethod
     """
-    Reads cards into the database.
+    Reads cards from the file cards.csv into the Cards table.
     """
     db = SessionLocal()
     with open('sources/cards.csv', 'r') as csvfile:
