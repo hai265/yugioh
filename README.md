@@ -1,3 +1,4 @@
+[![coverage report](https://cmsc435.garrettvanhoy.com/hai265/yugioh/badges/master/coverage.svg)](https://cmsc435.garrettvanhoy.com/hai265/yugioh/commits/gitlab_badge)
 # Yu-Gi-Oh!
 
 ## Overview
