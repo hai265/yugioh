@@ -1,1 +1,3 @@
 SQLAlchemy~=1.4.35
+coverage
+coverage-badge
