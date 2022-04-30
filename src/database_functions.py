@@ -43,7 +43,7 @@ def register(name: str, password: str) -> bool:
 
 def read_cards_into_db():  # @staticmethod
     """
-    Reads cards into the database.
+    Reads cards from the file cards.csv into the Cards table.
     """
     db = SessionLocal()
     with open('sources/cards.csv', 'r') as csvfile:
