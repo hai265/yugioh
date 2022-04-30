@@ -17,9 +17,9 @@ class Player:
         """
         self.life_points = life_points
         self.name = name
-        self.deck: list[Card] = []
-        self.hand: list[Card] = []
-        self.graveyard: list[Card] = []
+        self.deck = []
+        self.hand = []
+        self.graveyard = []
         self.monster_field = [None] * Player.FIELD_CARD_LIMIT  # There are a total of 10 field spots in yugioh
         self.spell_trap_field = [None] * Player.FIELD_CARD_LIMIT
 
@@ -56,28 +56,40 @@ class Player:
         """
         return len(self.graveyard)
 
-    def normal_summon(self, hand_idx: int, field_idx: int, position: str):
+    def normal_summon(self, hand_idx: int, field_idx: int):
         """Removes a monster card from the player's hand and adds it to the field at a specific location.
+
+        Normal summon always summons the monster in face-up attack position.
 
         Args:
             hand_idx: Index of the card in the player's hand to be summoned.
             field_idx: Index on the field to place the card.
-            position: Position to summon monster in.
-        Returns:
+        """
+        self.monster_field[field_idx] = self.hand.pop(hand_idx)
 
+    def normal_set(self, hand_idx: int, field_idx: int):
+        """Removes a monster card from the player's hand and adds it to the field at a specific location.
+
+        Normal set always summons the monster in face-down defense position.
+
+        Args:
+            hand_idx: Index of the card in the player's hand to be set.
+            field_idx: Index on the field to place the card.
         """
         monster = self.hand.pop(hand_idx)
-        monster.position = position
+        monster.face_pos = Monster.FACE_DOWN
+        monster.battle_pos = Monster.DEF
         self.monster_field[field_idx] = monster
 
-    def tribute_summon(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int, position: str):
+    def tribute_summon(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int):
         """Removes a monster card from the player's hand and adds it to the field at a specific location.
+
+        Tribute summon always summons the monster in face-up attack position.
 
         Args:
             hand_idx: Index of the card in the player's hand to be summoned.
             tribute1_idx: Index of the first card to tribute.
             tribute2_idx: Index of the second card to tribute, may not be used.
-            position: Position to summon monster in.
         """
         monster_to_summon = self.hand[hand_idx]
 
@@ -87,8 +99,8 @@ class Player:
             if tribute1_valid:
                 self.send_card_to_graveyard(tribute1_idx, -1)
                 field_idx = self.monster_field.index(None)
-                self.normal_summon(hand_idx, field_idx, position)
-        elif monster_to_summon.level >= 7 and tribute1_idx >= 0 and tribute2_idx >=0:
+                self.normal_summon(hand_idx, field_idx)
+        elif monster_to_summon.level >= 7 and tribute1_idx >= 0 and tribute2_idx >= 0:
             tribute1_valid = self.monster_field[tribute1_idx] is not None
             tribute2_valid = tribute2_idx != tribute1_idx and self.monster_field[tribute2_idx] is not None
 
@@ -96,24 +108,24 @@ class Player:
                 self.send_card_to_graveyard(tribute1_idx, -1)
                 self.send_card_to_graveyard(tribute2_idx, -1)
                 field_idx = self.monster_field.index(None)
-                self.normal_summon(hand_idx, field_idx, position)
+                self.normal_summon(hand_idx, field_idx)
 
-    def change_monster_position(self, field_idx: int):
+    def change_monster_battle_position(self, field_idx: int):
         """Change a monster's battle position.
 
         Args:
             field_idx: Index of the card on the field whose position will be changed.
         """
         monster = self.monster_field[field_idx]
-        monster.position = 'def' if monster.position == 'atk' else 'atk'
+        monster.battle_pos = Monster.DEF if monster.battle_pos == Monster.ATK else Monster.ATK
 
     def send_card_to_graveyard(self, field_idx: int, hand_idx: int) -> bool:
         """Get card from either hand or field and send it to the graveyard. A -1 index means that no card from the
             hand/field should be sent to the graveyard
-        Args:
+        Params:
             hand_index:int The card in the player's hand to be sent to the graveyard
             field_index:int The location of the card on the field to be sent to the graveyard
-        Returns: `True` if a card was successfully sent to the graveyard, `False` otherwise. A return value of `False`
+        :return `True` if a card was successfully sent to the graveyard, `False` otherwise. A return value of `False`
                 means that both parameters had values of -1.
         """
 

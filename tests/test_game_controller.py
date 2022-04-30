@@ -41,7 +41,7 @@ class TestGameController(unittest.TestCase):
         # player1 summon
         current = self.game.get_current_player()
 
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.assertEqual(1, current.get_hand_size())
         self.assertEqual(self.player1_card1, current.monster_field[0])
 
@@ -50,15 +50,15 @@ class TestGameController(unittest.TestCase):
 
         current = self.game.get_current_player()
         # player2 summon
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.assertEqual(1, current.get_hand_size())
         self.assertEqual(self.player2_card2, current.monster_field[0])
 
     def test_attack_monster_attacker_loses(self):
         # summon monsters
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.game.change_turn()
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
 
         # player0 monster attacks player1 monster
@@ -80,9 +80,9 @@ class TestGameController(unittest.TestCase):
 
     def test_attack_monster_attacker_ties(self):
         # summon monsters
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.game.change_turn()
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.game.change_turn()
 
         # player0 monster attacks player1 monster
@@ -103,9 +103,9 @@ class TestGameController(unittest.TestCase):
 
     def test_attack_monster_attacker_wins(self):
         # summon monsters
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.game.change_turn()
 
         # player0 monster attacks player1 monster
@@ -127,7 +127,7 @@ class TestGameController(unittest.TestCase):
 
     def test_attack_directly(self):
         # summon monsters
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
         # skip second player's turn
         self.game.change_turn()
@@ -142,9 +142,9 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(3800, other.life_points)
 
     def test_attack_from_defense_position(self):
-        self.game.normal_summon(1, 'def')
+        self.game.normal_set(1)
         self.game.change_turn()
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.game.change_turn()
 
         self.game.attack_monster(0, 0)
@@ -159,9 +159,9 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(self.player2_card1, self.player2.monster_field[0])
 
     def test_attack_monster_in_defense_position_attacker_wins(self):
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
-        self.game.normal_summon(0, 'def')
+        self.game.normal_set(0)
         self.game.change_turn()
 
         self.game.attack_monster(0, 0)
@@ -182,9 +182,9 @@ class TestGameController(unittest.TestCase):
         self.assertEqual([self.player2_card1], self.player2.graveyard)
 
     def test_attack_monster_in_defense_position_attacker_loses(self):
-        self.game.normal_summon(0, 'atk')
+        self.game.normal_summon(0)
         self.game.change_turn()
-        self.game.normal_summon(1, 'def')
+        self.game.normal_set(1)
         self.game.change_turn()
 
         self.game.attack_monster(0, 0)
@@ -206,9 +206,9 @@ class TestGameController(unittest.TestCase):
 
     def test_attack_directly_fails(self):
         # summon monsters
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
 
         self.game.attack_player(0)
@@ -226,7 +226,7 @@ class TestGameController(unittest.TestCase):
         self.player2.life_points = 1000
 
         # summon monsters
-        self.game.normal_summon(1, 'atk')
+        self.game.normal_summon(1)
         self.game.change_turn()
         # skip second player's turn
         self.game.change_turn()
@@ -239,3 +239,11 @@ class TestGameController(unittest.TestCase):
         # attacked player will lose 1200 lp but since they only have 1000 lp their new total should be 0
         self.assertEqual(1000, current.life_points)
         self.assertEqual(0, other.life_points)
+
+    def test_is_there_winner(self):
+        self.player2.life_points = 0
+        self.assertTrue(self.game.is_there_winner())
+
+    def test_get_winner(self):
+        self.player2.life_points = 0
+        self.assertEqual(self.player1, self.game.get_winner())
