@@ -1,4 +1,5 @@
 # Class for a command line interface to control the yugioh yugioh_game
+from asyncio.log import logger
 import json
 import os
 import pickle
@@ -10,7 +11,7 @@ from src.player import Player
 from src.network import Network
 
 class NetworkCli:
-    def __init__(self):
+    def __init__(self, server_ip: str, port=5555):
         self.players = []
         self.yugioh_game = None
         self.client_socket = None
@@ -19,6 +20,8 @@ class NetworkCli:
         self.session_id = 0
         self.name = ""
         self.network = Network()
+        self.server_ip = server_ip
+        self.port = port
 
     def display_board(self):
         """
@@ -60,9 +63,9 @@ class NetworkCli:
         """
         try:
             self.network.send_data(self.client_socket, json.dumps(data).encode("utf-8"))
+            self.yugioh_game = pickle.loads(self.network.recv_data(self.client_socket))
         except Exception as e:
             print(e)
-        self.yugioh_game = pickle.loads(self.network.recv_data(self.client_socket))
 
     def start_game(self):
         """
@@ -73,12 +76,11 @@ class NetworkCli:
         self.yugioh_game = GameController()
         print("Enter your name")
         self.name = input()
-        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client_socket.connect(("127.0.0.1", 5555))
-        game_state = json.loads(self.network.recv_data(self.client_socket,))
+        game_state = self.connect_to_server()
         preset_deck = create_deck_from_preset("sources/preset1")
         preset_deck = deck_to_card_name_list(preset_deck)
         self.player_place, self.session_id = game_state["player"], game_state["session_id"]
+        logger.debug("Send Create Game")
         self.network.send_data(self.client_socket, 
             json.dumps({"operation": "create", "session_id": self.session_id, "player_name": self.name,
                         "deck": preset_deck, "get_pickle": True}).encode('utf-8'))
@@ -92,7 +94,7 @@ class NetworkCli:
         while self.yugioh_game.game_status == GameStatus.ONGOING:
             while True:
                 self.display_board()
-                # Wait until it is the player's turn
+                # Wait until it is the player's turnt
                 while self.yugioh_game.current_player != self.player_place:
                     print("It is not your turn yet")
                     data = self.network.recv_data(self.client_socket)
@@ -171,5 +173,17 @@ class NetworkCli:
             self.send_data_and_update_game({"operation": "update", "session_id": self.session_id, "move": "change_turn",
                                             "args": [], "get_pickle": True})
             
-        
+    def connect_to_server(self):
+        self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.client_socket.connect((self.server_ip, self.port))
+        # Keep recieving until get a session_id that is not 0
+        while True:
+           game_state = json.loads(self.network.recv_data(self.client_socket))
+           if game_state["session_id"] != 0:
+               logger.debug("Recieved game start message")
+               break
+           else:
+                logger.debug("Recieved alive message")
+           self.network.send_data(self.client_socket, json.dumps({"session_id": 0}).encode('utf-8'))  
+        return game_state
         

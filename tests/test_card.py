@@ -35,25 +35,22 @@ class TestGameMethods(unittest.TestCase):
 
 
 class TestCard(unittest.TestCase):
-    @unittest.skip
+
     def test_display_card_card_correct_inputs(self):
-        test_card_1 = Card("Hitotsu-Me Giant", "A behemoth", "Monster")
-        test_card_2 = Card("Dark Magician", "None", "Monster")
-        test_card_3 = Card("Gaia The Fierce Knight", "None", "Monster")
+        test_card_1 = Card("Hitotsu-Me Giant", "A behemoth")
+        test_card_2 = Card("Dark Magician", "None")
+        test_card_3 = Card("Gaia The Fierce Knight", "None")
 
         result_1 = test_card_1.display_card()
         self.assertEqual(result_1["name"], "Hitotsu-Me Giant")
-        self.assertEqual(result_1["card_type"], "Monster")
         self.assertEqual(result_1["description"], "A behemoth")
 
         result_2 = test_card_2.display_card()
         self.assertEqual(result_2["name"], "Dark Magician")
-        self.assertEqual(result_2["card_type"], "Monster")
         self.assertEqual(result_2["description"], "None")
 
         result_3 = test_card_3.display_card()
         self.assertEqual(result_3["name"], "Gaia The Fierce Knight")
-        self.assertEqual(result_3["card_type"], "Monster")
         self.assertEqual(result_3["description"], "None")
 
 

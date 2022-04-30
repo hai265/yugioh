@@ -1,11 +1,17 @@
 from socket import socket
 import logging
 RECV_SIZE = 1024
+ALIVE_MSG = 1
 class Network():
+    """Class that has send and recv methods to facilitate communcation between server and client"""
     def __init__(self) -> None:
         self.buffer = bytearray()
     """Send data to the socket in appropriate socket form"""
     def send_data(self, sock: socket, data: bytes):
+        """Send data to the connection on the other side of the socket
+        :param sock: a socket
+        :param data: data in bytes to send to the socket
+        """
         packet = len(data).to_bytes(4, 'little') + data
         try:
             sock.sendall(packet)
@@ -13,7 +19,9 @@ class Network():
             print(e)
     
     def recv_data(self, sock: socket):
-        """Recieve data until have enough data in buffer to reconstruct"""
+        """Recieve data until have enough data in buffer to reconstruct
+            :param sock: socket to recv data from
+        """
         self.buffer += sock.recv(RECV_SIZE)
         size = int.from_bytes(self.buffer[0:4], "little")
         logging.debug("Recieved packet of size " + str(size))
