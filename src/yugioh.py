@@ -3,8 +3,8 @@ import pickle
 
 from src.game import GameController, GameStatus
 from src.player import Player
-from src.card import Monster, create_deck_from_array
-from typing import Union, Any
+from src.card import create_deck_from_array
+from typing import Union
 
 
 def to_dict(obj):
@@ -12,15 +12,6 @@ def to_dict(obj):
     """
     json_dict = json.loads(json.dumps(obj, default=lambda o: o.__dict__))
     return json_dict
-
-
-def replace_game_property_values(game_dict):
-    """
-    Replace _current_player and _other_player with current_player and other_player
-    :param game_dict:
-    :return: game_dict
-    """
-    return game_dict
 
 
 class Yugioh:
@@ -48,7 +39,7 @@ class Yugioh:
             self.game.game_status = GameStatus.ONGOING
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        return replace_game_property_values(to_dict(self.game))
+        return to_dict(self.game)
 
     def read_game(self, request: dict) -> Union[dict, bytes]:
         """
@@ -61,8 +52,7 @@ class Yugioh:
         """
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        json_dict = to_dict(self.game)
-        return json_dict
+        return to_dict(self.game)
 
     def update_game(self, request: dict) -> dict:
         """
@@ -96,7 +86,7 @@ class Yugioh:
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
         json_dict = to_dict(self.game)
-        return replace_game_property_values(to_dict(self.game))
+        return to_dict(self.game)
 
     def delete_game(self, request: dict) -> Union[dict, bytes]:
         """
@@ -112,5 +102,4 @@ class Yugioh:
         self.game.game_status = GameStatus.ENDED
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
-        json_dict = to_dict(self.game)
-        return replace_game_property_values(to_dict(self.game))
+        return to_dict(self.game)

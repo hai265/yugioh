@@ -51,7 +51,7 @@ class Monster(Card):
         self.monster_type = monster_type
         self.position = 'atk'
 
-    def __eq__(self, other_monster):
+    def __eq__(self, other_monster: object):
         return isinstance(other_monster, Monster) and self.name == other_monster.name
 
     def __repr__(self):

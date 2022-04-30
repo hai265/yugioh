@@ -17,9 +17,9 @@ class Player:
         """
         self.life_points = life_points
         self.name = name
-        self.deck = []
-        self.hand = []
-        self.graveyard = []
+        self.deck: list[Card] = []
+        self.hand: list[Card] = []
+        self.graveyard: list[Card] = []
         self.monster_field = [None] * Player.FIELD_CARD_LIMIT  # There are a total of 10 field spots in yugioh
         self.spell_trap_field = [None] * Player.FIELD_CARD_LIMIT
 

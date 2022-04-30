@@ -7,6 +7,7 @@ __pycache__/
 .pytest_cache
 .vscode
 .mypy_cache
+database.db
 # C extensions
 *.so
 

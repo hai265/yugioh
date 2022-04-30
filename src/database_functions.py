@@ -20,7 +20,7 @@ def login(name: str, password: str) -> bool:
     return success
 
 
-def register(name, password) -> bool:
+def register(name: str, password: str) -> bool:
     """
     A function which facilitates login via the SQL database.
     :param name: A username (maximum 30 characters) that the user wants to register with

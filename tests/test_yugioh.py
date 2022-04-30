@@ -144,7 +144,7 @@ class TestYugiohUpdate(unittest.TestCase):
         self.assertTrue(game_status["players"][game_status["current_player"]]["name"] == "Yugi")
         self.assertTrue(game_status["players"][game_status["other_player"]]["name"] == "Kaiba")
 
-    @unittest.skip('tests not finished')
+    
     def test_update_game_player_1_attack_player_2_directly(self):
         self.yugioh_game.game.get_current_player().draw_card()
         self.yugioh_game.game.normal_summon(0, 'atk')
@@ -175,7 +175,6 @@ class TestYugiohDelete(unittest.TestCase):
         self.assertTrue("session_id" in status and status["session_id"] != 0)
 
 
-@unittest.skip('tests not finished')
 class TestYugiohCreatePickle(unittest.TestCase):
     def setUp(self):
         self.yugioh_game = Yugioh()
