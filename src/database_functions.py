@@ -10,9 +10,10 @@ database.Base.metadata.create_all(bind=engine)
 def login(name: str, password: str) -> bool:
     """
     A function which facilitates login via the SQL database.
-    :param name: The username associated with the user's account (max 30 characters).
-    :param password: The password associated with the user's account (max 12 characters).
-    :return: success: a boolean which determines whether the login was successful
+    Args:
+        name: The username associated with the user's account (max 30 characters).
+        password: The password associated with the user's account (max 12 characters).
+    Returns: a boolean which determines whether the login was successful
     """
     db = SessionLocal()
     success = db.query(exists().where(database.User.name == name, database.User.password == password)).scalar()
@@ -23,9 +24,10 @@ def login(name: str, password: str) -> bool:
 def register(name: str, password: str) -> bool:
     """
     A function which facilitates login via the SQL database.
-    :param name: A username (maximum 30 characters) that the user wants to register with
-    :param password: A password (maximum 12 characters) that the user wants to register with
-    :return: success: a boolean which determines whether registration was successful
+    Args:
+        name: A username (maximum 30 characters) that the user wants to register with
+        password: A password (maximum 12 characters) that the user wants to register with
+    Returns: a boolean which determines whether registration was successful
     """
     db = SessionLocal()
     success = False

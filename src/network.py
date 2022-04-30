@@ -1,9 +1,9 @@
 from socket import socket
 import logging
 RECV_SIZE = 1024
-ALIVE_MSG = 1
-class Network():
-    """Class that has send and recv methods to facilitate communcation between server and client"""
+
+
+class Network:
     def __init__(self) -> None:
         self.buffer = bytearray()
     """Send data to the socket in appropriate socket form"""
@@ -20,7 +20,8 @@ class Network():
     
     def recv_data(self, sock: socket):
         """Recieve data until have enough data in buffer to reconstruct
-            :param sock: socket to recv data from
+        Args:
+            sock: socket for the network
         """
         self.buffer += sock.recv(RECV_SIZE)
         size = int.from_bytes(self.buffer[0:4], "little")

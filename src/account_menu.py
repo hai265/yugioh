@@ -13,17 +13,22 @@ class AccountMenu:
     def login_proxy(self) -> bool:
         """
         A function which facilitates login via the SQL database.
-        :return: success: a boolean which determines whether the login was successful
+        Returns:  a boolean which determines whether the login was successful
         """
         name = input("Enter your name: ")
         password = input("Enter your password: ")
 
         return login(name, password)
 
-    def register_proxy(self) -> bool:
+    def register_proxy(self, name, password) -> bool:
         """
         A function which facilitates login via the SQL database.
-        :return: success: a boolean which determines whether registration was successful
+
+        Args:
+            name: A username (maximum 30 characters) that the user wants to register with
+            password: A password (maximum 12 characters) that the user wants to register with
+
+        Returns: success: a boolean which determines whether registration was successful
         """
         name = input("Enter your name: ")
         password = input("Enter your password: ")

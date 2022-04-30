@@ -26,12 +26,14 @@ class GameController:
         self.game_status = GameStatus.WAITING
 
     def determine_first_player(self):
-        """Sets starting turn order.
+        """
+        Sets starting turn order.
         """
         self.current_player, self.other_player = random.sample([self.current_player, self.other_player], 2)
 
     def change_turn(self):
-        """Changes player turn.
+        """
+        Changes player turn.
         """
         self.current_player, self.other_player = self.other_player, self.current_player
 
