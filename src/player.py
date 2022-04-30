@@ -110,10 +110,10 @@ class Player:
     def send_card_to_graveyard(self, field_idx: int, hand_idx: int) -> bool:
         """Get card from either hand or field and send it to the graveyard. A -1 index means that no card from the
             hand/field should be sent to the graveyard
-        Params:
+        Args:
             hand_index:int The card in the player's hand to be sent to the graveyard
             field_index:int The location of the card on the field to be sent to the graveyard
-        :return `True` if a card was successfully sent to the graveyard, `False` otherwise. A return value of `False`
+        Returns: `True` if a card was successfully sent to the graveyard, `False` otherwise. A return value of `False`
                 means that both parameters had values of -1.
         """
 

@@ -8,19 +8,19 @@ class Card:
     def __init__(self, name: str, description: str):
         """
         Initializes the generic fields of a Yu-Gi-Oh! Card.
-
-        :param name: A string containing the name of the card.
-        :param description: A string containing a Yu-Gi-Oh! card description.
+        Args:
+            name: A string containing the name of the card.
+            description: A string containing a Yu-Gi-Oh! card description.
         """
+
         self.name = name
         self.description = description
 
     def display_card(self) -> dict:
         """
-            Gets the information for the current card.
-        :return:
-            display_info:
-                Dictionary containing the instance variables of the Card class.
+        Gets the information for the current card.
+        Returns:
+            Dictionary containing the instance variables of the Card class.
         """
         return {"name": self.name, "description": self.description}
 
@@ -51,10 +51,23 @@ class Monster(Card):
         self.monster_type = monster_type
         self.position = 'atk'
 
-    def __eq__(self, other_monster: object):
+    def __eq__(self, other_monster):
+        """
+
+        Args:
+            other_monster: The monster variable we are comparing to
+
+        Returns: boolean representing whether the cards are equal
+
+        """
         return isinstance(other_monster, Monster) and self.name == other_monster.name
 
     def __repr__(self):
+        """
+
+        Returns: string representing the card data
+
+        """
         str_repr = "name:%s, level:%d, attribute:%s, type:%s, atk:%d, def:%d, position:%s" % \
                    (self.name, self.level, self.attribute, self.monster_type, self.attack_points, self.defense_points,
                     self.position)
@@ -62,10 +75,8 @@ class Monster(Card):
 
     def display_card(self) -> dict:
         """
-            Gets the information for the current monster card.
-        :return:
-            display_info:
-                a dict containing the instance variables for the monster card.
+        Gets the information for the current monster card.
+        Returns: a dict containing the instance variables for the monster card.
         """
         display_info = super().display_card()
         display_info["level"] = self.level
@@ -78,7 +89,8 @@ class Monster(Card):
 
 def create_card(card_name: str):
     """
-        Args: card_name: The name of the card to be created
+        Args:
+            card_name: The name of the card to be created
         Returns: a Card type corresponding to the card name, or None if no card exists with that name
     """
     with open('sources/cards.csv', 'r') as csvfile:
@@ -123,8 +135,9 @@ def create_deck_from_preset(preset_path: str):
 def deck_to_card_name_list(cards: list):
     """
     Method to convert a list of Card objects to a list of their names only
-    :param cards:
-    :return: a list of card names
+    Args:
+        cards: A list of cards
+    Returns: a list of card names
     """
     preset_deck_string_list = []
     for card in cards:
@@ -135,8 +148,9 @@ def deck_to_card_name_list(cards: list):
 def monster_card_dict_to_card_object(card_dict: dict):
     """
     Method to convert a dictionary representation of a card to a card Object
-    :param card_dict: a dict or json representation of a card
-    :return: a card object using the attriburts in the card_dict
+    Args:
+        card_dict: a dict or json representation of a card
+    Returns: a card object using the attriburts in the card_dict
     """
 
     return Monster(name=card_dict["name"], description=card_dict["description"], attribute=card_dict["attribute"],
@@ -146,8 +160,9 @@ def monster_card_dict_to_card_object(card_dict: dict):
 
 def monster_card_to_string(card: Monster):
     """
-    :param: card: The card to convert to a string
-    :return: A string in format {cardName} {attack}/{defense}
+    Args:
+        card: The card to convert to a string
+    Returns: A string in format {cardName} {attack}/{defense}
     """
     return "{cardName} {attack}/{defense}".format(cardName=card.name, attack=card.attack_points,
                                                   defense=card.attack_points)

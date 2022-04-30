@@ -6,7 +6,7 @@ from threading import Thread
 import select
 from src.game import GameController, GameStatus
 from src.yugioh import Yugioh
-from src.network import ALIVE_MSG, Network
+from src.network import Network
 from collections import defaultdict
 
 """
@@ -16,6 +16,8 @@ Code is adapted from https://www.techwithtim.net/tutorials/python-online-game-tu
 """
 
 TCP_MAX = 65535
+
+
 class YugiohServer:
     def __init__(self, server_ip: str, port: int):
         self.games: dict[int, list[GameController]] = {}
@@ -28,8 +30,10 @@ class YugiohServer:
         """
         Thread that is associated with a client and receives data from it.
         It
-        :param session_id: Game id that client is associated with
-        :return: None
+        Args:
+            client_sock: Socket that corresponds to the connected client
+            session_id: Game id that client is associated with
+            get_pickle: True if the client requested to get data by pickle
         """
         network = Network()
         while True:

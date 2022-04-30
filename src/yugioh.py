@@ -14,6 +14,16 @@ def to_dict(obj):
     return json_dict
 
 
+def replace_game_property_values(game_dict):
+    """
+    Replace _current_player and _other_player with current_player and other_player
+    Args:
+        game_dict: Variable of all values related to game
+    Returns: game_dict
+    """
+    return game_dict
+
+
 class Yugioh:
     """ Yugioh is the yugioh_game interface in which the yugioh yugioh_game can be played by CRUD.
     """
@@ -24,12 +34,14 @@ class Yugioh:
     def create_game(self, request: dict) -> Union[dict, bytes]:
         """
 
-        :param request: dictionary containing  key-value pairs. session_id: session id associated with the
-        yugioh_game session.
-        'player_name': name of the player
-        'deck' a list of strings of card names to create the deck with
-        'get_pickle' optional false. If true, instead returns a pickled version of the game
-        :return: dict version of Game
+        Args:
+            request: dictionary containing  key-value pairs. session_id: session id associated with the
+                yugioh_game session. Within request we have:
+
+                player_name: name of the player
+                deck: a list of strings of card names to create the deck with
+                get_pickle: optional false. If true, instead returns a pickled version of the game
+        Returns: dict version of Game
         """
         player = Player(8000, name=request["player_name"])
         player.deck = create_deck_from_array(request["deck"])
@@ -58,14 +70,14 @@ class Yugioh:
         """
         Args:
             request: dictionary describing the "move" to be made in the yugioh_game keys:
-            :arg: "session_id": value associated with a yugioh game session
-            "player": player to make the move as. 1 for player 1 or 2 for player 2
-            "move": Move to take in the yugioh game. Values can be , "summon_monster", "change_turn", "attack",
-            "tribute_summon".
-            "args": a list of arguments needed to make the move
+                session_id: value associated with a yugioh game session
+                player: player to make the move as. 1 for player 1 or 2 for player 2
+                move: Move to take in the yugioh game. Values can be , "summon_monster", "change_turn", "attack",
+                "tribute_summon".
+                args: a list of arguments needed to make the move
 
         Returns:
-            reply: dictionary describing the yugioh_game's new state.
+            dictionary describing the yugioh_game's new state.
         """
         if request["move"] == "attack_player":
             self.game.attack_player(*request["args"])
@@ -95,7 +107,7 @@ class Yugioh:
             integer unique to all ongoing yugioh_game sessions.
 
         Returns:
-            reply: dictionary containing a single key-value pair. The key is "session_id". The value is a
+            dictionary containing a single key-value pair. The key is "session_id". The value is a
             integer unique to all ongoing yugioh_game sessions.
         """
 

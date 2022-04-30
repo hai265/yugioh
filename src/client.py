@@ -10,6 +10,7 @@ from src.game import GameController, GameStatus
 from src.player import Player
 from src.network import Network
 
+
 class NetworkCli:
     def __init__(self, server_ip: str, port=5555):
         self.players = []
@@ -26,7 +27,7 @@ class NetworkCli:
     def display_board(self):
         """
         Displays the yugioh_game board and the current player's hand to the command line
-        :return: None
+        Returns: None
         """
         if os.name == 'nt':
             os.system('cls')
@@ -58,8 +59,8 @@ class NetworkCli:
     def send_data_and_update_game(self, data: dict):
         """
         Method that sends data to the server and recieves data back to update
-        :param data: data to send to the server
-        :return: None
+        Args:
+            data: data to send to the server
         """
         try:
             self.network.send_data(self.client_socket, json.dumps(data).encode("utf-8"))
@@ -70,7 +71,6 @@ class NetworkCli:
     def start_game(self):
         """
         Starts an instance of a yugioh yugioh_game on the command line
-        :return: None
         """
         # Initialize players
         self.yugioh_game = GameController()
