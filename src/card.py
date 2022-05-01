@@ -1,26 +1,28 @@
 import csv
 
 
+import csv
+
+
 class Card:
-    """
-        A class representing a Yu-Gi-Oh! Card.
+    """A class representing a Yu-Gi-Oh! Card.
     """
     def __init__(self, name: str, description: str):
-        """
-        Initializes the generic fields of a Yu-Gi-Oh! Card.
+        """Initializes the generic fields of a Yu-Gi-Oh! Card.
+
         Args:
             name: A string containing the name of the card.
             description: A string containing a Yu-Gi-Oh! card description.
         """
-
         self.name = name
         self.description = description
 
     def display_card(self) -> dict:
-        """
-        Gets the information for the current card.
+        """Gets the information for the current card.
+
         Returns:
             Dictionary containing the instance variables of the Card class.
+            Gets the information for the current card.
         """
         return {"name": self.name, "description": self.description}
 
@@ -28,8 +30,13 @@ class Card:
 class Monster(Card):
     """A class representing a Yu-Gi-Oh! Monster Card.
 
-        Note: This class only supports Normal monsters in the current build.
+    Note: This class only supports Normal monsters in the current build.
     """
+    FACE_UP = 'up'
+    FACE_DOWN = 'down'
+    ATK = 'atk'
+    DEF = 'def'
+
     def __init__(self, name: str, description: str, attribute: str, monster_type: str,
                  level: int, attack_points: int, defense_points: int):
         """Initializes the Monster class with the specified parameters.
@@ -49,49 +56,36 @@ class Monster(Card):
         self.defense_points = defense_points
         self.level = level
         self.monster_type = monster_type
-        self.position = 'atk'
+        self.face_pos = Monster.FACE_UP
+        self.battle_pos = Monster.ATK
 
     def __eq__(self, other_monster):
-        """
+        """Determines whether two monster cards are equal.
 
         Args:
             other_monster: The monster variable we are comparing to
 
-        Returns: boolean representing whether the cards are equal
-
+        Returns: True if the two cards are equal, False otherwise.
         """
+
         return isinstance(other_monster, Monster) and self.name == other_monster.name
 
     def __repr__(self):
         """
-
-        Returns: string representing the card data
-
+        Returns: string representing the card data.
         """
-        str_repr = "name:%s, level:%d, attribute:%s, type:%s, atk:%d, def:%d, position:%s" % \
+        str_repr = "name:%s, level:%d, attribute:%s, type:%s, atk:%d, def:%d, face position:%s, battle position:%s" % \
                    (self.name, self.level, self.attribute, self.monster_type, self.attack_points, self.defense_points,
-                    self.position)
+                    self.face_pos, self.battle_pos)
         return str_repr
-
-    def display_card(self) -> dict:
-        """
-        Gets the information for the current monster card.
-        Returns: a dict containing the instance variables for the monster card.
-        """
-        display_info = super().display_card()
-        display_info["level"] = self.level
-        display_info["attribute"] = self.attribute
-        display_info["monster_type"] = self.monster_type
-        display_info["ATK"] = self.attack_points
-        display_info["DEF"] = self.defense_points
-        return display_info
 
 
 def create_card(card_name: str):
     """
-        Args:
-            card_name: The name of the card to be created
-        Returns: a Card type corresponding to the card name, or None if no card exists with that name
+    Args:
+        card_name: The name of the card to be created
+
+    Returns: a Card type corresponding to the card name, or None if no card exists with that name
     """
     with open('sources/cards.csv', 'r') as csvfile:
         reader = csv.reader(csvfile)
@@ -105,10 +99,12 @@ def create_card(card_name: str):
 
 def create_deck_from_array(card_name_array: list):
     """Method that creates a deck given an array of strings of card names
-        Args:
-            card_name_array: an array of strings of card names to build the deck
-        Returns:
-            a list containing Card objects
+
+    Args:
+        card_name_array: an array of strings of card names to build the deck
+
+    Returns:
+        a list containing Card objects
     """
     deck = []
     for card_name in card_name_array:
@@ -117,11 +113,13 @@ def create_deck_from_array(card_name_array: list):
 
 
 def create_deck_from_preset(preset_path: str):
-    """Method that creates a deck form a csv file of card names
-        Args:
-            preset_path: the path of the file that contains a card preset in csv
-        Returns:
-            a list containing Card objects
+    """Method that creates a deck form a csv file of card names.
+
+    Args:
+        preset_path: the path of the file that contains a card preset in csv
+
+    Returns:
+        a list containing Card objects
     """
     with open(preset_path, 'r') as csvfile:
         deck = []
@@ -133,11 +131,13 @@ def create_deck_from_preset(preset_path: str):
 
 
 def deck_to_card_name_list(cards: list):
-    """
-    Method to convert a list of Card objects to a list of their names only
+    """Method to convert a list of Card objects to a list of their names only.
+
     Args:
         cards: A list of cards
-    Returns: a list of card names
+
+    Returns:
+        a list of card names
     """
     preset_deck_string_list = []
     for card in cards:
@@ -146,11 +146,13 @@ def deck_to_card_name_list(cards: list):
 
 
 def monster_card_dict_to_card_object(card_dict: dict):
-    """
-    Method to convert a dictionary representation of a card to a card Object
+    """Method to convert a dictionary representation of a card to a card Object.
+
     Args:
         card_dict: a dict or json representation of a card
-    Returns: a card object using the attriburts in the card_dict
+
+    Returns:
+        a card object using the attributes in the card_dict
     """
 
     return Monster(name=card_dict["name"], description=card_dict["description"], attribute=card_dict["attribute"],
@@ -162,7 +164,9 @@ def monster_card_to_string(card: Monster):
     """
     Args:
         card: The card to convert to a string
-    Returns: A string in format {cardName} {attack}/{defense}
+
+    Returns:
+        A string in format {cardName} {attack}/{defense}
     """
     return "{cardName} {attack}/{defense}".format(cardName=card.name, attack=card.attack_points,
                                                   defense=card.attack_points)
