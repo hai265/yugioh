@@ -15,7 +15,7 @@ SERVER_IP = "167.172.152.60"
 # SERVER_IP = "127.0.0.1"
 SERVER_PORT = 5555
 
-iom src.network import Network
+from src.network import Network
 from src.server import YugiohServer
 
 SERVER_IP = "167.172.152.60"
