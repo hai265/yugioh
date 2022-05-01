@@ -69,6 +69,7 @@ class GameController:
                 current.send_card_to_graveyard(attacking_monster, -1)
         elif target_monster.battle_pos == Monster.DEF:
             atk_difference = atk_monster.attack_points - target_monster.defense_points
+            target_monster.face_pos = Monster.FACE_UP
 
             if atk_difference > 0:
                 other.send_card_to_graveyard(attacked_monster, -1)
