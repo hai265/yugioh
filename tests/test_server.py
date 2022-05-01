@@ -22,7 +22,7 @@ SERVER_IP = "167.172.152.60"
 # SERVER_IP = "127.0.0.1"
 SERVER_PORT = 5555
 
-@unittest.skiptest("skip server test")
+@unittest.skip("skip server test")
 class TestYugiohServer(unittest.TestCase):
     def setUp(self):
         self.preset_deck = create_deck_from_preset("sources/preset1")
