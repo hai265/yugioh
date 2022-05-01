@@ -1,8 +1,6 @@
 import unittest
-from src.card import create_card
-
+from src.card import create_card, Monster
 from src.player import Player
-# from src.card import Card
 from src.game import GameController
 
 
@@ -199,6 +197,8 @@ class TestGameController(unittest.TestCase):
         # check monster field
         self.assertEqual(self.player1_card1, self.player1.monster_field[0])
         self.assertEqual(self.player2_card2, self.player2.monster_field[0])
+        self.assertEqual(Monster.FACE_UP, self.player2.monster_field[0].face_pos)
+        self.assertEqual(Monster.DEF, self.player2.monster_field[0].battle_pos)
 
         # check graveyard
         self.assertEqual([], self.player1.graveyard)
