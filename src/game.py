@@ -19,6 +19,8 @@ class GameStatus(IntEnum):
 
 
 class GameController:
+    """A class that controls the flow and progression of the game.
+    """
     def __init__(self, session_id=0):
         self.players = []
         self.current_player = 0
@@ -152,7 +154,15 @@ class GameController:
         current.tribute_summon(hand_idx, tribute1_idx, tribute2_idx)
 
     def get_current_player(self) -> Player:
+        """
+        Returns:
+            player whose turn it currently is.
+        """
         return self.players[self.current_player]
 
     def get_other_player(self) -> Player:
+        """
+        Returns:
+            Returns the player whose turn it currently is not.
+        """
         return self.players[self.other_player]
