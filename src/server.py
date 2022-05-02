@@ -16,7 +16,7 @@ Code is adapted from https://www.techwithtim.net/tutorials/python-online-game-tu
 """
 
 TCP_MAX = 65535
-
+SELECT_TIMEOUT = 15
 
 class YugiohServer:
     def __init__(self, server_ip: str, port: int):
@@ -38,7 +38,7 @@ class YugiohServer:
         network = Network()
         while True:
             try:
-                (client_sockets_read, client_sockets_write, _) = select.select(self.id_to_sockets[session_id], self.id_to_sockets[session_id], [])
+                (client_sockets_read, client_sockets_write, _) = select.select(self.id_to_sockets[session_id], self.id_to_sockets[session_id], [], SELECT_TIMEOUT)
                 for client_sock in client_sockets_read:
                     data = network.recv_data(client_sock)
                     logging.info("Recieved data from " + str(client_sock.getpeername()))
@@ -108,6 +108,7 @@ class YugiohServer:
             logging.info(f'Connected to: {addr}')
 
             self.id_count += 1
+            logging.debug("Id count: " + str(self.id_count))
             session_id = ((self.id_count - 1) // 2) + 1
             self.id_to_sockets[session_id].append(client_connection)
             if self.id_count % 2 == 1:
@@ -122,30 +123,53 @@ class YugiohServer:
                     new_client_thread = Thread(target=self.threaded_client, args=(session_id,))
                     new_client_thread.start()
                 else:
-                   logging.warning("One player disconnected while creating game") 
+                   logging.warning("One or more players disconnected while creating game") 
                     
-    def check_both_players_connected(self, client_socks):
+    def check_both_players_connected(self, client_socks: list[socket.socket]):
         """Send an alive message to both clients to make sure that they are still alive
+           If both clients are not connected, disconnect both
             :param: client_socks - list of sockets to check connectivity
         """
         network = Network()
         both_players_connected = True
-        try:
-            for sock in client_socks:
-                network.send_data(sock, json.dumps({"session_id": 0}).encode('utf-8'))
-            for sock in list(client_socks):
-                (read, _, _) = select.select([sock], [], [], 10)
-                data = network.recv_data(sock)
-                if not data:
+        for sock in client_socks:
+            network.send_data(sock, json.dumps({"session_id": 0}).encode('utf-8'))
+        for sock in list(client_socks):
+            (read, _, _) = select.select([sock], [], [], SELECT_TIMEOUT)
+            try:
+                if not read:
                     sock.close()
-                    logging.info(f"Client {sock} disconnected")
+                    logging.info(f"Disconnecting {client_socks}")
+                    self.id_count -= 1
                     both_players_connected = False
                     client_socks.remove(sock)
-                    self.id_count -= 1     
-        except Exception as e:
-            logging.warn(e)
-            return False          
+                else:   
+                    data = network.recv_data(read[0])
+                    if not data:
+                        sock.close()
+                        logging.info(f"Disconnecting {client_socks}")
+                        self.id_count -= 1 
+                        both_players_connected = False
+                        client_socks.remove(sock)
+            except socket.error as e:
+                logging.warn(e)
+                sock.close()
+                logging.info(f"Disconnecting {client_socks}")
+                self.id_count -= 1
+                both_players_connected = False
+                client_socks.remove(sock)       
         return both_players_connected
+
+    def disconnect_clients(self, client_socks):
+        """Closes all sockets in client sockets and decrements id count
+            :param: session_id - Client sockets
+        """
+        session_id = ((self.id_count - 1) // 2) + 1
+        for sock in client_socks:
+            sock.close()
+            logging.info(f"Disconnecting {client_socks}")
+        self.id_to_sockets.pop(session_id)
+        
 
     def close_game_session(self, session_id: int):
         """Closes a game session associated with a session id

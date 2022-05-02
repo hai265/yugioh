@@ -1,0 +1,9 @@
+version: "3"
+services:
+  yugioh-server:
+    container_name: yugioh-server
+    ports:
+    - "5555:5555"
+    build:
+      context: .
+      dockerfile: Dockerfile.server
