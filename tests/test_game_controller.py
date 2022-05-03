@@ -204,6 +204,22 @@ class TestGameController(unittest.TestCase):
         self.assertEqual([], self.player1.graveyard)
         self.assertEqual([], self.player2.graveyard)
 
+    def test_flip_summon_then_attack(self):
+        self.game.normal_set(1)
+        self.game.change_turn()
+        self.game.normal_summon(0)
+        self.game.change_turn()
+
+        self.game.flip_summon(0)
+
+        self.assertEqual(Monster.FACE_UP, self.player1.monster_field[0].face_pos)
+        self.assertEqual(Monster.ATK, self.player1.monster_field[0].battle_pos)
+
+        self.game.attack_monster(0, 0)
+
+        self.assertTrue(self.player2.monster_field[0] is None)
+        self.assertEqual([self.player2_card1], self.player2.graveyard)
+
     def test_attack_directly_fails(self):
         # summon monsters
         self.game.normal_summon(1)

@@ -46,8 +46,8 @@ class GameController:
                 position.
             attacked_monster: Index on the other player's field of the monster that is being attacked.
         """
-        current = self.players[self.current_player]
-        other = self.players[self.other_player]
+        current = self.get_current_player()
+        other = self.get_other_player()
         atk_monster = current.monster_field[attacking_monster]
 
         if atk_monster.battle_pos == Monster.DEF:
@@ -84,8 +84,8 @@ class GameController:
         Args:
             attacking_monster: Index on the current player's field of the monster that is attacking.
         """
-        current = self.players[self.current_player]
-        other = self.players[self.other_player]
+        current = self.get_current_player()
+        other = self.get_other_player()
         position = current.monster_field[attacking_monster].battle_pos
 
         if all([monster is None for monster in other.monster_field]) and position == Monster.ATK:
@@ -98,8 +98,8 @@ class GameController:
         Returns:
             True if either player's life point total is 0, False otherwise.
         """
-        current = self.players[self.current_player]
-        other = self.players[self.other_player]
+        current = self.get_current_player()
+        other = self.get_other_player()
 
         return current.life_points == 0 or other.life_points == 0
 
@@ -111,14 +111,14 @@ class GameController:
         Returns:
             Player that won or None if there was a tie
         """
-        current = self.players[self.current_player]
-        other = self.players[self.other_player]
+        current = self.get_current_player()
+        other = self.get_other_player()
 
         if self.is_there_winner():
             if current.life_points > 0:
-                return self.players[self.current_player]
+                return current
             elif other.life_points > 0:
-                return self.players[self.other_player]
+                return other
             elif current.life_points == 0 and other.life_points == 0:
                 return None
 
@@ -128,7 +128,7 @@ class GameController:
         Args:
             hand_idx: index in current_player's hand of monster to summon
         """
-        current = self.players[self.current_player]
+        current = self.get_current_player()
         field_idx = current.monster_field.index(None)
         current.normal_summon(hand_idx, field_idx)
 
@@ -138,9 +138,18 @@ class GameController:
        Args:
            hand_idx: index in current_player's hand of monster to summon
        """
-        current = self.players[self.current_player]
+        current = self.get_current_player()
         field_idx = current.monster_field.index(None)
         current.normal_set(hand_idx, field_idx)
+
+    def flip_summon(self, field_idx):
+        """Flip a monster in face-down defense position to face-up attack position.
+
+        Args:
+            field_idx: Index on the field to place the card.
+        """
+        current = self.get_current_player()
+        current.flip_summon(field_idx)
 
     def tribute_summon_monster(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int):
         """Tribute summon monster from current player's hand onto current player's field.
@@ -151,7 +160,7 @@ class GameController:
             tribute2_idx: index in current_player's field of second tribute monster, only needed when summoning a
                 level 7 or higher monster
         """
-        current = self.players[self.current_player]
+        current = self.get_current_player()
         current.tribute_summon(hand_idx, tribute1_idx, tribute2_idx)
 
     def get_current_player(self) -> Player:
