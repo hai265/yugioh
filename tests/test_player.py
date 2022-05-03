@@ -195,6 +195,25 @@ class TestPlayer(unittest.TestCase):
         self.assertEqual(Monster.DEF, self.player.monster_field[0].battle_pos)
         self.assertEqual(Monster.DEF, self.player.monster_field[1].battle_pos)
 
+    def test_flip_summon(self):
+        card1 = create_card("Hitotsu-Me Giant")
+        card2 = create_card("Tomozaurus")
+
+        card1.face_pos = Monster.FACE_DOWN
+        card1.battle_pos = Monster.DEF
+
+        card2.face_pos = Monster.FACE_DOWN
+        card2.battle_pos = Monster.DEF
+
+        self.player.monster_field = [card1, card2, None, None, None]
+        self.player.flip_summon(0)
+        self.player.flip_summon(1)
+
+        self.assertEqual(Monster.FACE_UP, self.player.monster_field[0].face_pos)
+        self.assertEqual(Monster.ATK, self.player.monster_field[0].battle_pos)
+        self.assertEqual(Monster.FACE_UP, self.player.monster_field[1].face_pos)
+        self.assertEqual(Monster.ATK, self.player.monster_field[1].battle_pos)
+
     def test_change_monsters_positions(self):
         card1 = create_card("Hitotsu-Me Giant")
         card2 = create_card("Tomozaurus")

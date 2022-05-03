@@ -81,6 +81,16 @@ class Player:
         monster.battle_pos = Monster.DEF
         self.monster_field[field_idx] = monster
 
+    def flip_summon(self, field_idx: int):
+        """Flip a monster in face-down defense position to face-up attack position.
+
+        Args:
+            field_idx: Index on the field to place the card.
+        """
+        monster = self.monster_field[field_idx]
+        monster.face_pos = Monster.FACE_UP
+        monster.battle_pos = Monster.ATK
+
     def tribute_summon(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int):
         """Removes a monster card from the player's hand and adds it to the field at a specific location.
 
