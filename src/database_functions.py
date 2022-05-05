@@ -7,40 +7,68 @@ import csv
 database.Base.metadata.create_all(bind=engine)
 
 
-def login(name: str, password: str) -> bool:
+def login(name: str, password: str) -> dict:
     """
     A function which facilitates login via the SQL database.
     Args:
-        name: The username associated with the user's account (max 30 characters).
+        name: The username associated with the user's account (max 20 characters).
         password: The password associated with the user's account (max 12 characters).
-    Returns: a boolean which determines whether the login was successful
+    Returns: a dict containing the user's statistics.
     """
+    print("name: " + name + ", password: " + password)
     db = SessionLocal()
-    success = db.query(exists().where(database.User.name == name, database.User.password == password)).scalar()
+    success = db.query(exists().where(database.User.name == name).where(database.User.password == password)).scalar()
+    if success:
+        stats = get_user_stats(name)
+    else:  # Will reach this if the password is incorrect.
+        stats = {"name": "", "wins": -1, "losses": -1, "draws": -1}
     db.close()
-    return success
+
+    return stats
 
 
-def register(name: str, password: str) -> bool:
+def register(name: str, password: str) -> dict:
     """
     A function which facilitates login via the SQL database.
     Args:
-        name: A username (maximum 30 characters) that the user wants to register with
+        name: A username (maximum 20 characters) that the user wants to register with
         password: A password (maximum 12 characters) that the user wants to register with
     Returns: a boolean which determines whether registration was successful
     """
     db = SessionLocal()
-    success = False
-    # If a user with the specified username already exists, do not create a record.
-    name_exists = db.query(exists().where(database.User.name == name)).scalar()
-    if not name_exists:
-        db_record = database.User(name=name, password=password, wins=0, losses=0, draws=0)
-        db.add(db_record)
-        db.commit()
-        success = True
-
+    db_record = database.User(name=name, password=password, wins=0, losses=0, draws=0)
+    db.add(db_record)
+    db.commit()
     db.close()
-    return success
+    return get_user_stats(name)
+
+
+def user_exists(name: str) -> bool:
+    """
+    Checks if a user with the specified name exists in the database.
+    :param name: a string containing the username which will be checked
+    :return: existing: a boolean which states whether the user exists.
+    """
+
+    db = SessionLocal()
+    existing = db.query(exists().where(database.User.name == name)).scalar()
+    db.close()
+    return existing
+
+
+def get_user_stats(name: str) -> dict:
+    """
+    Gets the win/loss/draw statistics for the specified user.
+    :param name: a string containing the name of the user.
+    :return: result: a dict containing a string entry for username and three integer entries for wins, losses, and draws
+             e.g. {"Yugi", 27, 1, 0}
+    """
+    db = SessionLocal()
+    query = db.query(database.User).filter(database.User.name == name).one()
+    db.close()
+
+    result = {"name": query.name, "wins": query.wins, "losses": query.losses, "draws": query.draws}
+    return result
 
 
 def read_cards_into_db():  # @staticmethod

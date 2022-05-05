@@ -12,10 +12,13 @@ and https://docs.sqlalchemy.org/en/14/index.html
 """
 
 Base = declarative_base()
-DATABASE_URL = "sqlite:///./database.db"
-# MYSQL does not work at the moment. "mysql://user:password@localhost/db?host=localhost?port=9999"
+DATABASE_URI = "sqlite:///./test_database.db"
+# "sqlite:///./test_database.db"
+# "mysql+pymysql://root:$upr3me1@localhost/yugioh_test"
+# "mysql+pymysql://admin:$upr3meK1ng@(I'll enter the RDS instance here)/yugiohdb"
 
-engine = create_engine(DATABASE_URL)
+
+engine = create_engine(DATABASE_URI)
 
 connection = engine.connect()
 
