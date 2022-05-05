@@ -8,6 +8,8 @@ __pycache__/
 .vscode
 .mypy_cache
 database.db
+test_database.db
+debug_start_client.py
 # C extensions
 *.so
 
