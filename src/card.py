@@ -1,12 +1,12 @@
 import csv
 
-
 import csv
 
 
 class Card:
     """A class representing a Yu-Gi-Oh! Card.
     """
+
     def __init__(self, name: str, description: str):
         """Initializes the generic fields of a Yu-Gi-Oh! Card.
 
@@ -168,5 +168,7 @@ def monster_card_to_string(card: Monster):
     Returns:
         A string in format {cardName} {attack}/{defense}
     """
-    return "{cardName} {attack}/{defense}".format(cardName=card.name, attack=card.attack_points,
-                                                  defense=card.attack_points)
+    return "{cardName} {attack}/{defense} {position} {level}*".format(cardName=card.name, attack=card.attack_points,
+                                                                     defense=card.attack_points,
+                                                                     position=card.battle_pos[0].upper(),
+                                                                     level=card.level)

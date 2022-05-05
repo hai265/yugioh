@@ -73,16 +73,16 @@ class TestYugiohUpdateSummoning(unittest.TestCase):
 
     def test_summon_two_cards_from_hand(self):
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [3]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "summon_monster", "args": [0]})
-        game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "summon_monster",
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
+        game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon",
                                                    "args": [0]})
         self.assertTrue(game_state["players"][0]["monster_field"][0]["name"] == "Hitotsu-Me Giant")
         self.assertTrue(game_state["players"][0]["monster_field"][1]["name"] == "Mammoth Graveyard")
 
     def test_tribute_summon_dark_magician(self):
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [3]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "summon_monster", "args": [0]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "summon_monster", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
         game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "tribute_summon",
                                                    "args": [0, 0, 1]})
         self.assertTrue(game_state["players"][0]["monster_field"][0]["name"] == "Dark Magician")
@@ -113,10 +113,10 @@ class TestYugiohUpdate(unittest.TestCase):
     def test_update_game_attack_monster_on_field(self):
         # Summon dark magician on player 1's field, hitotsu me giant on player 2, and have dark magician attack giant
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [2]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "summon_monster", "args": [1]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [1]})
         self.yugioh_game.game.change_turn()
         self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "draw_card", "args": [1]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "summon_monster", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "normal_summon", "args": [0]})
         game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "attack_monster",
                                                    "args": [0, 0]})
         giant = create_deck_from_array(["Hitotsu-Me Giant"])[0]
@@ -128,7 +128,7 @@ class TestYugiohUpdate(unittest.TestCase):
     def test_update_game_attack_player_with_giant(self):
         # Summon dark magician on player 1's field, hitotsu me giant on player 2, and have dark magician attack giant
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [1]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "summon_monster", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
         game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "attack_player",
                                                    "args": [0]})
         giant = create_deck_from_array(["Hitotsu-Me Giant"])[0]

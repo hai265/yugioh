@@ -88,8 +88,10 @@ class Yugioh:
                 self.game.players[request["player"]].draw_card(*request["args"])
             else:
                 self.game.players[request["player"]].draw_card()
-        elif request["move"] == "summon_monster":
+        elif request["move"] == "normal_summon":
             self.game.normal_summon(*request["args"])
+        elif request["move"] == "normal_set":
+            self.game.normal_set(*request["args"])
         elif request["move"] == "tribute_summon":
             self.game.tribute_summon_monster(*request["args"])
         elif request["move"] == "attack_monster":
