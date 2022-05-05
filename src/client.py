@@ -9,6 +9,7 @@ from src.card import create_deck_from_preset, deck_to_card_name_list, monster_ca
 from src.game import GameController, GameStatus
 from src.player import Player
 from src.network import Network
+from src.account_menu import display_prompt
 
 
 class NetworkCli:
@@ -74,8 +75,9 @@ class NetworkCli:
         """
         # Initialize players
         self.yugioh_game = GameController()
-        print("Enter your name")
-        self.name = input()
+        user_info = display_prompt()
+        self.name = user_info["name"]
+        print("Welcome " + self.name + ", it's time to duel!")
         game_state = self.connect_to_server()
         preset_deck = create_deck_from_preset("sources/preset1")
         preset_deck = deck_to_card_name_list(preset_deck)
