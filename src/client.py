@@ -4,8 +4,10 @@ import os
 import pickle
 import socket
 from asyncio.log import logger
+import inquirer
+from inquirer import errors
 
-from src.card import create_deck_from_preset, deck_to_card_name_list, monster_card_to_string
+from src.card import create_deck_from_preset, deck_to_card_name_list, monster_card_to_string, Monster, Card
 from src.game import GameController, GameStatus
 from src.network import Network
 from src.account_menu import display_prompt
@@ -67,7 +69,8 @@ class NetworkCli:
         """
         Starts an instance of a yugioh yugioh_game on the command line
         """
-        self.name = input("Enter your name: ")
+        if len(self.name) == 0:
+            self.name = input("Enter your name: ")
         # Initialize players
         self.yugioh_game = GameController()
         game_state = self.connect_to_server()
@@ -110,6 +113,7 @@ class NetworkCli:
         user_info = display_prompt()
         self.name = user_info["name"]
         print("Welcome " + self.name + ", it's time to duel!")
+
     def connect_to_server(self) -> dict:
         """
         Connects to the game server.
@@ -212,13 +216,38 @@ class MainPhase(Phase):
 
     def conduct_phase(self) -> bool:
         while True:
-            monster_to_summon = int(input("Choose a monster to summon to the field (0 to cancel)"))
-            if monster_to_summon == 0:
+            self.context.display_board()
+            questions = [
+                inquirer.List('choice',
+                              message="Choose your action",
+                              choices=['Summon a monster', 'Go to Battle Phase'],
+                              ),
+            ]
+            answers = inquirer.prompt(questions)
+            if answers['choice'] == "Go to Battle Phase":
                 break
-            what_summon = int(input("1 to normal summon, 2 to tribute summon (0 to cancel)"))
-            if what_summon == 1:
+            hand_choices = generate_monster_card_question(self.context.yugioh_game.get_current_player().hand)
+            hand_choices.append(("Cancel", -1))
+            questions = [
+                inquirer.List('choice',
+                              message="Choose a monster from your hand to summon",
+                              choices=hand_choices,
+                              ),
+            ]
+
+            monster_to_summon = inquirer.prompt(questions)["choice"]
+            if monster_to_summon == -1:
+                continue
+            questions = [
+                inquirer.List('choice',
+                              message="Choose a summoning method summon",
+                              choices=["Normal Summon", "Tribute Summon", "Cancel"],
+                              ),
+            ]
+            what_summon = inquirer.prompt(questions)["choice"]
+            if what_summon == "Normal Summon":
                 self.normal_summon(monster_to_summon)
-            elif what_summon == 2:
+            elif what_summon == "Tribute Summon":
                 self.tribute_summon(monster_to_summon)
             else:
                 break
@@ -228,30 +257,52 @@ class MainPhase(Phase):
         return True
 
     def normal_summon(self, monster_to_summon):
-        position = int(input("1 to summon face up, 2 to summon face down (0 to cancel)"))
-        if position == 0:
+        questions = [
+            inquirer.List('choice',
+                          message="Choose a position to summon",
+                          choices=["Face Up", "Face Down", "Cancel"],
+                          ),
+        ]
+        position = inquirer.prompt(questions)["choice"]
+        if position == "Cancel":
             return
-        if position == 1:
+        if position == "Face Up":
             self.context.send_data_and_update_game(
                 {"operation": "update", "session_id": self.context.session_id,
                  "move": "normal_summon", "args":
-                     [monster_to_summon - 1], "get_pickle": True})
-        elif position == 2:
+                     [monster_to_summon], "get_pickle": True})
+        elif position == "Face Down":
             self.context.send_data_and_update_game(
                 {"operation": "update", "session_id": self.context.session_id,
                  "move": "normal_set", "args":
-                     [monster_to_summon - 1], "get_pickle": True})
+                     [monster_to_summon], "get_pickle": True})
             self.context.display_board()
 
     def tribute_summon(self, monster_to_summon):
-        if monster_to_summon == 0:
+        if monster_to_summon == -1:
             return
-        monster_to_sacrifice1 = int(input("Choose a monster to sacrifice from your field"))
-        monster_to_sacrifice2 = int(input("Choose a monster to sacrifice from your field"))
+
+        def validator(_, answers):
+            if -1 in answers or len(answers) == 2:
+                return True
+            else:
+                raise errors.ValidationError('', reason='You must select two monsters on the field to proceed.')
+
+        monster_choices = generate_monster_card_question(self.context.yugioh_game.get_current_player().monster_field)
+        monster_choices.append(("Cancel", -1))
+        questions = [
+            inquirer.Checkbox('choice',
+                              message="Choose two monsters to sacrifice on your field. (Press space to select and enter to finalize)",
+                              choices=monster_choices, validate=validator
+                              ),
+        ]
+        monsters_to_sacrifice = inquirer.prompt(questions)["choice"]
+        if len(monsters_to_sacrifice) == 0 or -1 in monsters_to_sacrifice:
+            return
         self.context.send_data_and_update_game(
             {"operation": "update", "session_id": self.context.session_id,
              "move": "tribute_summon", "args":
-                 [monster_to_summon - 1, monster_to_sacrifice1 - 1, monster_to_sacrifice2 - 1], "get_pickle": True})
+                 [monster_to_summon, monsters_to_sacrifice[0], monsters_to_sacrifice[1]], "get_pickle": True})
         self.context.display_board()
 
 
@@ -261,27 +312,45 @@ class BattlePhase(Phase):
     """
 
     def conduct_phase(self) -> bool:
-        attacking_monster = int(input("Choose a monster from your field (0 to go to end turn)"))
-        while attacking_monster != 0 and not self.context.yugioh_game.is_there_winner():
+        while True:
             self.context.display_board()
-            targeted_monster = int(input("Target a monster to attack (6 to attack player 0 to go to end turn)"))
-            if targeted_monster == 0:
+            monster_choices = generate_monster_card_question(
+                self.context.yugioh_game.get_current_player().monster_field)
+            monster_choices.append(("End Phase", -1))
+
+            questions = [
+                inquirer.List('choice',
+                              message="Choose a monster on your field",
+                              choices=monster_choices),
+            ]
+            attacking_monster = inquirer.prompt(questions)["choice"]
+            if attacking_monster == -1:
+                break
+            monster_choices = generate_monster_card_question(
+                self.context.yugioh_game.get_other_player().monster_field)
+            monster_choices.append(("Attack Player", len(self.context.yugioh_game.get_other_player().monster_field)))
+            monster_choices.append(("Cancel", -1))
+            questions = [
+                inquirer.List('choice',
+                              message="Choose a target",
+                              choices=monster_choices),
+            ]
+            targeted_monster = inquirer.prompt(questions)["choice"]
+            if targeted_monster == -1:
                 break
             else:
-                if targeted_monster == 6:
+                if targeted_monster == len(self.context.yugioh_game.get_current_player().monster_field):
                     self.context.send_data_and_update_game(
                         {"operation": "update", "session_id": self.context.session_id,
-                         "move": "attack_player", "args": [attacking_monster - 1],
+                         "move": "attack_player", "args": [attacking_monster],
                          "get_pickle": True})
                 else:
                     self.context.send_data_and_update_game({"operation": "update", "move": "attack_monster", "args":
-                                                           [attacking_monster - 1, targeted_monster - 1],
+                        [attacking_monster, targeted_monster],
                                                             "get_pickle": True})
             self.context.display_board()
             if self.context.yugioh_game.is_there_winner():
                 return False
-            attacking_monster = int(input("Choose a monster from your field (6 to attack player, 0 to go to end "
-                                          "turn)"))
         self.context.setState(EndPhase())
         return True
 
@@ -332,3 +401,16 @@ class Context:
 
     def doSomething(self):
         self._state.conduct_phase()
+
+
+def generate_monster_card_question(card_choices: list[Card]) -> list[tuple[str, int]]:
+    """
+    Generate a list of card questions for an inquiry
+    :param card_choices: A list of cards
+    :return: a
+    """
+    monster_choices = []
+    for field_idx, card in enumerate(card_choices):
+        if card is not None and isinstance(card, Monster):
+            monster_choices.append((card.name, field_idx))
+    return monster_choices
