@@ -4,7 +4,7 @@ from src.database import Cards
 from src.database import User
 from src.database import engine
 from src.database_functions import read_cards_into_db
-from src.database_functions import login, register, get_user_stats, user_exists
+from src.database_functions import login, register, get_user_stats, user_exists, update_win_loss_draw
 from sqlalchemy import select
 
 
@@ -101,3 +101,64 @@ class TestUserExists(unittest.TestCase):
         stmt = User.__table__.delete().where(User.name == "Yugi")
         engine.execute(stmt)
         db.close()
+
+class TestUpdateWinLossDraw(unittest.TestCase):
+    def test_update_win(self):
+        db = SessionLocal()
+        name = "Yugi"
+        password = "kingofgames"
+        db_record = User(name=name, password=password, wins=0, losses=0, draws=0)
+        db.add(db_record)
+        db.commit()
+        update_win_loss_draw(name, "w")
+        user = db.query(User).filter(User.name == name).one()
+        self.assertEqual(1, user.wins)
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db.close()
+
+    def test_update_loss(self):
+        db = SessionLocal()
+        name = "Yugi"
+        password = "kingofgames"
+        db_record = User(name=name, password=password, wins=0, losses=0, draws=0)
+        db.add(db_record)
+        db.commit()
+        update_win_loss_draw(name, "l")
+        user = db.query(User).filter(User.name == name).one()
+        self.assertEqual(1, user.losses)
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db.close()
+
+    def test_update_draw(self):
+        db = SessionLocal()
+        name = "Yugi"
+        password = "kingofgames"
+        db_record = User(name=name, password=password, wins=0, losses=0, draws=0)
+        db.add(db_record)
+        db.commit()
+        update_win_loss_draw(name, "d")
+        user = db.query(User).filter(User.name == name).one()
+        self.assertEqual(1, user.draws)
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db.close()
+
+    def test_update_invalid_char(self):
+        db = SessionLocal()
+        name = "Yugi"
+        password = "kingofgames"
+        db_record = User(name=name, password=password, wins=0, losses=0, draws=0)
+        db.add(db_record)
+        db.commit()
+        update_win_loss_draw(name, "e")
+        user = db.query(User).filter(User.name == name).one()
+        self.assertEqual(0, user.wins)
+        self.assertEqual(0, user.losses)
+        self.assertEqual(0, user.draws)
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db.close()
+
+

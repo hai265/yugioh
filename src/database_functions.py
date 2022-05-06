@@ -88,3 +88,22 @@ def read_cards_into_db():  # @staticmethod
                 db.add(db_record)
                 db.commit()
     db.close()
+
+
+def update_win_loss_draw(name: str, status: str):
+    """
+    Updates the win/loss/draw statistic for a specified user.
+    :param name: A string containing the name of the user.
+    :param status: A one-character string containing "w", "l", or "d" to specify a win, loss, or draw.
+    :return:
+    """
+    db = SessionLocal()
+    query = db.query(database.User).filter(database.User.name == name).one()
+    if status == "w":
+        query.wins += 1
+    elif status == "l":
+        query.losses += 1
+    elif status == "d":
+        query.draws += 1
+    db.commit()
+    db.close()

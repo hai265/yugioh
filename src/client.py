@@ -11,6 +11,7 @@ from src.card import create_deck_from_preset, deck_to_card_name_list, monster_ca
 from src.game import GameController, GameStatus
 from src.network import Network
 from src.account_menu import display_prompt
+from src.database_functions import update_win_loss_draw
 
 
 class NetworkCli:
@@ -70,6 +71,7 @@ class NetworkCli:
         Starts an instance of a yugioh yugioh_game on the command line
         """
         if len(self.name) == 0:
+
             self.name = input("Enter your name: ")
         # Initialize players
         self.yugioh_game = GameController()
@@ -110,8 +112,8 @@ class NetworkCli:
         Prompts the user to log in or register
         :return:
         """
-        user_info = display_prompt()
-        self.name = user_info["name"]
+        self.user_info = display_prompt()
+        self.name = self.user_info["name"]
         print("Welcome " + self.name + ", it's time to duel!")
 
     def connect_to_server(self) -> dict:
@@ -157,10 +159,12 @@ class NetworkCli:
             self.yugioh_game.game_status = GameStatus.ENDED
             if self.yugioh_game.players[1].life_points <= 0:
                 print(self.yugioh_game.players[0].name + " won!")
+                update_win_loss_draw(self.name, "w")
                 self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
             elif self.yugioh_game.players[0].life_points <= 0:
                 print(self.yugioh_game.players[1].name + " won!")
+                update_win_loss_draw(self.name, "l")
                 self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
             else:
