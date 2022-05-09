@@ -40,12 +40,16 @@ class Yugioh:
 
                 player_name: name of the player
                 deck: a list of strings of card names to create the deck with
+                player_place: whether the player is 1st place (0) or 2nd place (1). If not specified, will append
                 get_pickle: optional false. If true, instead returns a pickled version of the game
         Returns: dict version of Game
         """
         player = Player(8000, name=request["player_name"])
         player.deck = create_deck_from_array(request["deck"])
-        self.game.players.append(player)
+        if "player_place" not in request:
+            self.game.players.append(player)
+        else:
+            self.game.players.insert(request["player_place"], player)
         self.game.session_id = request["session_id"]
         if len(self.game.players) == 2:
             self.game.game_status = GameStatus.ONGOING

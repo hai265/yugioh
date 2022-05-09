@@ -2,3 +2,4 @@ SQLAlchemy~=1.4.35
 coverage
 coverage-badge
 inquirer==2.8.0
+websockets

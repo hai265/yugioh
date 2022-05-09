@@ -1,16 +1,19 @@
+import asyncio
+
 from src.client import NetworkCli
 import logging
+import websockets
 
-def main():
+async def main():
     #SERVER_IP = "167.172.152.60"
-    SERVER_IP = "127.0.0.1"
+    SERVER_IP = "ws://localhost"
     SERVER_PORT = 5555
     logging.getLogger().setLevel(logging.INFO)
     cli = NetworkCli(SERVER_IP, SERVER_PORT)
-    cli.main()
+    await cli.main()
 
 
 # Using the special variable
 # __name__
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
