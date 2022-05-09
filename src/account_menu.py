@@ -1,3 +1,5 @@
+import re
+
 from src.database_functions import login, register, user_exists
 
 
@@ -26,26 +28,21 @@ def login_proxy() -> dict:
     """
     name = ""
     password = ""
-    existing_user = False
     result = {"name": "", "wins": -1, "losses": -1, "draws": -1}
-    while not existing_user:
-        while not 0 < len(name) < 21:
-            name = input("Enter a valid username (max. 20 characters): ")
-
-        if not 0 < len(name) < 21:
-            print("username must be within specified length. Please try again.")
-            name = ""
-            continue
-
+    is_valid_username = False
+    while not is_valid_username:
+        name = input("Enter a valid username (1-20 characters, alphanumeric characters and underscores only.): ")
+        is_valid_username = check_username(name)
         existing_user = user_exists(name)
         if not existing_user:
             print("The specified username does not exist. Please try again.")
-            name = ""
+            is_valid_username = False
 
     while len(result["name"]) == 0:
-        while not 0 < len(password) < 13:
-            password = input("Enter a valid password (max. 12 characters: ")
-
+        is_valid_password = False
+        while not is_valid_password:
+            password = input("Enter a valid password (1-12 characters, alphanumeric characters and underscores only): ")
+            is_valid_password = check_password(password)
         result = login(name, password)
 
         if len(result["name"]) == 0:
@@ -59,24 +56,59 @@ def register_proxy() -> dict:
     A function which facilitates registration via the SQL database and gets the user's stats on success.
     :return: user_stats: a dict containing the user's name, total wins, total losses, and total draws.
     """
-    name = ""
-    password = ""
-    existing_user = True
-
-    # In order to proceed, the name must be within the accepted length and the user with the name must not exist.
-    while not 0 < len(name) < 21 and existing_user is True:
-        name = input("Enter a valid username (min. 1 characters, max. 20 characters): ")
-        if not 0 < len(name) < 21:
-            print("username must be within specified length. Please try again.")
-            name = ""
-            continue
-
+    is_valid_username = False
+    while not is_valid_username:
+        name = input("Enter a valid username (1-20 characters, alphanumeric characters and underscores only): ")
+        is_valid_username = check_username(name)
         existing_user = user_exists(name)
         if existing_user:
-            print("A user with that name already exists. Please try again.")
-            name = ""
+            print("The specified username already exists. Please try again.")
+            is_valid_username = False
 
-    while not 0 < len(password) < 13:
+    is_valid_password = False
+    while not is_valid_password:
         password = input("Enter a valid password (max. 12 characters: ")
+        is_valid_password = check_password(password)
 
     return register(name, password)
+
+
+def check_username(name: str) -> bool:
+    """
+    Checks for username validity. A username must be a minimum of 1 character and a maximum of 20 characters in length.
+    It must only contain alphanumeric characters and/or underscores.
+    Existence of the username is also checked based on which function calls this.
+    :param name: The username being checked for validity.
+    :return: a boolean indicating whether the username is valid.
+    """
+    if not 0 < len(name) < 21:
+        print("username must be within specified length. Please try again.")
+        return False
+
+    is_valid_name = bool(re.match("^[A-Za-z0-9_]+$", name))
+
+    if not is_valid_name:
+        print("username must only contain alphanumeric characters or underscores. Please try again.")
+        return False
+
+    return True
+
+
+def check_password(password: str) -> bool:
+    """
+    Checks for password validity. A password must have a minimum of 1 characters and a maximum of 12 characters.
+    It must only contain alphanumeric characters and/or underscores.
+    :param password: A string containing the password being checked for validity.
+    :return: A boolean indicating whether the password is valid.
+    """
+
+    if not 0 < len(password) < 13:
+        print("password must be within specified length. Please try again.")
+        return False
+
+    is_valid_password = bool(re.match("^[A-Za-z0-9_]+$", password))
+    if not is_valid_password:
+        print("password must only contain alphanumeric characters or underscores. Please try again.")
+        return False
+
+    return True
