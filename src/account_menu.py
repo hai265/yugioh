@@ -1,6 +1,6 @@
 import re
 
-from src.database_functions import login, register, user_exists
+from src.database_functions import login, register, user_exists, get_user_stats
 
 
 def display_prompt() -> dict:
@@ -56,6 +56,8 @@ def register_proxy() -> dict:
     A function which facilitates registration via the SQL database and gets the user's stats on success.
     :return: user_stats: a dict containing the user's name, total wins, total losses, and total draws.
     """
+    name = ""
+    password = ""
     is_valid_username = False
     while not is_valid_username:
         name = input("Enter a valid username (1-20 characters, alphanumeric characters and underscores only): ")
@@ -112,3 +114,22 @@ def check_password(password: str) -> bool:
         return False
 
     return True
+
+
+def user_lookup() -> dict:
+    """
+    Displays a prompt asking for the name of the user to be looked up.
+    The name must be 1-20 characters in length with only alphanumeric characters and/or underscores.
+    :return: A dict containing the user's stats.
+    """
+    is_valid_username = False
+    while not is_valid_username:
+        name = input("Enter a valid username (1-20 characters, alphanumeric characters and underscores only.): ")
+        is_valid_username = check_username(name)
+        if is_valid_username:
+            result = get_user_stats(name)
+            if result["name"] == "":
+                print("The username specified does not exist. Please try again.")
+                is_valid_username = False
+    print(result)
+    return result

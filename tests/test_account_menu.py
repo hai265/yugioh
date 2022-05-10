@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from src.account_menu import display_prompt, login_proxy, register_proxy, check_username, check_password
+from src.account_menu import display_prompt, login_proxy, register_proxy, check_username, check_password, user_lookup
 from src.database import SessionLocal
 from src.database import User
 from src.database import engine
@@ -240,3 +240,89 @@ class TestCheckPassword(unittest.TestCase):
         password = "K!ngofg@mes"
         success = check_password(password)
         self.assertEqual(False, success)
+
+class TestUserLookup(unittest.TestCase):
+    @patch('builtins.input', side_effect=['Yugi'])
+    def test_user_lookup_nominal(self, mock_input):
+        db = SessionLocal()
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db_record = User(name="Yugi", password="kingofgames", wins=34, losses=5, draws=1)
+        db.add(db_record)
+        db.commit()
+        result = user_lookup()
+        stmt = User.__table__.delete().where(User.name == "Yugi")
+        engine.execute(stmt)
+        db.close()
+        self.assertEqual(result["name"], "Yugi")  # add assertion here
+        self.assertEqual(result["wins"], 34)
+        self.assertEqual(result["losses"], 5)
+        self.assertEqual(result["draws"], 1)
+
+    @patch('builtins.input', side_effect=['nonexistent', 'Yugi'])
+    def test_user_lookup_nonexistent_to_nominal(self, mock_input):
+        db = SessionLocal()
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db_record = User(name="Yugi", password="kingofgames", wins=34, losses=5, draws=1)
+        db.add(db_record)
+        db.commit()
+        result = user_lookup()
+        stmt = User.__table__.delete().where(User.name == "Yugi")
+        engine.execute(stmt)
+        db.close()
+        self.assertEqual(result["name"], "Yugi")  # add assertion here
+        self.assertEqual(result["wins"], 34)
+        self.assertEqual(result["losses"], 5)
+        self.assertEqual(result["draws"], 1)
+
+    @patch('builtins.input', side_effect=['', 'Yugi'])
+    def test_user_lookup_empty_to_nominal(self, mock_input):
+        db = SessionLocal()
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db_record = User(name="Yugi", password="kingofgames", wins=34, losses=5, draws=1)
+        db.add(db_record)
+        db.commit()
+        result = user_lookup()
+        stmt = User.__table__.delete().where(User.name == "Yugi")
+        engine.execute(stmt)
+        db.close()
+        self.assertEqual(result["name"], "Yugi")  # add assertion here
+        self.assertEqual(result["wins"], 34)
+        self.assertEqual(result["losses"], 5)
+        self.assertEqual(result["draws"], 1)
+
+    @patch('builtins.input', side_effect=['Superdreadnought_Rail_Cannon', 'Yugi'])
+    def test_user_lookup_long_to_nominal(self, mock_input):
+        db = SessionLocal()
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db_record = User(name="Yugi", password="kingofgames", wins=34, losses=5, draws=1)
+        db.add(db_record)
+        db.commit()
+        result = user_lookup()
+        stmt = User.__table__.delete().where(User.name == "Yugi")
+        engine.execute(stmt)
+        db.close()
+        self.assertEqual(result["name"], "Yugi")  # add assertion here
+        self.assertEqual(result["wins"], 34)
+        self.assertEqual(result["losses"], 5)
+        self.assertEqual(result["draws"], 1)
+
+    @patch('builtins.input', side_effect=['J@den', 'Yugi'])
+    def test_user_lookup_not_alphanumeric_to_nominal(self, mock_input):
+        db = SessionLocal()
+        stmt = User.__table__.delete().where(User.name != "")
+        engine.execute(stmt)
+        db_record = User(name="Yugi", password="kingofgames", wins=34, losses=5, draws=1)
+        db.add(db_record)
+        db.commit()
+        result = user_lookup()
+        stmt = User.__table__.delete().where(User.name == "Yugi")
+        engine.execute(stmt)
+        db.close()
+        self.assertEqual(result["name"], "Yugi")  # add assertion here
+        self.assertEqual(result["wins"], 34)
+        self.assertEqual(result["losses"], 5)
+        self.assertEqual(result["draws"], 1)

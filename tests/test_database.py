@@ -83,6 +83,16 @@ class TestGetUserStats(unittest.TestCase):
         engine.execute(stmt)
         db.close()
 
+    def test_get_nonexistent(self):
+        db = SessionLocal()
+        name = "Yugi"
+        user_stats = get_user_stats(name)
+        self.assertEqual("", user_stats["name"])
+        self.assertEqual(-1, user_stats["wins"])
+        self.assertEqual(-1, user_stats["losses"])
+        self.assertEqual(-1, user_stats["draws"])
+        db.close()
+
 
 class TestUserExists(unittest.TestCase):
     def test_user_exists_true(self):
