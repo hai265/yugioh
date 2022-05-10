@@ -14,7 +14,10 @@ class TestReadCards(unittest.TestCase):
         db = SessionLocal()
         db_record = db.scalars(select(Cards)).first()
         self.assertEqual("Monster", db_record.card_type)
-        Cards.__table__.drop(engine)
+        # Cards.__table__.drop(engine)
+        stmt = Cards.__table__.delete().where(Cards.name != "")
+        engine.execute(stmt)
+        db.close()
         db.close()
 
 
