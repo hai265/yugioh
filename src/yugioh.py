@@ -30,7 +30,8 @@ class Yugioh:
 
     def __init__(self):
         self.game = GameController()
-
+        self.game_actions = []
+        self.current_turn = 1
     def create_game(self, request: dict) -> Union[dict, bytes]:
         """
 
@@ -55,6 +56,7 @@ class Yugioh:
             self.game.game_status = GameStatus.ONGOING
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
+        self.log_game(request, "create_game")
         return to_dict(self.game)
 
     def read_game(self, request: dict) -> Union[dict, bytes]:
@@ -68,6 +70,7 @@ class Yugioh:
         """
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
+        self.log_game(request, "read_game")
         return to_dict(self.game)
 
     def update_game(self, request: dict) -> dict:
@@ -86,6 +89,7 @@ class Yugioh:
         if request["move"] == "attack_player":
             self.game.attack_player(*request["args"])
         if request["move"] == "change_turn":
+            self.current_turn += 1
             self.game.change_turn()
         elif request["move"] == "draw_card":
             if "args" in request:
@@ -100,7 +104,7 @@ class Yugioh:
             self.game.tribute_summon_monster(*request["args"])
         elif request["move"] == "attack_monster":
             self.game.attack_monster(*request["args"])
-
+        self.log_game(request, "update_game")
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
         json_dict = to_dict(self.game)
@@ -120,4 +124,17 @@ class Yugioh:
         self.game.game_status = GameStatus.ENDED
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
+        self.log_game(request, "delete_game")
         return to_dict(self.game)
+
+    def log_game(self, request: dict, action: str):
+        """
+        Records game events into a list
+        Args:
+            request: a request to yugioh
+            crud_action: crud action that was taken
+        """
+        request.pop("get_pickle", None)
+        request["turn"] = self.current_turn
+        request["action"] = action
+        self.game_actions.append(request)

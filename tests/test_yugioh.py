@@ -173,6 +173,33 @@ class TestYugiohDelete(unittest.TestCase):
         status = self.yugioh_game.delete_game({"session_id": 1})
         self.assertTrue("session_id" in status and status["session_id"] != 0)
 
+class TestYugiohLogger( unittest.TestCase):
+    def setUp(self):
+        self.yugioh_game = Yugioh()
+        self.preset_deck = create_deck_from_preset("sources/preset1")
+        self.preset_deck_string = []
+        for card in self.preset_deck:
+            self.preset_deck_string.append(card.name)
+
+    def test_logger_create_game(self):
+        self.yugioh_game.create_game(
+            {"player_name": "Yugi", "deck": self.preset_deck_string, "session_id": 1})
+        create_deck_from_array(["Hitotsu-Me Giant", "Dark Magician",
+                                            "Gaia The Fierce Knight", "Mammoth Graveyard",
+                                            "Silver Fang", "Curtain of the Dark One", "Tomozaurus",
+                                            "Feral Imp"])
+        self.yugioh_game.create_game(
+            {"player_name": "Kaiba", "deck": self.preset_deck_string, "session_id": 1})
+        create_deck_from_array(["Hitotsu-Me Giant", "Dark Magician",
+                                            "Gaia The Fierce Knight", "Mammoth Graveyard",
+                                            "Silver Fang", "Curtain of the Dark One", "Tomozaurus",
+                                            "Feral Imp"])
+        self.assertEqual(self.yugioh_game.game_actions[0]["player_name"], "Yugi")
+        self.assertEqual(self.yugioh_game.game_actions[1]["player_name"], "Kaiba")
+        self.assertEqual(self.yugioh_game.game_actions[1]["deck"], ["Hitotsu-Me Giant", "Dark Magician",
+                                            "Gaia The Fierce Knight", "Mammoth Graveyard",
+                                            "Silver Fang", "Curtain of the Dark One", "Tomozaurus",
+                                            "Feral Imp"])
 
 class TestYugiohCreatePickle(unittest.TestCase):
     def setUp(self):
