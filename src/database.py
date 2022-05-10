@@ -12,10 +12,10 @@ and https://docs.sqlalchemy.org/en/14/index.html
 """
 
 Base = declarative_base()
-DATABASE_URI = "sqlite:///./test_database.db"
+DATABASE_URI = "mysql+pymysql://root:$MYSQL_ROOT_PASSWORD@mysql/$MYSQL_DATABASE"
 # "sqlite:///./test_database.db"
 # "mysql+pymysql://root:$upr3me1@localhost/yugioh_test"
-# "mysql+pymysql://admin:$upr3meK1ng@(I'll enter the RDS instance here)/yugiohdb"
+# MILESTONE DB: "mysql+pymysql://admin:$upr3meK1ng@dbinstance-1.c9lngznprt4c.us-east-1.rds.amazonaws.com:3306/yugiohdb"
 
 
 engine = create_engine(DATABASE_URI)

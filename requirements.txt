@@ -1,5 +1,7 @@
 SQLAlchemy~=1.4.35
+PyMySQL~=1.0.2
 coverage
 coverage-badge
 inquirer==2.8.0
 websockets
+cryptography~=37.0.2
