@@ -63,7 +63,7 @@ def get_user_stats(name: str) -> dict:
     :return: result: a dict containing a string entry for username and three integer entries for wins, losses, and draws
              e.g. {"Yugi", 27, 1, 0}
     """
-    result = {"name": "", "wins": -1, "losses": -1, "draws": -1}
+    result = {"error": "User not found", "name": "", "wins": -1, "losses": -1, "draws": -1}
     db = SessionLocal()
     if user_exists(name):
         query = db.query(database.User).filter(database.User.name == name).one()

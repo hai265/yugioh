@@ -10,8 +10,6 @@ from inquirer import errors
 
 from src.card import create_deck_from_preset, deck_to_card_name_list, monster_card_to_string, Monster, Card
 from src.game import GameController, GameStatus
-from src.account_menu import display_prompt
-from src.database_functions import update_win_loss_draw
 
 
 class NetworkCli:
@@ -20,14 +18,19 @@ class NetworkCli:
     """
     _phase = None
 
-    def __init__(self, server_ip: str, port=5555):
+    def __init__(self, server_ip: str, port=5555, name="", deck=[]):
+        """
+        Name: name of the player
+        deck: a list of card names that a player will use for the game
+        """
         self.players = []
         self.yugioh_game: GameController = GameController(0)
         self.client_socket = None
         self.session_id = 0
         self.player_place = 0
         self.session_id = 0
-        self.name = ""
+        self.name = name
+        self.deck = deck
         self.server_ip = server_ip
         self.port = port
         self.num_rounds = 0
@@ -69,19 +72,16 @@ class NetworkCli:
         """
         Starts an instance of a yugioh yugioh_game on the command line
         """
-        if len(self.name) == 0:
-            self.name = input("Enter your name: ")
         # Initialize players
         self.yugioh_game = GameController()
+        print("Waiting for another player...")
         game_state = await self.connect_to_server()
-        preset_deck = create_deck_from_preset("sources/preset1")
-        preset_deck = deck_to_card_name_list(preset_deck)
         self.player_place, self.session_id = game_state["player"], game_state["session_id"]
         logger.debug("Send Create Game")
         await self.client_socket.send(json.dumps(
             {"operation": "create", "session_id": self.session_id,
              "player_name": self.name,
-             "deck": preset_deck, "get_pickle": True, "player_place": self.player_place}).encode('utf-8'))
+             "deck": self.deck, "get_pickle": True, "player_place": self.player_place}).encode('utf-8'))
         data = await self.client_socket.recv()
         self.yugioh_game = pickle.loads(data)
         while self.yugioh_game.game_status == GameStatus.WAITING:
@@ -97,29 +97,21 @@ class NetworkCli:
             self.setState(DrawPhase())
             while not isinstance(self._phase, EndPhase):
                 if not await self._phase.conduct_phase():
-                    await self.close_game()
-                    return
+                    game_status = await self.close_game()
+                    return game_status
             if self.yugioh_game.is_there_winner():
                 break
             await self._phase.conduct_phase()
-        await self.close_game()
-        return
-
-    def authenticate_user(self):
-        """
-        Prompts the user to log in or register
-        :return:
-        """
-        self.user_info = display_prompt()
-        self.name = self.user_info["name"]
-        print("Welcome " + self.name + ", it's time to duel!")
+        game_status = await self.close_game()
+        return game_status
 
     async def connect_to_server(self) -> dict:
         """
         Connects to the game server.
         :return: The game state that the server has
         """
-        self.client_socket = await websockets.connect(self.server_ip + ":" + str(self.port), timeout=60, close_timeout=60)
+        self.client_socket = await websockets.connect(self.server_ip + ":" + str(self.port), timeout=60,
+                                                      close_timeout=60)
         # Keep recieving until get a session_id that is not 0
         while True:
             game_state = json.loads(await self.client_socket.recv())
@@ -149,32 +141,35 @@ class NetworkCli:
     async def close_game(self):
         """
         Sends a "delete" to the server and closes the client and game
+        :return: a dictionary containing key "game_result", corresponds to "w"in, "l"oss, "d"raw
         """
         self.yugioh_game.game_status = GameStatus.ENDED
         if self.yugioh_game.is_there_winner():
             self.yugioh_game.game_status = GameStatus.ENDED
             if self.yugioh_game.players[1].life_points <= 0:
                 print(self.yugioh_game.players[0].name + " won!")
-                #update_win_loss_draw(self.name, "w")
+                game_result = "w"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
             elif self.yugioh_game.players[0].life_points <= 0:
                 print(self.yugioh_game.players[1].name + " won!")
-               # update_win_loss_draw(self.name, "l")
+                game_result = "l"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
             else:
                 print("Tie")
+                game_result = "d"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
             await self.send_data_and_update_game(
                 {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
+            await self.client_socket.close()
+            return {"game_result": game_result}
 
     async def main(self):
         """
         Method to start the main command line interface
         """
-        self.authenticate_user()
         await self.start_game()
 
 
@@ -360,6 +355,7 @@ class EndPhase(Phase):
     """
     Phase where the player ends their turn
     """
+
     async def conduct_phase(self) -> bool:
         await self.context.send_data_and_update_game(
             {"operation": "update", "session_id": self.context.session_id, "move": "change_turn",
@@ -398,7 +394,6 @@ class Context:
         print(f"Context: Transitioning to {type(state).__name__}")
         self._state = state
         self._state.context = self
-
 
 
 def generate_monster_card_question(card_choices: list[Card]) -> list[tuple[str, int]]:
