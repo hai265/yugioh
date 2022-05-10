@@ -1,9 +1,70 @@
 Name,Card Type,Attribute,Monster Type,Level,Attack,Defense,ID,Description
 Hitotsu-Me Giant,Monster,Earth,Beast-Warrior,4,1200,1000,76184692,"""A one-eyed behemoth with thick, powerful arms made for delivering punishing blows."""
-Dark Magician,Monster,Dark,Spellcaster,7,2500,2100,46986414,"""The ultimate wizard in terms of attack and defense."""
-Gaia The Fierce Knight,Monster,Earth,Warrior,7,2300,2100,6368038,"""A knight whose horse travels faster than the wind. His battle-charge is a force to be reckoned with."""
 Mammoth Graveyard,Monster,Earth,Dinosaur,3,1200,800,40374923,"""A mammoth that protects the graves of its pack and is absolutely merciless when facing grave-robbers."""
 Silver Fang,Monster,Earth,Beast,3,1200,800,90357090,"""A snow wolf that's beautiful to the eye, but absolutely vicious in battle."""
 Curtain of the Dark One,Monster,Dark,Spellcaster,2,600,500,22026707,"""A curtain that a spellcaster made, it is said to raise a dark power."""
 Tomozaurus,Monster,Earth,Dinosaur,2,500,400,46457856,"""Small but vicious, this monster even attacks its own kind."""
 Feral Imp,Monster,Dark,Fiend,4,1300,1400,41392891,"""A playful little fiend that lurks in the dark, waiting to attack an unwary enemy."""
+Electromagnetic Turtle,Monster,Light,Machine,4,0,1800,,
+Black Luster Soldier,Monster,Earth,Warrior,8,3000,2500,,
+Dark Magician,Monster,Dark,Spellcaster,7,2500,2100,,"""The ultimate wizard in terms of attack and defense"""
+Dark Magician Girl,Monster,Dark,Spellcaster,6,2000,1700,,
+Gaia The Fierce Knight,Monster,Earth,Warrior,7,2300,2100,,"""A knight whose horse travels faster than the wind. His battle-charge is a force to be reckoned with"""
+Summoned Skill,Monster,Dark,Fiend,6,2500,1200,,"""A fiend with dark powers for confusing the enemy"""
+Curse of Dragon,Monster,Dark,Dragon,5,2000,1500,,"""A wicked dragon that taps into dark forces to execute a powerful attack"""
+Catapult Turtle,Monster,Water,Aqua,5,1000,2000,,
+Celtic Guardian,Monster,Earth,Warrior,4,1400,1200,,"""An elf who learned to wield a sword, he baffles enemies with lighting-swift attacks"""
+"Winged Dragon, Guardian of the Fortress",Monster,Wind,Dragon,4,1400,1200,,
+Feral Imp,Monster,Dark,Fiend,4,1300,1400,,
+Beaver Warrior,Monster,Earth,Beast-Warrior,4,1200,1500,,
+Griffore,Monster,Earth,Beast,4,1200,1500,,
+Mystical Elf,Monster,Light,Spellcaster,4,800,2000,,
+Giant Soldier of Stone,Monster,Earth,Rock,3,1300,2000,,
+Kuribog,Monster,Dark,Fiend,1,300,200,,
+Buster Blade,Monster,Earth,Warrior,7,2600,2300,,
+Archfiend of Gilfer,Monster,Dark,Fiend,6,2200,2500,,
+Jack's Knight,Monster,Light,Warrior,5,1900,1000,,
+Queen's Knight,Monster,Light,Warrior,4,1500,1600,,
+King's Knight,Monster,Light,Warrior,4,1600,1400,,
+Berfomet,Monster,Dark,Fiend,5,1400,1800,,
+Alpha The Maget Warrior,Monster,Earth,Rock,4,1400,1700,,
+Beta The Magnet Warrior,Monster,Earth,Rock,4,1700,1600,,
+Gamma The Magnet Warrior,Monster,Earth,Rock,4,1500,1800,,
+Big Shield Gardna,Monster,Earth,Warrior,4,100,2600,,
+Dark Magician of Chaos,Monster,Dark,Spellcaster,8,2800,2600,,
+The Tricky,Monster,Wind,Spellcaster,5,2000,1200,,
+Green Gadget,Monster,Earth,Machine,4,1400,600,,
+Red Gadget,Monster,Earth,Machine,4,1300,1500,,
+Yellow Gadget,Monster,Earth,Machine,4,1200,1200,,
+Skilled Dark Magician,Monster,Dark,Spellcaster,4,1900,1700,,
+Skilled White Magician,Monster,Light,Spellcaster,4,1700,1900,,
+Marshmallon,Monster,Light,Fairy,3,300,500,,
+Blue-Eyes White Dragon,Monster,Light,Dragon,8,300,2500,,
+Ryu-Kishin,Monster,Dark,Fiend,3,1000,500,,
+The Wicked Worm Beast,Monster,Earth,Beast,3,1400,700,,
+Battle Ox,Monster,Earth,Beast-Warrior,4,1700,1000,,
+Koumori Dragon,Monster,Dark,Dragon,4,1500,1200,,
+Judge Man,Monster,Earth,Warrior,6,2200,1500,,
+Rogue Doll,Monster,Light,Spellcaster,4,1600,1000,,
+Kojikocy,Monster,Earth,Warrior,4,1500,1200,,
+Uraby,Monster,Earth,Dinosaur,4,1500,800,,
+Gyakutenno Megami,Monster,Light,Fairy,6,1800,2000,,
+Mystic Horseman,Monster,Earth,Beast,4,1300,1550,,
+Terra the Terrible,Monster,Dark,Fiend,4,1200,1300,,
+Dark Titan of Terror,Monster,Dark,Fiend,4,1300,1100,,
+Dark Assailant,Monster,Dark,Zombie,4,1200,1200,,
+Master & Expert,Monster,Earth,Beast,4,1200,1000,,
+Unknown Warrior of Fiend,Monster,Dark,Warrior,3,1000,500,,
+Mystic Clown,Monster,Dark,Fiend,4,1500,1000,,
+Ogre of the Black Shadow,Monster,Earth,Beast-Warrior,4,1200,1400,,
+Ryu-Kishin Powered,Monster,Dark,Fiend,4,1600,1200,,
+Swordstalker,Monster,Dark,Warrior,6,2000,1600,,
+Rude Kaiser,Monster,Earth,Beast-Warrior,5,180,1600,,
+Destryer Golem,Monster,Earth,Rock,4,1500,1000,,
+Skull Red Bird,Monster,Wind,Winged Beast,4,1550,1200,,
+D. Human,Monster,Earth,Warrior,4,1300,1100,,
+Pale Beast,Monster,Earth,Beast,4,1500,1200,,
+Lord of D.,Monster,Dark,Spellcaster,4,1200,1100,,
+Mysterious Puppeteer,Monster,Earth,Warrior,4,1000,1500,,
+Trap Master,Monster,Earth,Warrior,3,500,1100,,
+Hane-Hane,Monster,Earth,Beast,2,450,500,,
