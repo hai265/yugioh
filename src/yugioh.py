@@ -1,5 +1,6 @@
 import json
 import pickle
+import re
 
 from src.game import GameController, GameStatus
 from src.player import Player
@@ -134,7 +135,8 @@ class Yugioh:
             request: a request to yugioh
             crud_action: crud action that was taken
         """
-        request.pop("get_pickle", None)
-        request["turn"] = self.current_turn
-        request["action"] = action
-        self.game_actions.append(request)
+        request_copy = request.copy()
+        request_copy.pop("get_pickle", None)
+        request_copy["turn"] = self.current_turn
+        request_copy["action"] = action
+        self.game_actions.append(request_copy)
