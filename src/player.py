@@ -128,29 +128,51 @@ class Player:
         monster = self.monster_field[field_idx]
         monster.battle_pos = Monster.DEF if monster.battle_pos == Monster.ATK else Monster.ATK
 
-    def send_card_to_graveyard(self, field_idx: int, hand_idx: int) -> bool:
+    def send_card_to_graveyard(self, monster_field_idx: int, hand_idx: int, spell_field_idx=-1) -> bool:
         """Get card from either hand or field and send it to the graveyard. A -1 index means that no card from the
         hand/field should be sent to the graveyard
 
         Args:
-            hand_idx:int The card in the player's hand to be sent to the graveyard
-            field_idx:int The location of the card on the field to be sent to the graveyard
+            hand_idx:int The card in the player's hand to be sent to the graveyard.
+            monster_field_idx: int The location of the card on the monster field to be sent to the graveyard.
+            spell_field_idx: The location of the card on the spell field to be sent to the graveyard.
 
         Returns: `True` if a card was successfully sent to the graveyard, `False` otherwise. A return value of `False`
                 means that both parameters had values of -1.
         """
 
         # Send card on field to graveyard
-        if field_idx != -1:
-            self.graveyard.append(self.monster_field[field_idx])  # Add card to graveyard
-            self.monster_field[field_idx] = None  # Remove the card from the field
+        if monster_field_idx != -1:
+            monster = self.monster_field[monster_field_idx]
+            monster.reset_stats()
+            spell_name = monster.equipped_spell
+
+            self.graveyard.append(self.monster_field[monster_field_idx])  # Add monster to graveyard
+            self.monster_field[monster_field_idx] = None  # Remove the monster from the field
+
+            if spell_name:
+                spell_idx = [i for i, spell in enumerate(self.spell_trap_field) if spell and spell.equipped_monster
+                             is monster][0]
+                # spell_idx = self.spell_trap_field.index(spell)
+                self.graveyard.append(self.spell_trap_field[spell_idx])  # Add spell to graveyard
+                self.spell_trap_field[spell_idx] = None  # Remove the spell from the field
+
+        if spell_field_idx != -1:
+            spell = self.spell_trap_field[spell_field_idx]
+            monster = spell.equipped_monster
+
+            if monster:
+                monster.reset_stats()
+
+            self.graveyard.append(self.spell_trap_field[spell_field_idx])  # Add spell to graveyard
+            self.spell_trap_field[spell_field_idx] = None  # Remove the spell from the field
 
         # Send card in player's hand to graveyard
         if hand_idx != -1:
             self.graveyard.append(self.hand[hand_idx])  # Add card to graveyard
             self.hand.pop(hand_idx)  # Remove the card from hand
 
-        return field_idx != -1 or hand_idx != -1
+        return monster_field_idx != -1 or hand_idx != -1
 
     def decrease_life_points(self, life_points: int):
         """Decrease player's life points by a specified amount.

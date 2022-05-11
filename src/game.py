@@ -3,7 +3,7 @@
 import random
 from enum import IntEnum
 from src.player import Player
-from src.card import Monster
+from src.card import Monster, Spell
 
 
 class GameStatus(IntEnum):
@@ -91,6 +91,30 @@ class GameController:
         if all([monster is None for monster in other.monster_field]) and position == Monster.ATK:
             atk = current.monster_field[attacking_monster].attack_points
             other.decrease_life_points(atk)
+
+    def activate_spell(self, spell_idx: int):
+        current = self.get_current_player()
+        current.hand[spell_idx].activate_effect()
+        current.send_card_to_graveyard(-1, spell_idx)
+
+    def equip_spell(self, target_monster_idx: int, spell_idx: int):
+        current = self.get_current_player()
+        monster, equip_spell = current.monster_field[target_monster_idx], current.hand[spell_idx]
+
+        if monster.attribute == equip_spell.required_monster_type or \
+                monster.monster_type == equip_spell.required_monster_type:
+            equip_spell.equipped_monster = monster
+            monster.equipped_spell = equip_spell.name
+
+            if current.spell_trap_field[target_monster_idx] is None:
+                current.spell_trap_field[target_monster_idx] = equip_spell
+            else:
+                field_idx = current.spell_trap_field.index(None)
+                current.spell_trap_field[field_idx] = equip_spell
+
+            equip_spell.activate_effect()
+        else:
+            raise ValueError("Specified monster does no meet the requirements for this spell.")
 
     def is_there_winner(self):
         """Checks if either player has won. A player has won if their opponent's life_points have reached 0.

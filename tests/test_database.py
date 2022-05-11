@@ -8,6 +8,7 @@ from src.database_functions import login, register, get_user_stats, user_exists,
 from sqlalchemy import select
 
 
+@unittest.skip
 class TestReadCards(unittest.TestCase):
     def test_read_cards_nominal(self):
         read_cards_into_db()
