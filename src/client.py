@@ -10,7 +10,7 @@ import inquirer
 import websockets
 from inquirer import errors
 
-from src.card import monster_card_to_string, Monster, Card
+from src.card import monster_card_to_string, Monster, Card, Spell
 from src.game import GameController, GameStatus
 
 
@@ -227,40 +227,40 @@ class MainPhase(Phase):
             if answers['choice'] == "Go to Battle Phase":
                 break
             if answers['choice'] == "Play a Spell":
-                self.play_spell()
+                await self.play_spell()
             elif answers['choice'] == 'Summon a monster':
                 questions = [
                     inquirer.List('choice',
-                                message="Choose a summoning method summon",
-                                choices=["Normal Summon", "Tribute Summon", "Flip Summon", "Cancel"],
-                                ),
+                                  message="Choose a summoning method summon",
+                                  choices=["Normal Summon", "Tribute Summon", "Flip Summon", "Cancel"],
+                                  ),
                 ]
                 what_summon = inquirer.prompt(questions)["choice"]
                 if what_summon == "Cancel":
                     continue
                 if what_summon == "Normal Summon":
-                    hand_choices = generate_monster_card_question(
+                    hand_choices = generate_card_question(
                         self.context.yugioh_game.get_current_player().hand)
                     hand_choices.append(("Cancel", -1))
                     questions = [
                         inquirer.List('choice', message="Choose a monster from your hand to summon",
-                                    choices=hand_choices, ), ]
+                                      choices=hand_choices, ), ]
                     choice = inquirer.prompt(questions)["choice"]
                     if choice == -1:
                         continue
                     await self.normal_summon(choice)
                 elif what_summon == "Tribute Summon":
-                    hand_choices = generate_monster_card_question(
+                    hand_choices = generate_card_question(
                         self.context.yugioh_game.get_current_player().hand)
                     hand_choices.append(("Cancel", -1))
                     questions = [inquirer.List('choice', message="Choose a monster from your hand to summon",
-                                            choices=hand_choices, ), ]
+                                               choices=hand_choices, ), ]
                     await self.tribute_summon(inquirer.prompt(questions)["choice"])
                 elif what_summon == "Flip Summon":
                     await self.flip_summon()
                 else:
                     break
-                    
+
             self.context.display_board()
         self.context.display_board()
         self.context.setState(BattlePhase())
@@ -306,7 +306,7 @@ class MainPhase(Phase):
             else:
                 raise errors.ValidationError('', reason='You must select two monsters on the field to proceed.')
 
-        monster_choices = generate_monster_card_question(self.context.yugioh_game.get_current_player().monster_field)
+        monster_choices = generate_card_question(self.context.yugioh_game.get_current_player().monster_field)
         monster_choices.append(("Cancel", -1))
         questions = [
             inquirer.Checkbox('choice',
@@ -323,22 +323,59 @@ class MainPhase(Phase):
              "move": "tribute_summon", "args":
                  [monster_to_summon, monsters_to_sacrifice[0], monsters_to_sacrifice[1]], "get_pickle": True})
         self.context.display_board()
-    
+
     async def play_spell(self):
         """
         Method that handles playing a spell
-        :param monster_to_summon: The index of a monster in a player's hand
         """
+        hand_choices = generate_card_question(self.context.yugioh_game.get_current_player().monster_field
+                                              , card_filter=lambda card: isinstance(card, Spell))
+        hand_choices.append(("Cancel", -1))
+        questions = [
+            inquirer.List('choice', message="Choose a spell from your hand to play",
+                          choices=hand_choices, ), ]
+        spell_idx = inquirer.prompt(questions)["choice"]
+        if spell_idx == -1:
+            return
+        else:
+            if self.context.yugioh_game.get_current_player().hand[spell_idx].icon == Spell.Icon.NORMAL:
+                await self.context.send_data_and_update_game(
+                    {"operation": "update", "session_id": self.context.session_id,
+                     "move": "tribute_summon", "args":
+                         [spell_idx], "get_pickle": True})
+            elif self.context.yugioh_game.get_current_player().hand[spell_idx].icon == Spell.Icon.EQUIP:
+                await self.spell_equip(spell_idx)
 
-        
+    async def spell_equip(self, spell_idx):
+        """
+        Method that handles playing an equip spell
+        """
+        questions = [
+            inquirer.Checkbox('choice',
+                              message="Choose to target either your monsters or the opponent's",
+                              choices=["Target your monsters", "Target opponent's monsters", "Cancel"]), ]
+        choice = inquirer.prompt(questions)["choice"]
+        if choice == "Cancel":
+            return
+        if choice == "Target your monsters":
+            monster_targets = generate_card_question(self.context.yugioh_game.get_current_player().monster_field)
+        else:
+            monster_targets = generate_card_question(self.context.yugioh_game.get_other_player().monster_field)
+        monster_targets.append(("Cancel", -1))
+        monster_targeted = inquirer.prompt(questions)["choice"]
+        if monster_targeted == -1:
+            return
+        await self.context.send_data_and_update_game({"operation": "update", "session_id": self.context.session_id,
+                                                      "move": "equip_spell", "args":
+                                                          [monster_targeted, spell_idx], "get_pickle": True})
 
     async def flip_summon(self):
         """
         Method that handles getting input to flip summon a face down monster from a player's field
         """
-        choices = generate_monster_card_question(
+        choices = generate_card_question(
             self.context.yugioh_game.get_current_player().monster_field,
-            filter=lambda monster: isinstance(monster, Monster) and monster.face_pos == Monster.FACE_DOWN)
+            card_filter=lambda monster: isinstance(monster, Monster) and monster.face_pos == Monster.FACE_DOWN)
         choices.append(("Cancel", -1))
         questions = [inquirer.List('choice', message="Choose monster to flip summon", choices=choices, ), ]
         card_to_flip = inquirer.prompt(questions)["choice"]
@@ -359,8 +396,9 @@ class BattlePhase(Phase):
     async def conduct_phase(self) -> bool:
         while True:
             self.context.display_board()
-            monster_choices = generate_monster_card_question(
-                self.context.yugioh_game.get_current_player().monster_field, filter=lambda card: isinstance(card, Monster) and card.can_attack)
+            monster_choices = generate_card_question(
+                self.context.yugioh_game.get_current_player().monster_field,
+                card_filter=lambda card: isinstance(card, Monster) and card.can_attack)
             monster_choices.append(("End Phase", -1))
 
             questions = [
@@ -371,7 +409,7 @@ class BattlePhase(Phase):
             attacking_monster = inquirer.prompt(questions)["choice"]
             if attacking_monster == -1:
                 break
-            monster_choices = generate_monster_card_question(
+            monster_choices = generate_card_question(
                 self.context.yugioh_game.get_other_player().monster_field)
             monster_choices.append(("Attack Player", len(self.context.yugioh_game.get_other_player().monster_field)))
             monster_choices.append(("Cancel", -1))
@@ -449,16 +487,16 @@ class Context:
         self._state.context = self
 
 
-def generate_monster_card_question(card_choices: list[Card], filter=lambda card: isinstance(card, Monster)) -> list[tuple[str, int]]:
+def generate_card_question(card_choices: list[Card],
+                           card_filter=lambda card: isinstance(card, Monster)) -> list[tuple[str, int]]:
     """
     Generate a list of card questions for an inquiry
     :param card_choices: A list of cards
-    :param filter: a method to filter the cards by
+    :param card_filter: a method to filter the cards by
     :return: a
     """
     monster_choices = []
     for field_idx, card in enumerate(card_choices):
-        if filter(card):
+        if card_filter(card):
             monster_choices.append((card.name, field_idx))
     return monster_choices
-

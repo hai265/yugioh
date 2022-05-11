@@ -269,7 +269,7 @@ class GameLogger:
         spell = curr_player.hand[request["args"][1]].name
         targeted_monster = curr_player.monster_field[request["args"][0]]
         return f"{curr_player.name} used {spell} on {targeted_monster.name}"
-    
+
     def log_normal_set_message(self, request) -> str:
         """
         Logs when a player summons a monster face down
