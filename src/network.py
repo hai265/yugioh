@@ -1,5 +1,4 @@
 import websockets
-import logging
 
 RECV_SIZE = 1024
 

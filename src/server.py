@@ -86,7 +86,7 @@ class YugiohServer:
         Handle a connection from the second player: join an existing game.
         """
         try:
-            game = self.games[session_id]
+            self.games[session_id]
         except KeyError:
             await self.error(websocket, "Game not found.")
             return

@@ -169,6 +169,6 @@ def monster_card_to_string(card: Monster):
         A string in format {cardName} {attack}/{defense}
     """
     return "{cardName} {attack}/{defense} {position} {level}*".format(cardName=card.name, attack=card.attack_points,
-                                                                     defense=card.attack_points,
-                                                                     position=card.battle_pos[0].upper(),
-                                                                     level=card.level)
+                                                                      defense=card.attack_points,
+                                                                      position=card.battle_pos[0].upper(),
+                                                                      level=card.level)

@@ -4,12 +4,13 @@ import os
 import pickle
 import socket
 from asyncio.log import logger
-from typing import Tuple
+from typing import Union, Any
+
 import inquirer
 import websockets
 from inquirer import errors
 
-from src.card import create_deck_from_preset, deck_to_card_name_list, monster_card_to_string, Monster, Card
+from src.card import monster_card_to_string, Monster, Card
 from src.game import GameController, GameStatus
 
 
@@ -70,7 +71,7 @@ class NetworkCli:
             else:
                 print(monster_card_to_string(card))
 
-    async def start_game(self) -> Tuple:
+    async def start_game(self) -> dict[str, Union[str, Any]]:
         """
         Starts an instance of a yugioh yugioh_game on the command line
         """
@@ -255,7 +256,11 @@ class MainPhase(Phase):
         self.context.setState(BattlePhase())
         return True
 
-    async def normal_summon(self, monster_to_summon):
+    async def normal_summon(self, monster_to_summon: int):
+        """
+        Method that handles getting input to normal summon a monster from a person's hand
+        :param monster_to_summon: The index of a monster in a player's hand
+        """
         questions = [
             inquirer.List('choice',
                           message="Choose a position to summon",
@@ -278,6 +283,10 @@ class MainPhase(Phase):
             self.context.display_board()
 
     async def tribute_summon(self, monster_to_summon):
+        """
+        Method that handles getting input to tribute summon a monster from a person's hand
+        :param monster_to_summon: The index of a monster in a player's hand
+                """
         if monster_to_summon == -1:
             return
 
@@ -291,7 +300,8 @@ class MainPhase(Phase):
         monster_choices.append(("Cancel", -1))
         questions = [
             inquirer.Checkbox('choice',
-                              message="Choose two monsters to sacrifice on your field. (Press space to select and enter to finalize)",
+                              message="Choose two monsters to sacrifice on your field. (Press space to select and "
+                                      "enter to finalize)",
                               choices=monster_choices, validate=validator
                               ),
         ]
@@ -389,6 +399,9 @@ class WaitPhase(Phase):
 
 
 class Context:
+    """
+    Context that is used to access the current yugioh game state
+    """
     _state = None
 
     def __init__(self, state: Phase) -> None:
