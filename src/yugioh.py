@@ -111,8 +111,10 @@ class Yugioh:
             self.game_logger.log_action(request, self.current_turn)
             self.game.attack_monster(*request["args"])
         elif request["move"] == "normal_spell":
+            self.game_logger.log_action(request, self.current_turn)
             self.game.activate_spell(*request["args"])
         elif request["move"] == "equip_spell":
+            self.game_logger.log_action(request, self.current_turn)
             self.game.equip_spell(*request["args"])
 
         if request.get('get_pickle', False):
@@ -163,6 +165,10 @@ class GameLogger:
             log["message"] = self.log_attack_player_message(request)
         elif request["move"] == "tribute_summon":
             log["message"] = self.log_tribute_summon_message(request)
+        elif request["move"] == "normal_spell":
+            log["message"] = self.log_activate_spell_message(request)
+        elif request["move"] == "equip_spell":
+            log["message"] = self.log_activate_equip_spellmessage(request)
         self.game_actions.append(log)
 
     def log_normal_summon_message(self, request: dict) -> str:
@@ -219,9 +225,39 @@ class GameLogger:
         sacrificed2 = curr_player.monster_field[request["args"][2]].name
         return f"{curr_player.name} tribute summoned {summoned_monster} by sacrificing {sacrificed1} and {sacrificed2}"
 
-    def get_logs(self) -> list[str]:
+    def log_tribute_summon_message(self, request: dict) -> str:
         """
-        Returns the list of logs
-        :return: a list of log messages
+        Logs when a player tribute summons a monster from their hand. In format
+        Args:
+            request: a request to yugioh
+        :returns
+            a formatted log message
         """
-        return self.game_actions
+        curr_player = self.game_controller.get_current_player()
+        summoned_monster = curr_player.hand[request["args"][0]].name
+        sacrificed1 = curr_player.monster_field[request["args"][1]].name
+        sacrificed2 = curr_player.monster_field[request["args"][2]].name
+        return f"{curr_player.name} tribute summoned {summoned_monster} by sacrificing {sacrificed1} and {sacrificed2}"
+
+    def log_activate_spell_message(self, request) -> str:
+        """
+        Logs when a player activates a spell
+            request: a request to yugioh
+        :returns
+            a formatted log message
+        """
+        player = self.game_controller.get_current_player()
+        played_spell = player.hand[request["args"][0]].name
+        return f"{player.name} played spell {played_spell}"
+
+    def log_activate_equip_spellmessage(self, request) -> str:
+        """
+        Logs when a player activates an equip spell
+            request: a request to yugioh
+        :returns
+            a formatted log message
+        """
+        curr_player = self.game_controller.get_current_player()
+        spell = curr_player.hand[request["args"][1]].name
+        targeted_monster = curr_player.monster_field[request["args"][0]]
+        return f"{curr_player.name} used {spell} on {targeted_monster.name}"
