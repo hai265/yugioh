@@ -260,6 +260,51 @@ class TestYugiohLogger(unittest.TestCase):
         log = self.yugioh_game.game_logger.game_actions[-1]                                           
         self.assertEqual(log["message"], "Yugi tribute summoned Dark Magician by sacrificing "
                                          "Hitotsu-Me Giant and Mammoth Graveyard")
+    def test_spell_log(self):
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [2]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "tribute_summon", "args": [0, 0, 1]})
+        log = self.yugioh_game.game_logger.game_actions[-1]                                           
+        self.assertEqual(log["message"], "Yugi tribute summoned Dark Magician by sacrificing "
+                                         "Hitotsu-Me Giant and Mammoth Graveyard")
+
+class TestLoggerSpells(unittest.TestCase):
+    def setUp(self):
+        self.yugioh_game = Yugioh()
+        self.preset_deck_string = ["Curtain of the Dark One", "Mammoth Graveyard", "Dark Magician"]
+
+        self.yugioh_game.create_game(
+            {"player_name": "Yugi", "deck": self.preset_deck_string, "session_id": 1})
+        self.yugioh_game.create_game(
+            {"player_name": "Kaiba", "deck": self.preset_deck_string, "session_id": 1})
+
+        spell_names = ["Dark Hole", "Dian Keto the Cure Master", "Fissure", "Ookazi", "Book of Secret Arts",
+                    "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
+
+        p1_effects = Effect(self.yugioh_game.game.get_current_player(), self.yugioh_game.game.get_other_player())
+        p2_effects = Effect(self.yugioh_game.game.get_other_player(), self.yugioh_game.game.get_current_player())
+        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
+        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+
+        self.yugioh_game.game.get_current_player().deck.extend(self.p1_spells[:3])
+        self.yugioh_game.game.get_other_player().deck.extend(self.p2_spells[:3])
+
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [5]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "draw_card", "args": [5]})
+
+    def test_use_diane_keto_spell_logger(self):
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_spell", "args": [4]})
+        log = self.yugioh_game.game_logger.game_actions[-1]                                           
+        self.assertEqual(log["message"], "Yugi played spell Dian Keto the Cure Master")
+
+    def test_book_of_secret_arts_spell_logger(self):
+        self.yugioh_game.game.get_current_player().hand[4] = self.p1_spells[4]
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
+        game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "equip_spell",
+                                                   "args": [0, 3]})
+        log = self.yugioh_game.game_logger.game_actions[-1]                                           
+        self.assertEqual(log["message"], "Yugi used Book of Secret Arts on Curtain of the Dark One")
 
 
 class TestYugiohCreatePickle(unittest.TestCase):
