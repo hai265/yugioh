@@ -1,12 +1,10 @@
 import json
 import pickle
-import re
+from typing import Union, Any
 
+from src.card import create_deck_from_array
 from src.game import GameController, GameStatus
 from src.player import Player
-from src.card import create_deck_from_array
-from typing import Union
-import copy
 
 
 def to_dict(obj):
@@ -61,7 +59,7 @@ class Yugioh:
             return pickle.dumps(self.game)
         return to_dict(self.game)
 
-    def read_game(self, request: dict) -> Union[dict, bytes]:
+    def read_game(self, request: dict) -> Union[Union[list[str], bytes], Any]:
         """
         Args:
             request: dictionary containing single key-value pair. The key is "session_id". The value is a
@@ -77,7 +75,7 @@ class Yugioh:
             return pickle.dumps(self.game)
         return to_dict(self.game)
 
-    def update_game(self, request: dict) -> dict:
+    def update_game(self, request: dict) -> Union[bytes, Any]:
         """
         Args:
             request: dictionary describing the "move" to be made in the yugioh_game keys:
@@ -133,7 +131,7 @@ class Yugioh:
         return to_dict(self.game)
 
 
-class GameLogger():
+class GameLogger:
     """
     Class that is responsible for recording game events
     Logs are in the format {"turn": turn, "player": player who took the action "message": log message} 
@@ -147,10 +145,8 @@ class GameLogger():
         """
         Records game events into a list
         Args:
-            request: a request to yugioh
+            request: a CRUD request to yugioh
             turn: turn where the action was taken
-            name: player who performed the move
-            game: current game status
         """
         log = {"turn": turn, "player": self.game_controller.get_current_player().name}
         if request["move"] == "attack_monster":
@@ -163,23 +159,25 @@ class GameLogger():
             log["message"] = self.log_tribute_summon_message(request)
         self.game_actions.append(log)
 
-    def log_normal_summon_message(self, request: dict):
+    def log_normal_summon_message(self, request: dict) -> str:
         """
         Logs when a player normal summons a monster
         Args:
             request: a request to yugioh
-            return: string containing the log message
+        :returns
+            a formatted log message
         """
         player = self.game_controller.get_current_player()
         summoned_monster = player.hand[request["args"][0]].name
         return f"{player.name} normal summoned {summoned_monster}"
 
-    def log_attack_monster_message(self, request: dict):
+    def log_attack_monster_message(self, request: dict) -> str:
         """
         Logs when a monster attacks a target. In format
         Args:
             request: a request to yugioh
-            return: string containing the log message
+        :returns
+            a formatted log message
         """
         curr_player = self.game_controller.get_current_player()
         other_player = self.game_controller.get_other_player()
@@ -187,24 +185,27 @@ class GameLogger():
         attacked_monster = other_player.monster_field[request["args"][1]].name
         return f"{curr_player.name}'s {attacking_monster} attacked {other_player.name}'s {attacked_monster}"
 
-    def log_attack_player_message(self, request: dict):
+    def log_attack_player_message(self, request: dict) -> str:
         """
         Logs when a monster attacks another monster. In format
         Args:
             request: a request to yugioh
-            return: string containing the log message
+        :returns
+            a formatted log message
         """
+
         curr_player = self.game_controller.get_current_player()
         other_player = self.game_controller.get_other_player()
         attacking_monster = curr_player.monster_field[request["args"][0]].name
         return f"{curr_player.name}'s {attacking_monster} attacked {other_player.name} directly"
 
-    def log_tribute_summon_message(self, request: dict):
+    def log_tribute_summon_message(self, request: dict) -> str:
         """
         Logs when a player tribute summons a monster from their hand. In format
         Args:
             request: a request to yugioh
-            return: string containing the log message
+        :returns
+            a formatted log message
         """
         curr_player = self.game_controller.get_current_player()
         summoned_monster = curr_player.hand[request["args"][0]].name
@@ -212,7 +213,7 @@ class GameLogger():
         sacrificed2 = curr_player.monster_field[request["args"][2]].name
         return f"{curr_player.name} tribute summoned {summoned_monster} by sacrificing {sacrificed1} and {sacrificed2}"
 
-    def get_logs(self):
+    def get_logs(self) -> list[str]:
         """
         Returns the list of logs
         :return: a list of log messages

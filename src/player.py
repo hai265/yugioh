@@ -1,5 +1,4 @@
 from src.card import Monster
-from src.card import Card
 
 
 class Player:
