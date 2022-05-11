@@ -226,29 +226,32 @@ class MainPhase(Phase):
             answers = inquirer.prompt(questions)
             if answers['choice'] == "Go to Battle Phase":
                 break
-            hand_choices = generate_monster_card_question(self.context.yugioh_game.get_current_player().hand)
-            hand_choices.append(("Cancel", -1))
-            questions = [
-                inquirer.List('choice',
-                              message="Choose a monster from your hand to summon",
-                              choices=hand_choices,
-                              ),
-            ]
-
-            monster_to_summon = inquirer.prompt(questions)["choice"]
-            if monster_to_summon == -1:
-                continue
             questions = [
                 inquirer.List('choice',
                               message="Choose a summoning method summon",
-                              choices=["Normal Summon", "Tribute Summon", "Cancel"],
+                              choices=["Normal Summon", "Tribute Summon", "Flip Summon", "Cancel"],
                               ),
             ]
             what_summon = inquirer.prompt(questions)["choice"]
+            if what_summon == "Cancel":
+                continue
             if what_summon == "Normal Summon":
-                await self.normal_summon(monster_to_summon)
+                hand_choices = generate_monster_card_question(
+                    self.context.yugioh_game.get_current_player().hand)
+                hand_choices.append(("Cancel", -1))
+                questions = [
+                    inquirer.List('choice', message="Choose a monster from your hand to summon",
+                                  choices=hand_choices, ), ]
+                await self.normal_summon(inquirer.prompt(questions)["choice"])
             elif what_summon == "Tribute Summon":
-                await self.tribute_summon(monster_to_summon)
+                hand_choices = generate_monster_card_question(
+                    self.context.yugioh_game.get_current_player().hand)
+                hand_choices.append(("Cancel", -1))
+                questions = [inquirer.List('choice', message="Choose a monster from your hand to summon",
+                                           choices=hand_choices, ), ]
+                await self.tribute_summon(inquirer.prompt(questions)["choice"])
+            elif what_summon == "Flip Summon":
+                await self.flip_summon()
             else:
                 break
             self.context.display_board()
@@ -312,6 +315,24 @@ class MainPhase(Phase):
             {"operation": "update", "session_id": self.context.session_id,
              "move": "tribute_summon", "args":
                  [monster_to_summon, monsters_to_sacrifice[0], monsters_to_sacrifice[1]], "get_pickle": True})
+        self.context.display_board()
+
+    async def flip_summon(self):
+        """
+        Method that handles getting input to flip summon a face down monster from a player's field
+        """
+        choices = generate_monster_card_question(
+            self.context.yugioh_game.get_current_player().monster_field,
+            filter=lambda monster: monster.face_pos == Monster.FACE_DOWN)
+        choices.append(("Cancel", -1))
+        questions = [inquirer.List('choice', message="Choose monster to flip summon", choices=choices, ), ]
+        card_to_flip = inquirer.prompt(questions)["choice"]
+        if card_to_flip == -1:
+            return
+        await self.context.send_data_and_update_game(
+            {"operation": "update", "session_id": self.context.session_id,
+             "move": "flip_summon", "args":
+                 [card_to_flip], "get_pickle": True})
         self.context.display_board()
 
 
@@ -413,7 +434,7 @@ class Context:
         self._state.context = self
 
 
-def generate_monster_card_question(card_choices: list[Card], filter= lambda card:True) -> list[tuple[str, int]]:
+def generate_monster_card_question(card_choices: list[Card], filter=lambda card: True) -> list[tuple[str, int]]:
     """
     Generate a list of card questions for an inquiry
     :param card_choices: A list of cards

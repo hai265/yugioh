@@ -291,3 +291,9 @@ class GameLogger:
         player = self.game_controller.get_current_player()
         summoned_monster = player.monster_field[request["args"][0]].name
         return f"{player.name} flipped summoned {summoned_monster}"
+
+    def get_logs(self) -> list[dict]:
+        """
+        returns the list of logs
+        """
+        return self.game_actions
