@@ -49,6 +49,7 @@ class Monster(Card):
             level: An integer defining the level of the monster (Ranges from 1 to 12).
             attack_points: An integer defining the monster's attack points.
             defense_points: An integer defining the monster's defense points.
+            can_attack: boolean on whether a monster can attack
         """
         super().__init__(name, description)
         self.attribute = attribute
@@ -61,6 +62,7 @@ class Monster(Card):
         self.face_pos = Monster.FACE_UP
         self.battle_pos = Monster.ATK
         self.equipped_spell = None
+        self.can_attack = False
 
     def __eq__(self, other_monster):
         """Determines whether two monster cards are equal.

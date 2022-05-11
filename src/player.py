@@ -90,7 +90,7 @@ class Player:
         monster.face_pos = Monster.FACE_UP
         monster.battle_pos = Monster.ATK
 
-    def tribute_summon(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int):
+    def tribute_summon(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int) -> int:
         """Removes a monster card from the player's hand and adds it to the field at a specific location.
 
         Tribute summon always summons the monster in face-up attack position.
@@ -99,6 +99,8 @@ class Player:
             hand_idx: Index of the card in the player's hand to be summoned.
             tribute1_idx: Index of the first card to tribute.
             tribute2_idx: Index of the second card to tribute, may not be used.
+        Returns:
+            the field index where the monster is located
         """
         monster_to_summon = self.hand[hand_idx]
 
@@ -109,6 +111,7 @@ class Player:
                 self.send_card_to_graveyard(tribute1_idx, -1)
                 field_idx = self.monster_field.index(None)
                 self.normal_summon(hand_idx, field_idx)
+                return field_idx
         elif monster_to_summon.level >= 7 and tribute1_idx >= 0 and tribute2_idx >= 0:
             tribute1_valid = self.monster_field[tribute1_idx] is not None
             tribute2_valid = tribute2_idx != tribute1_idx and self.monster_field[tribute2_idx] is not None
@@ -118,7 +121,8 @@ class Player:
                 self.send_card_to_graveyard(tribute2_idx, -1)
                 field_idx = self.monster_field.index(None)
                 self.normal_summon(hand_idx, field_idx)
-
+                return field_idx
+        return -1
     def change_monster_battle_position(self, field_idx: int):
         """Change a monster's battle position.
 
