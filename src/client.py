@@ -242,7 +242,10 @@ class MainPhase(Phase):
                 questions = [
                     inquirer.List('choice', message="Choose a monster from your hand to summon",
                                   choices=hand_choices, ), ]
-                await self.normal_summon(inquirer.prompt(questions)["choice"])
+                choice = inquirer.prompt(questions)["choice"]
+                if choice == -1:
+                    continue
+                await self.normal_summon(choice)
             elif what_summon == "Tribute Summon":
                 hand_choices = generate_monster_card_question(
                     self.context.yugioh_game.get_current_player().hand)
