@@ -1,4 +1,5 @@
 import src.card as card
+import src.database_functions as database_functions
 import csv
 
 
@@ -11,25 +12,66 @@ def display_prompt(player_name: str) -> list:
     Returns: A list of card representing a deck
 
     """
+
+    deck = []
     print('Welcome to the deck building! You can do one of two things here: \n[1] Use preset deck\n[2] Build custom '
-          'deck\n[3] Load a previously saved deck')
+          'deck\n[3] Load a previously saved deck \n[4] Finish')
     func = input("Please the corresponding number to the action you would like to do: ")
 
-    while func != '1' and func != '2' and func != '3':
-        print("Invalid option. Please try again.")
+    while func != '4':
+        if func == '1':
+            deck = load_preset_deck()
+        elif func == '2':
+            deck = build_deck()
+            func = input("Would you like to save this deck? Type \'yes\' if you do and anything else if you don't: ")
+            if func == 'yes':
+                print('Saving deck!')
+                database_functions.save_user_deck(player_name, deck)
+        elif func == '3':
+            deck = load_saved_deck(player_name)
+        else:
+            print("Invalid option. Please try again.")
+
+        print(
+            'You can do one of two things here: \n[1] Use preset deck\n[2] Build custom '
+            'deck\n[3] Load a previously saved deck \n[4] Finish')
         func = input("Please the corresponding number to the action you would like to do:")
 
-    if func == '1':
-        return load_preset_deck()
-    elif func == '2':
-        deck = build_deck()
-        func = input("Would you like to save this deck? Type \'yes\' if you do and anything else if you don't: ")
-        if func == 'yes':
-            print('Saving deck!')
-            #save_user_deck(player_name, deck)
-        return deck
-    else:
-        pass
+    print('\nYou will use this deck: ' + str(deck))
+    return deck
+
+
+def load_saved_deck(player_name: str) -> list:
+    """
+    Allows player to load and view saved decks
+    Args:
+        player_name: The name of the player in question
+
+    Returns: A list of card representing a deck
+
+    """
+    print("You can do the following: \n[1] Print saved decks \n[2] Select saved deck \n[3] Done")
+    func = input("Please the corresponding number to the action you would like to do:")
+
+    deck = []
+
+    while func != '3':
+        if func == '1':
+            database_functions.print_user_decks(player_name)
+        elif func == '2':
+            func = input("Please enter the index of the deck you would like to load: ")
+
+            while not func.isdigit():
+                func = input("That is not a number, please enter a number: ")
+
+            deck = database_functions.get_deck_from_db(player_name, int(func))
+            print("You have chosen the following deck: " + str(deck) + "\n")
+        else:
+            print("Invalid option. Please try again.")
+        print("You can do the following: \n[1] Print saved decks \n[2] Select saved deck \n[3] Done")
+        func = input("Please the corresponding number to the action you would like to do:")
+
+    return deck
 
 
 def load_preset_deck() -> list:
@@ -114,7 +156,7 @@ def print_cards():
 
 
 def main():
-    print(display_prompt("Devak"))
+    print(display_prompt('devak'))
 
 
 if __name__ == "__main__":
