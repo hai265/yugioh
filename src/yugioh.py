@@ -110,8 +110,14 @@ class Yugioh:
         elif request["move"] == "attack_monster":
             self.game_logger.log_action(request, self.current_turn)
             self.game.attack_monster(*request["args"])
+        elif request["move"] == "normal_spell":
+            self.game.activate_spell(*request["args"])
+        elif request["move"] == "equip_spell":
+            self.game.equip_spell(*request["args"])
+
         if request.get('get_pickle', False):
             return pickle.dumps(self.game)
+
         return to_dict(self.game)
 
     def delete_game(self, request: dict) -> Union[dict, bytes]:

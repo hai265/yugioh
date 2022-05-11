@@ -1,21 +1,19 @@
-Name,Card Type,Attribute,Monster Type,Level,Attack,Defense,ID,Description
-Hitotsu-Me Giant,Monster,Earth,Beast-Warrior,4,1200,1000,76184692,"""A one-eyed behemoth with thick, powerful arms made for delivering punishing blows."""
-Mammoth Graveyard,Monster,Earth,Dinosaur,3,1200,800,40374923,"""A mammoth that protects the graves of its pack and is absolutely merciless when facing grave-robbers."""
-Silver Fang,Monster,Earth,Beast,3,1200,800,90357090,"""A snow wolf that's beautiful to the eye, but absolutely vicious in battle."""
-Curtain of the Dark One,Monster,Dark,Spellcaster,2,600,500,22026707,"""A curtain that a spellcaster made, it is said to raise a dark power."""
-Tomozaurus,Monster,Earth,Dinosaur,2,500,400,46457856,"""Small but vicious, this monster even attacks its own kind."""
-Feral Imp,Monster,Dark,Fiend,4,1300,1400,41392891,"""A playful little fiend that lurks in the dark, waiting to attack an unwary enemy."""
+Hitotsu-Me Giant,Monster,Earth,Beast-Warrior,4,1200,1000,,
+Mammoth Graveyard,Monster,Earth,Dinosaur,3,1200,800,,
+Silver Fang,Monster,Earth,Beast,3,1200,800,,
+Curtain of the Dark One,Monster,Dark,Spellcaster,2,600,500,,
+Tomozaurus,Monster,Earth,Dinosaur,2,500,400,,
+Feral Imp,Monster,Dark,Fiend,4,1300,1400,,
 Electromagnetic Turtle,Monster,Light,Machine,4,0,1800,,
 Black Luster Soldier,Monster,Earth,Warrior,8,3000,2500,,
-Dark Magician,Monster,Dark,Spellcaster,7,2500,2100,,"""The ultimate wizard in terms of attack and defense"""
+Dark Magician,Monster,Dark,Spellcaster,7,2500,2100,,
 Dark Magician Girl,Monster,Dark,Spellcaster,6,2000,1700,,
-Gaia The Fierce Knight,Monster,Earth,Warrior,7,2300,2100,,"""A knight whose horse travels faster than the wind. His battle-charge is a force to be reckoned with"""
-Summoned Skill,Monster,Dark,Fiend,6,2500,1200,,"""A fiend with dark powers for confusing the enemy"""
-Curse of Dragon,Monster,Dark,Dragon,5,2000,1500,,"""A wicked dragon that taps into dark forces to execute a powerful attack"""
+Gaia The Fierce Knight,Monster,Earth,Warrior,7,2300,2100,,
+Summoned Skill,Monster,Dark,Fiend,6,2500,1200,,
+Curse of Dragon,Monster,Dark,Dragon,5,2000,1500,,
 Catapult Turtle,Monster,Water,Aqua,5,1000,2000,,
-Celtic Guardian,Monster,Earth,Warrior,4,1400,1200,,"""An elf who learned to wield a sword, he baffles enemies with lighting-swift attacks"""
+Celtic Guardian,Monster,Earth,Warrior,4,1400,1200,,
 "Winged Dragon, Guardian of the Fortress",Monster,Wind,Dragon,4,1400,1200,,
-Feral Imp,Monster,Dark,Fiend,4,1300,1400,,
 Beaver Warrior,Monster,Earth,Beast-Warrior,4,1200,1500,,
 Griffore,Monster,Earth,Beast,4,1200,1500,,
 Mystical Elf,Monster,Light,Spellcaster,4,800,2000,,
@@ -27,7 +25,7 @@ Jack's Knight,Monster,Light,Warrior,5,1900,1000,,
 Queen's Knight,Monster,Light,Warrior,4,1500,1600,,
 King's Knight,Monster,Light,Warrior,4,1600,1400,,
 Berfomet,Monster,Dark,Fiend,5,1400,1800,,
-Alpha The Maget Warrior,Monster,Earth,Rock,4,1400,1700,,
+Alpha The Magnet Warrior,Monster,Earth,Rock,4,1400,1700,,
 Beta The Magnet Warrior,Monster,Earth,Rock,4,1700,1600,,
 Gamma The Magnet Warrior,Monster,Earth,Rock,4,1500,1800,,
 Big Shield Gardna,Monster,Earth,Warrior,4,100,2600,,
@@ -60,7 +58,7 @@ Ogre of the Black Shadow,Monster,Earth,Beast-Warrior,4,1200,1400,,
 Ryu-Kishin Powered,Monster,Dark,Fiend,4,1600,1200,,
 Swordstalker,Monster,Dark,Warrior,6,2000,1600,,
 Rude Kaiser,Monster,Earth,Beast-Warrior,5,180,1600,,
-Destryer Golem,Monster,Earth,Rock,4,1500,1000,,
+Destroyer Golem,Monster,Earth,Rock,4,1500,1000,,
 Skull Red Bird,Monster,Wind,Winged Beast,4,1550,1200,,
 D. Human,Monster,Earth,Warrior,4,1300,1100,,
 Pale Beast,Monster,Earth,Beast,4,1500,1200,,
@@ -68,3 +66,11 @@ Lord of D.,Monster,Dark,Spellcaster,4,1200,1100,,
 Mysterious Puppeteer,Monster,Earth,Warrior,4,1000,1500,,
 Trap Master,Monster,Earth,Warrior,3,500,1100,,
 Hane-Hane,Monster,Earth,Beast,2,450,500,,
+Dark Hole,Spell,Normal,"""Destroy all monsters on the field.""",destroy_all_monsters
+Dian Keto the Cure Master,Spell,Normal,"""Increase your Life Points by 1000 points.""",increase_life_points,1000
+Fissure,Spell,Normal,"""Destroy the 1 face-up monster your opponent controls that has the lowest ATK (your choice, if tied).""",destroy_opponent_monster_with_lowest_atk
+Ookazi,Spell,Normal,"""Inflict 800 points of damage to your opponent's Life Points.""",decrease_opponent_life_points,800
+Book of Secret Arts,Spell,Equip,"""A Spellcaster-Type monster equipped with this card increases its ATK and DEF by 300 points.""",alter_monster_stats,300,300,Spellcaster
+Sword of Dark Destruction,Spell,Equip,"""Equip only to a DARK monster. It gains 400 ATK and loses 200 DEF.""",alter_monster_stats,400,-200,Dark
+Dark Energy,Spell,Equip,"""A Fiend-Type monster equipped with this card increases its ATK and DEF by 300 points.""",alter_monster_stats,300,300,Fiend
+Invigoration,Spell,Equip,"""An EARTH monster equipped with this card increases its ATK by 400 points and decreases its DEF by 200 points.""",alter_monster_stats,400,-200,Earth

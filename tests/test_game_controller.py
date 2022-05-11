@@ -1,5 +1,6 @@
 import unittest
-from src.card import create_card, Monster
+from src.card import create_card, create_deck_from_array, Monster, Spell
+from src.card_effects import *
 from src.player import Player
 from src.game import GameController
 
@@ -263,3 +264,267 @@ class TestGameController(unittest.TestCase):
     def test_get_winner(self):
         self.player2.life_points = 0
         self.assertEqual(self.player1, self.game.get_winner())
+
+
+class TestNormalSpellCards(unittest.TestCase):
+    def setUp(self):
+        self.player1 = Player(5000, 'Yugi')
+        self.player2 = Player(5000, 'Kaiba')
+
+        p1_effects = Effect(self.player1, self.player2)
+        p2_effects = Effect(self.player2, self.player1)
+        spell_names = ["Dark Hole", "Dian Keto the Cure Master", "Fissure", "Ookazi"]
+
+        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
+        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+
+        self.player1_card1 = create_card('Curtain of the Dark One')
+        self.player1_card2 = create_card('Hitotsu-Me Giant')
+
+        self.player2_card1 = create_card('Curtain of the Dark One')
+        self.player2_card2 = create_card('Hitotsu-Me Giant')
+
+        self.game = GameController(None)
+
+        self.game.players = [self.player1, self.player2]
+
+    def test_dark_hole_spell_card(self):
+        # add spell to hand
+        self.game.get_current_player().hand.insert(0, self.p1_spells[0])
+        self.game.get_other_player().hand.insert(0, self.p2_spells[0])
+
+        # set up field
+        self.game.get_current_player().monster_field = [self.player1_card1, self.player1_card2, None, None, None]
+        self.game.get_other_player().monster_field = [self.player2_card1, self.player2_card2, None, None, None]
+
+        # use spell card
+        expected_field = [None] * Player.FIELD_CARD_LIMIT
+        expected_graveyard_p1 = [create_card('Curtain of the Dark One'), create_card('Hitotsu-Me Giant'),
+                                 self.p1_spells[0]]
+        expected_graveyard_p2 = [create_card('Curtain of the Dark One'), create_card('Hitotsu-Me Giant')]
+
+        self.game.activate_spell(0)
+
+        self.assertEqual(expected_field, self.game.get_current_player().monster_field)
+        self.assertEqual(expected_graveyard_p1, self.game.get_current_player().graveyard)
+
+        self.assertEqual(expected_field, self.game.get_other_player().monster_field)
+        self.assertEqual(expected_graveyard_p2, self.game.get_other_player().graveyard)
+
+    def test_dian_keto_spell_card(self):
+        # add spell to hand
+        self.game.get_current_player().hand.insert(0, self.p1_spells[1])
+
+        # use spell card
+        self.game.activate_spell(0)
+        self.assertEqual(6000, self.game.get_current_player().life_points)
+
+        # check graveyard
+        self.assertEqual([self.p1_spells[1]], self.game.get_current_player().graveyard)
+
+    def test_fissure_spell_card(self):
+        # add spell to hand
+        self.game.get_current_player().hand.insert(0, self.p1_spells[2])
+        self.game.get_other_player().hand.insert(0, self.p2_spells[2])
+
+        # set up field
+        self.game.get_current_player().monster_field = [self.player1_card1, self.player1_card2, None, None, None]
+        self.game.get_other_player().monster_field = [self.player2_card1, self.player2_card2, None, None, None]
+
+        # use spell card
+        expected_field = [None, create_card('Hitotsu-Me Giant'), None, None, None]
+        expected_graveyard = [create_card('Curtain of the Dark One')]
+
+        self.game.activate_spell(0)
+
+        self.assertEqual(expected_field, self.game.get_other_player().monster_field)
+        self.assertEqual(expected_graveyard, self.game.get_other_player().graveyard)
+
+        # check current player graveyard
+        self.assertEqual([self.p2_spells[2]], self.game.get_current_player().graveyard)
+
+    def test_fissure_spell_card_equal_attack_case(self):
+        # add spell to hand
+        self.game.get_current_player().hand.insert(0, self.p1_spells[2])
+        self.game.get_other_player().hand.insert(0, self.p2_spells[2])
+
+        # set up field
+        self.game.get_current_player().monster_field = [self.player1_card1, self.player1_card2, None, None, None]
+        self.game.get_other_player().monster_field = [self.player2_card1, create_card('Curtain of the Dark One'),
+                                                      None, None, None]
+
+        # use spell card
+        expected_field = [None, create_card('Curtain of the Dark One'), None, None, None]
+        expected_graveyard = [create_card('Curtain of the Dark One')]
+
+        self.game.activate_spell(0)
+
+        self.assertEqual(expected_field, self.game.get_other_player().monster_field)
+        self.assertEqual(expected_graveyard, self.game.get_other_player().graveyard)
+
+        # check current player graveyard
+        self.assertEqual([self.p2_spells[2]], self.game.get_current_player().graveyard)
+
+    def test_ookazi_spell_card(self):
+        # add spell to hand
+        self.game.get_current_player().hand.insert(0, self.p1_spells[3])
+
+        # use spell card
+        self.game.activate_spell(0)
+        self.assertEqual(4200, self.game.get_other_player().life_points)
+
+        # check current player graveyard
+        self.assertEqual([self.p1_spells[3]], self.game.get_current_player().graveyard)
+
+    def test_spell_cards_in_different_turns(self):
+        # add dark hold and dian keto to p1 hand
+        self.game.get_current_player().hand = self.p1_spells[:2] + [self.player1_card1, self.player1_card2]
+
+        # add fissure and ookazi to p2 hand
+        self.game.get_other_player().hand = [self.p2_spells[2], self.p2_spells[3]] + [self.player2_card1,
+                                                                                      self.player2_card2]
+
+        # summon monsters
+        self.game.normal_summon(2)
+        self.game.change_turn()
+        self.game.normal_summon(2)
+
+        # p2 uses fissure spell
+        expected_p1_field = [None] * Player.FIELD_CARD_LIMIT
+        expected_p1_graveyard = [create_card('Curtain of the Dark One')]
+
+        self.game.activate_spell(0)
+
+        self.assertEqual(expected_p1_field, self.game.get_other_player().monster_field)
+        self.assertEqual(expected_p1_graveyard, self.game.get_other_player().graveyard)
+        self.assertEqual([self.p2_spells[2]], self.game.get_current_player().graveyard)
+
+        # p2 attacks p1
+        self.game.attack_player(0)
+        self.assertEqual(4400, self.game.get_other_player().life_points)
+
+        self.game.change_turn()
+
+        # p1 uses dian keto spell
+        self.game.activate_spell(1)
+        self.assertEqual(5400, self.game.get_current_player().life_points)
+
+        # check p1 graveyard
+        expected_p1_graveyard.append(self.p2_spells[1])
+        self.assertEqual(expected_p1_graveyard, self.game.get_current_player().graveyard)
+
+
+class TestEquipSpellCards(unittest.TestCase):
+    def setUp(self):
+        self.player1 = Player(5000, 'Yugi')
+        self.player2 = Player(5000, 'Kaiba')
+
+        p1_effects = Effect(self.player1, self.player2)
+        p2_effects = Effect(self.player2, self.player1)
+        spell_names = ["Book of Secret Arts", "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
+
+        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
+        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+
+        self.player1_card1 = create_card('Curtain of the Dark One')
+        self.player1_card2 = create_card('Hitotsu-Me Giant')
+
+        self.player2_card1 = create_card('Curtain of the Dark One')
+        self.player2_card2 = create_card('Hitotsu-Me Giant')
+
+        self.game = GameController(None)
+
+        self.game.players = [self.player1, self.player2]
+
+    def test_book_of_secret_arts_spell(self):
+        # set hand and field
+        current = self.game.get_current_player()
+        current.hand = [self.p1_spells[0]]
+        current.monster_field[0] = create_card('Curtain of the Dark One')
+
+        # use equip spell card
+        self.game.equip_spell(0, 0)
+
+        self.assertEqual(900, current.monster_field[0].attack_points)
+        self.assertEqual(800, current.monster_field[0].defense_points)
+
+    def test_sword_of_dark_destruction_spell(self):
+        # set hand and field
+        current = self.game.get_current_player()
+        current.hand = [self.p1_spells[1]]
+        current.monster_field[0] = create_card('Curtain of the Dark One')
+
+        # use equip spell card
+        self.game.equip_spell(0, 0)
+
+        self.assertEqual(1000, current.monster_field[0].attack_points)
+        self.assertEqual(300, current.monster_field[0].defense_points)
+
+    def test_dark_energy_spell(self):
+        # set hand and field
+        current = self.game.get_current_player()
+        current.hand = [self.p1_spells[2]]
+        current.monster_field[0] = create_card('Feral Imp')
+
+        # use equip spell card
+        self.game.equip_spell(0, 0)
+
+        self.assertEqual(1600, current.monster_field[0].attack_points)
+        self.assertEqual(1700, current.monster_field[0].defense_points)
+
+    def test_invigoration_spell(self):
+        # set hand and field
+        current = self.game.get_current_player()
+        current.hand = [self.p1_spells[3]]
+        current.monster_field[0] = create_card('Tomozaurus')
+
+        # use equip spell card
+        self.game.equip_spell(0, 0)
+
+        self.assertEqual(900, current.monster_field[0].attack_points)
+        self.assertEqual(200, current.monster_field[0].defense_points)
+
+    def test_remove_book_of_secret_arts_spell(self):
+        # set hand and field
+        current = self.game.get_current_player()
+        current.hand = [self.p1_spells[0]]
+        current.monster_field[0] = create_card('Curtain of the Dark One')
+
+        # use equip spell card
+        self.game.equip_spell(0, 0)
+
+        self.assertEqual(900, current.monster_field[0].attack_points)
+        self.assertEqual(800, current.monster_field[0].defense_points)
+
+        # remove equip card
+        self.game.get_current_player().send_card_to_graveyard(-1, -1, 0)
+
+        # check monster stats
+        self.assertEqual(600, current.monster_field[0].attack_points)
+        self.assertEqual(500, current.monster_field[0].defense_points)
+
+        # check graveyard
+        self.assertEqual([self.p1_spells[0]], self.game.get_current_player().graveyard)
+
+    def test_remove_equipped_monster(self):
+        # set hand and field
+        current = self.game.get_current_player()
+        current.hand = [self.p1_spells[0]]
+        current.monster_field[0] = create_card('Curtain of the Dark One')
+
+        # use equip spell card
+        self.game.equip_spell(0, 0)
+
+        self.assertEqual(900, current.monster_field[0].attack_points)
+        self.assertEqual(800, current.monster_field[0].defense_points)
+
+        # remove monster
+        self.game.get_current_player().send_card_to_graveyard(0, -1, -1)
+
+        # check monster stats
+        self.assertEqual(600, current.graveyard[0].attack_points)
+        self.assertEqual(500, current.graveyard[0].defense_points)
+
+        # check graveyard
+        self.assertEqual([create_card('Curtain of the Dark One'), self.p1_spells[0]],
+                         self.game.get_current_player().graveyard)

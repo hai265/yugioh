@@ -1,9 +1,11 @@
 import pickle
 import unittest
+
 from src.card import create_deck_from_preset, create_deck_from_array
 from src.game import GameStatus
 from src.player import Player
 from src.yugioh import Yugioh, to_dict
+from src.card_effects import Effect
 
 
 class TestYugiohCreate(unittest.TestCase):
@@ -59,6 +61,7 @@ class TestYugiohRead(unittest.TestCase):
         self.assertTrue(game_status_dict["current_player"] == 0)
         self.assertTrue(game_status_dict["other_player"] == 1)
 
+
 class TestYugiohUpdateSummoning(unittest.TestCase):
     def setUp(self):
         self.yugioh_game = Yugioh()
@@ -87,7 +90,44 @@ class TestYugiohUpdateSummoning(unittest.TestCase):
         self.assertTrue(game_state["players"][0]["graveyard"][0]["name"] == "Hitotsu-Me Giant")
         self.assertTrue(game_state["players"][0]["graveyard"][1]["name"] == "Mammoth Graveyard")
 
-    
+
+class TestYugiohUpdateSpells(unittest.TestCase):
+    def setUp(self):
+        self.yugioh_game = Yugioh()
+        self.preset_deck_string = ["Curtain of the Dark One", "Mammoth Graveyard", "Dark Magician"]
+
+        self.yugioh_game.create_game(
+            {"player_name": "Yugi", "deck": self.preset_deck_string, "session_id": 1})
+        self.yugioh_game.create_game(
+            {"player_name": "Kaiba", "deck": self.preset_deck_string, "session_id": 1})
+
+        spell_names = ["Dark Hole", "Dian Keto the Cure Master", "Fissure", "Ookazi", "Book of Secret Arts",
+                       "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
+
+        p1_effects = Effect(self.yugioh_game.game.get_current_player(), self.yugioh_game.game.get_other_player())
+        p2_effects = Effect(self.yugioh_game.game.get_other_player(), self.yugioh_game.game.get_current_player())
+        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
+        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+
+        self.yugioh_game.game.get_current_player().deck.extend(self.p1_spells[:3])
+        self.yugioh_game.game.get_other_player().deck.extend(self.p2_spells[:3])
+
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [5]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "draw_card", "args": [5]})
+
+    def test_use_diane_keto_spell(self):
+        game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_spell", "args": [4]})
+        self.assertEqual(9000, game_state["players"][0]["life_points"])
+        self.assertEqual(self.p1_spells[1].name, game_state["players"][0]["graveyard"][0]["name"])
+
+    def test_book_of_secret_arts_spell(self):
+        self.yugioh_game.game.get_current_player().hand[4] = self.p1_spells[4]
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
+        game_state = self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "equip_spell",
+                                                   "args": [0, 3]})
+        self.assertEqual(900, game_state["players"][0]["monster_field"][0]['attack_points'])
+
+
 class TestYugiohUpdate(unittest.TestCase):
     def setUp(self):
         self.yugioh_game = Yugioh()
@@ -193,14 +233,11 @@ class TestYugiohLogger(unittest.TestCase):
 
     def test_attack_monster_log_message(self):
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [1]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon",
-                                "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
         self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "change_turn"})
         self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "draw_card", "args": [1]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "normal_summon",
-        "args": [0]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "attack_monster",
-                                                   "args": [0, 0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "normal_summon", "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 1, "move": "attack_monster", "args": [0, 0]})
         log = self.yugioh_game.game_logger.game_actions[-1]
         self.assertEqual(log["player"], "Kaiba")
         self.assertEqual(log["turn"], 2)
@@ -208,8 +245,7 @@ class TestYugiohLogger(unittest.TestCase):
     
     def test_attack_player_directly(self):
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [1]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon",
-                                "args": [0]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "attack_player", "args": [0]})
         log = self.yugioh_game.game_logger.game_actions[-1]
         self.assertEqual(log["player"], "Yugi")
@@ -220,10 +256,11 @@ class TestYugiohLogger(unittest.TestCase):
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [2]})
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
-        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "tribute_summon",
-                                                   "args": [0, 0, 1]})
+        self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "tribute_summon", "args": [0, 0, 1]})
         log = self.yugioh_game.game_logger.game_actions[-1]                                           
-        self.assertEqual(log["message"], "Yugi tribute summoned Dark Magician by sacrificing Hitotsu-Me Giant and Mammoth Graveyard")
+        self.assertEqual(log["message"], "Yugi tribute summoned Dark Magician by sacrificing "
+                                         "Hitotsu-Me Giant and Mammoth Graveyard")
+
 
 class TestYugiohCreatePickle(unittest.TestCase):
     def setUp(self):
