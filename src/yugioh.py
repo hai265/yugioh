@@ -261,3 +261,9 @@ class GameLogger:
         spell = curr_player.hand[request["args"][1]].name
         targeted_monster = curr_player.monster_field[request["args"][0]]
         return f"{curr_player.name} used {spell} on {targeted_monster.name}"
+
+    def get_logs(self) -> list[dict]:
+        """
+        Returns the list of logs
+        """
+        return self.game_actions
