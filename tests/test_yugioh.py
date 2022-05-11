@@ -260,6 +260,26 @@ class TestYugiohLogger(unittest.TestCase):
         log = self.yugioh_game.game_logger.game_actions[-1]                                           
         self.assertEqual(log["message"], "Yugi tribute summoned Dark Magician by sacrificing "
                                          "Hitotsu-Me Giant and Mammoth Graveyard")
+    
+    def test_normal_set_log(self):
+        self.yugioh_game.update_game(
+            {"session_id": 1, "player": 0, "move": "draw_card", "args": [2]})
+        self.yugioh_game.update_game(
+            {"session_id": 1, "player": 0, "move": "normal_set", "args": [0]})
+        log = self.yugioh_game.game_logger.game_actions[-1]
+        self.assertEqual(log["message"], "Yugi summoned Hitotsu-Me Giant face down")
+
+    def test_flip_summon_log(self):
+        self.yugioh_game.update_game(
+            {"session_id": 1, "player": 0, "move": "draw_card", "args": [2]})
+        self.yugioh_game.update_game(
+            {"session_id": 1, "player": 0, "move": "normal_set", "args": [0]})
+        self.yugioh_game.update_game(
+            {"session_id": 1, "player": 0, "move": "flip_summon", "args": [0]})
+        log = self.yugioh_game.game_logger.game_actions[-1]
+        self.assertEqual(
+            log["message"], "Yugi flipped summoned Hitotsu-Me Giant")
+
     def test_spell_log(self):
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "draw_card", "args": [2]})
         self.yugioh_game.update_game({"session_id": 1, "player": 0, "move": "normal_summon", "args": [0]})
@@ -305,7 +325,7 @@ class TestLoggerSpells(unittest.TestCase):
                                                    "args": [0, 3]})
         log = self.yugioh_game.game_logger.game_actions[-1]                                           
         self.assertEqual(log["message"], "Yugi used Book of Secret Arts on Curtain of the Dark One")
-
+    
 
 class TestYugiohCreatePickle(unittest.TestCase):
     def setUp(self):
