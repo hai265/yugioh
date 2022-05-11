@@ -324,7 +324,7 @@ class BattlePhase(Phase):
         while True:
             self.context.display_board()
             monster_choices = generate_monster_card_question(
-                self.context.yugioh_game.get_current_player().monster_field)
+                self.context.yugioh_game.get_current_player().monster_field, filter=lambda card: card.can_attack)
             monster_choices.append(("End Phase", -1))
 
             questions = [
@@ -413,14 +413,15 @@ class Context:
         self._state.context = self
 
 
-def generate_monster_card_question(card_choices: list[Card]) -> list[tuple[str, int]]:
+def generate_monster_card_question(card_choices: list[Card], filter= lambda card:True) -> list[tuple[str, int]]:
     """
     Generate a list of card questions for an inquiry
     :param card_choices: A list of cards
+    :param filter: a method to filter the cards by
     :return: a
     """
     monster_choices = []
     for field_idx, card in enumerate(card_choices):
-        if card is not None and isinstance(card, Monster):
+        if card is not None and isinstance(card, Monster) and filter(card):
             monster_choices.append((card.name, field_idx))
     return monster_choices
