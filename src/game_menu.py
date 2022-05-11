@@ -1,4 +1,5 @@
 import asyncio
+from pprint import pprint
 
 import inquirer
 from src import database_functions
@@ -51,6 +52,7 @@ class GameMenu:
         self.deck_list: list[dict[str: list[str]]]
         self.server_ip = server_ip
         self.server_port = server_port
+        self.game_actions = []
 
     def main(self):
         """
@@ -61,7 +63,7 @@ class GameMenu:
             questions = [
                 inquirer.List('choice',
                               message="Menu: (Use arrow keys to select, press enter to choose)",
-                              choices=['Play a game', 'Create and view decks', 'Stats', "Exit Game"],
+                              choices=['Play a game', 'Create and view decks', 'Stats', "View last game", "Exit Game"],
                               ),
             ]
             answers = inquirer.prompt(questions)
@@ -74,6 +76,8 @@ class GameMenu:
                 return
             elif answers['choice'] == "Stats":
                 self.leaderboard()
+            elif answers['choice'] == "View last game":
+                self.view_last_game()
 
     def authenticate_user(self):
         """
@@ -93,6 +97,7 @@ class GameMenu:
         preset_deck = deck_to_card_name_list(preset_deck)
         cli = NetworkCli(self.server_ip, self.server_port, self.name, preset_deck)
         game_result = await cli.start_game()
+        self.game_actions = game_result["game_actions"]
         if game_result["game_result"] == "l":
             update_win_loss_draw(self.name, "l")
         elif game_result["game_result"] == "w":
@@ -118,3 +123,13 @@ class GameMenu:
                 display_stats(lookup_name,  database_functions.get_user_stats(lookup_name))
             else:
                 return
+
+    def view_last_game(self):
+        """
+        A way for a user to view the actions taken by both players during their last match
+        """
+        if self.game_actions:
+            for log_message in self.game_actions:
+                print(f" Turn {log_message['turn']}: {log_message['message']}")
+        else:
+            print("You did not play a game yet.")

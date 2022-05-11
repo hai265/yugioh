@@ -4,6 +4,7 @@ import os
 import pickle
 import socket
 from asyncio.log import logger
+from typing import Tuple
 import inquirer
 import websockets
 from inquirer import errors
@@ -28,6 +29,7 @@ class NetworkCli:
         self.client_socket = None
         self.session_id = 0
         self.player_place = 0
+        self.other_player_place = 1
         self.session_id = 0
         self.name = name
         self.deck = deck
@@ -68,7 +70,7 @@ class NetworkCli:
             else:
                 print(monster_card_to_string(card))
 
-    async def start_game(self):
+    async def start_game(self) -> Tuple:
         """
         Starts an instance of a yugioh yugioh_game on the command line
         """
@@ -77,6 +79,7 @@ class NetworkCli:
         print("Waiting for another player...")
         game_state = await self.connect_to_server()
         self.player_place, self.session_id = game_state["player"], game_state["session_id"]
+        self.other_player_place = 1 if self.player_place == 0 else 0
         logger.debug("Send Create Game")
         await self.client_socket.send(json.dumps(
             {"operation": "create", "session_id": self.session_id,
@@ -146,14 +149,14 @@ class NetworkCli:
         self.yugioh_game.game_status = GameStatus.ENDED
         if self.yugioh_game.is_there_winner():
             self.yugioh_game.game_status = GameStatus.ENDED
-            if self.yugioh_game.players[1].life_points <= 0:
-                print(self.yugioh_game.players[0].name + " won!")
-                game_result = "w"
+            if self.yugioh_game.players[self.player_place].life_points <= 0:
+                print("You lost")
+                game_result = "l"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
-            elif self.yugioh_game.players[0].life_points <= 0:
-                print(self.yugioh_game.players[1].name + " won!")
-                game_result = "l"
+            elif self.yugioh_game.players[self.other_player_place].life_points <= 0:
+                print("You won!")
+                game_result = "w"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
             else:
@@ -161,10 +164,11 @@ class NetworkCli:
                 game_result = "d"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
-            await self.send_data_and_update_game(
-                {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
+            await self.client_socket.send(json.dumps({"operation": "read", "get_game_actions": True}).encode("utf-8"))
+
+            game_actions = await self.client_socket.recv()
             await self.client_socket.close()
-            return {"game_result": game_result}
+            return {"game_result": game_result, "game_actions": json.loads(game_actions)}
 
     async def main(self):
         """

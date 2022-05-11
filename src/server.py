@@ -61,9 +61,9 @@ class YugiohServer:
                     logging.warning("Invalid operation")
                 # Don't broadcast to both players if was a read_game
                 if data.get("get_pickle", False):
-                    websockets.broadcast(self.id_to_sockets[session_id], send_data)
+                    websockets.broadcast(broadcast_sockets, send_data)
                 else:
-                    websockets.broadcast(self.id_to_sockets[session_id], json.dumps(send_data).encode("utf-8"))
+                    websockets.broadcast(broadcast_sockets, json.dumps(send_data).encode("utf-8"))
 
     # TODO: Put the initializing game and join part here
     async def create_new_game(self, websocket):
