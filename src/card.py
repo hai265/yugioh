@@ -206,6 +206,24 @@ def create_deck_from_preset(preset_path: str):
         return deck
 
 
+def create_list_from_preset(preset_path: str):
+    """Method that creates a card list form a csv file of card names.
+
+    Args:
+        preset_path: the path of the file that contains a card preset in csv
+
+    Returns:
+        a list containing Card objects
+    """
+    with open(preset_path, 'r') as csvfile:
+        deck = []
+        reader = csv.reader(csvfile)
+        for row in reader:
+            for name in row:
+                deck.append(name)
+        return deck
+
+
 def deck_to_card_name_list(cards: list):
     """Method to convert a list of Card objects to a list of their names only.
 
