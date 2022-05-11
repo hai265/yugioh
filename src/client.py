@@ -60,12 +60,12 @@ class NetworkCli:
             print(print_str)
         print()
         print(
-            self.yugioh_game.get_current_player().name + " cards in deck: " + str(
-                len(self.yugioh_game.get_current_player().deck)))
-        print(self.yugioh_game.get_current_player().name + " cards in graveyard: " + str(
-            len(self.yugioh_game.get_current_player().graveyard)))
-        print(self.yugioh_game.get_current_player().name + "'s hand: ", )
-        for card in self.yugioh_game.get_current_player().hand:
+            "Your cards in deck: " + str(
+                len(self.yugioh_game.players[self.player_place].deck)))
+        print("Your cards in graveyard: " + str(
+            len(self.yugioh_game.players[self.player_place].graveyard)))
+        print("Your hand ", )
+        for card in self.yugioh_game.players[self.player_place].hand:
             if card is None:
                 print("None")
             else:
