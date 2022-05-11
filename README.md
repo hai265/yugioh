@@ -13,7 +13,7 @@ This scrum focused on implementing the individual components of the Yu-Gi-Oh! ca
 To run the server , run `docker build --tag yugioh-server -f Dockerfile.server .`, and then after building the image, run 
 `docker run -p 5555:5555 -it yugioh-server`  
 To run the client , run `docker build --tag yugioh-client -f Dockerfile.client .`, and then after building the image, run 
-`docker run --net host -it yugioh-client`  
+`docker run -it yugioh-client`  
 To run the tests, run:  
 `
 pip install virtualenv`  
@@ -22,7 +22,7 @@ pip install virtualenv`
 `pip install pytest-cov`  
 `pytest --cov=src tests/`
 
-## Scrum 04/03 - 04/10
+## Sprint 04/03 - 04/10
 
 **Hai Nguyen**| Effort - 100%
 
@@ -52,7 +52,7 @@ pip install virtualenv`
 
 **Mo Goldberger**| Effort - 0%
 
-## Scrum 04/10 - 04/24
+## Sprint 04/10 - 04/24
 
 **Hai Nguyen**| Effort - 100%
 
@@ -86,4 +86,6 @@ pip install virtualenv`
 - Contributed to development of Yugioh interface.
 
 **Mo Goldberger**| Effort - 0%
+
+## Sprint 3
 
