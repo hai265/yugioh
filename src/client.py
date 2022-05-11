@@ -49,12 +49,18 @@ class NetworkCli:
             os.system('clear')
         print("It is currently " + str(self.yugioh_game.get_current_player().name) + "'s turn" + " Round " + str(
             self.num_rounds))
-        for player in self.yugioh_game.players:
+        for player_place, player in enumerate(self.yugioh_game.players):
             print("{} ({}) 's field:".format(player.name, player.life_points))
             print_str = ""
             for card in player.monster_field:
                 if card:
-                    print_str += monster_card_to_string(card) + " | "
+                    if card.face_pos == Monster.FACE_UP:
+                        print_str += monster_card_to_string(card) + " | "
+                    else:
+                        monster_string = " "
+                        if player_place == self.player_place:
+                            monster_string = monster_card_to_string(card)
+                        print_str +=  monster_string + "(Face down)" + " | "
                 else:
                     print_str += "None | "
             print(print_str)
@@ -420,7 +426,7 @@ class BattlePhase(Phase):
             ]
             targeted_monster = inquirer.prompt(questions)["choice"]
             if targeted_monster == -1:
-                break
+                continue
             else:
                 if targeted_monster == len(self.context.yugioh_game.get_current_player().monster_field):
                     await self.context.send_data_and_update_game(
