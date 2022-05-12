@@ -88,4 +88,11 @@ pip install virtualenv`
 **Mo Goldberger**| Effort - 0%
 
 ## Sprint 3
+**Hai Nguyen**| Effort - 100%
 
+<ins>Work completed</ins>
+- Rewrote server using websockets
+- Used inquirer to get user input during a game
+- Built a command line interface to support the various yugioh actions
+- Built a logger to log game actions
+- Built a game menu so users can access the various parts of the program
