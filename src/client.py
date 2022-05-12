@@ -60,7 +60,7 @@ class NetworkCli:
                         monster_string = " "
                         if player_place == self.player_place:
                             monster_string = monster_card_to_string(card)
-                        print_str +=  monster_string + "(Face down)" + " | "
+                        print_str += monster_string + "(Face down)" + " | "
                 else:
                     print_str += "None | "
             print(print_str)
@@ -334,8 +334,8 @@ class MainPhase(Phase):
         """
         Method that handles playing a spell
         """
-        hand_choices = generate_card_question(self.context.yugioh_game.get_current_player().monster_field
-                                              , card_filter=lambda card: isinstance(card, Spell))
+        hand_choices = generate_card_question(self.context.yugioh_game.get_current_player().monster_field,
+                                              card_filter=lambda card: isinstance(card, Spell))
         hand_choices.append(("Cancel", -1))
         questions = [
             inquirer.List('choice', message="Choose a spell from your hand to play",
@@ -418,8 +418,9 @@ class BattlePhase(Phase):
             target = []
             if not self.context.yugioh_game.get_other_player().can_be_attacked():
                 target = generate_card_question(
-                    self.context.yugioh_game.get_other_player().monster_field, card_filter=lambda monster: isinstance(monster, Monster) and monster.face_pos == Monster.FACE_UP)
-            else:   
+                    self.context.yugioh_game.get_other_player().monster_field,
+                    card_filter=lambda monster: isinstance(monster, Monster) and monster.face_pos == Monster.FACE_UP)
+            else:
                 target.append(("Attack Player", 5))
             target.append(("Cancel", -1))
             questions = [
