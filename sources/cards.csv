@@ -68,7 +68,7 @@ Trap Master,Monster,Earth,Warrior,3,500,1100,,
 Hane-Hane,Monster,Earth,Beast,2,450,500,,
 Dark Hole,Spell,Normal,"""Destroy all monsters on the field.""",destroy_all_monsters
 Dian Keto the Cure Master,Spell,Normal,"""Increase your Life Points by 1000 points.""",increase_life_points,1000
-Fissure,Spell,Normal,"""Destroy the 1 face-up monster your opponent controls that has the lowest ATK (your choice, if tied).""",destroy_opponent_monster_with_lowest_atk
+Fissure,Spell,Normal,"""Destroy the 1 face-up monster your opponent controls that has the lowest ATK.""",destroy_opponent_monster_with_lowest_atk
 Ookazi,Spell,Normal,"""Inflict 800 points of damage to your opponent's Life Points.""",decrease_opponent_life_points,800
 Book of Secret Arts,Spell,Equip,"""A Spellcaster-Type monster equipped with this card increases its ATK and DEF by 300 points.""",alter_monster_stats,300,300,Spellcaster
 Sword of Dark Destruction,Spell,Equip,"""Equip only to a DARK monster. It gains 400 ATK and loses 200 DEF.""",alter_monster_stats,400,-200,Dark

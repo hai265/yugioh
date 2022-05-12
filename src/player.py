@@ -1,4 +1,5 @@
-from src.card import Monster
+# from src.card import Monster
+import src.card as card
 
 
 class Player:
@@ -19,7 +20,7 @@ class Player:
         self.deck = []
         self.hand = []
         self.graveyard = []
-        self.monster_field: list[Monster] = [None] * Player.FIELD_CARD_LIMIT
+        self.monster_field: list[card.Monster] = [None] * Player.FIELD_CARD_LIMIT
         self.spell_trap_field = [None] * Player.FIELD_CARD_LIMIT
 
     def draw_card(self, quantity=1) -> None:
@@ -76,8 +77,8 @@ class Player:
             field_idx: Index on the field to place the card.
         """
         monster = self.hand.pop(hand_idx)
-        monster.face_pos = Monster.FACE_DOWN
-        monster.battle_pos = Monster.DEF
+        monster.face_pos = card.Monster.FACE_DOWN
+        monster.battle_pos = card.Monster.DEF
         self.monster_field[field_idx] = monster
 
     def flip_summon(self, field_idx: int):
@@ -87,8 +88,8 @@ class Player:
             field_idx: Index on the field to place the card.
         """
         monster = self.monster_field[field_idx]
-        monster.face_pos = Monster.FACE_UP
-        monster.battle_pos = Monster.ATK
+        monster.face_pos = card.Monster.FACE_UP
+        monster.battle_pos = card.Monster.ATK
 
     def tribute_summon(self, hand_idx: int, tribute1_idx: int, tribute2_idx: int) -> int:
         """Removes a monster card from the player's hand and adds it to the field at a specific location.
@@ -131,7 +132,7 @@ class Player:
             field_idx: Index of the card on the field whose position will be changed.
         """
         monster = self.monster_field[field_idx]
-        monster.battle_pos = Monster.DEF if monster.battle_pos == Monster.ATK else Monster.ATK
+        monster.battle_pos = card.Monster.DEF if monster.battle_pos == card.Monster.ATK else card.Monster.ATK
 
     def send_card_to_graveyard(self, monster_field_idx: int, hand_idx: int, spell_field_idx=-1) -> bool:
         """Get card from either hand or field and send it to the graveyard. A -1 index means that no card from the
@@ -195,4 +196,4 @@ class Player:
         """
         Determined if a player can be attacked by a monster
         """
-        return not any(monster and monster.face_pos == Monster.FACE_UP for monster in self.monster_field)
+        return not any(monster and monster.face_pos == card.Monster.FACE_UP for monster in self.monster_field)

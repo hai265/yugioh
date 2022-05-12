@@ -350,12 +350,12 @@ class TestNormalSpellCards(unittest.TestCase):
         self.player1 = Player(5000, 'Yugi')
         self.player2 = Player(5000, 'Kaiba')
 
-        p1_effects = Effect(self.player1, self.player2)
-        p2_effects = Effect(self.player2, self.player1)
+        # p1_effects = Effect(self.player1, self.player2)
+        # p2_effects = Effect(self.player2, self.player1)
         spell_names = ["Dark Hole", "Dian Keto the Cure Master", "Fissure", "Ookazi"]
 
-        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
-        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+        self.p1_spells = create_deck_from_array(spell_names)
+        self.p2_spells = create_deck_from_array(spell_names)
 
         self.player1_card1 = create_card('Curtain of the Dark One')
         self.player1_card2 = create_card('Hitotsu-Me Giant')
@@ -498,12 +498,10 @@ class TestEquipSpellCards(unittest.TestCase):
         self.player1 = Player(5000, 'Yugi')
         self.player2 = Player(5000, 'Kaiba')
 
-        p1_effects = Effect(self.player1, self.player2)
-        p2_effects = Effect(self.player2, self.player1)
         spell_names = ["Book of Secret Arts", "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
 
-        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
-        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+        self.p1_spells = create_deck_from_array(spell_names)
+        self.p2_spells = create_deck_from_array(spell_names)
 
         self.player1_card1 = create_card('Curtain of the Dark One')
         self.player1_card2 = create_card('Hitotsu-Me Giant')

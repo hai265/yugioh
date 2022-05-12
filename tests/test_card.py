@@ -1,7 +1,6 @@
 import unittest
 from src.card import create_card, create_deck_from_preset, create_deck_from_array,\
     Monster
-from src.card_effects import Effect
 
 
 class TestGameMethods(unittest.TestCase):
@@ -35,22 +34,20 @@ class TestGameMethods(unittest.TestCase):
             self.assertEqual(deck[0].name, real_deck[0].name)
 
     def test_create_spell_card(self):
-        effect = Effect(None, None)
         card1_repr = "name:Dark Hole, icon:normal, speed:1, position:up"
         card2_repr = "name:Dian Keto the Cure Master, icon:normal, speed:1, position:up"
 
-        card1 = create_card("Dark Hole", effect)
+        card1 = create_card("Dark Hole")
         self.assertEqual(card1_repr, repr(card1))
 
-        card2 = create_card("Dian Keto the Cure Master", effect)
+        card2 = create_card("Dian Keto the Cure Master")
         self.assertEqual(card2_repr, repr(card2))
 
     def test_create_spell_deck(self):
-        effect = Effect(None, None)
         card_names = ['Dark Hole', 'Dian Keto the Cure Master', 'Fissure', 'Ancient Telescope', 'Ookazi']
-        expected_deck = [create_card(name, effect) for name in card_names]
+        expected_deck = [create_card(name) for name in card_names]
 
-        self.assertEqual(expected_deck, create_deck_from_array(card_names, effect))
+        self.assertEqual(expected_deck, create_deck_from_array(card_names))
 
 
 class TestMonster(unittest.TestCase):

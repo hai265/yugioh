@@ -5,7 +5,6 @@ from src.card import create_deck_from_preset, create_deck_from_array
 from src.game import GameStatus
 from src.player import Player
 from src.yugioh import Yugioh, to_dict
-from src.card_effects import Effect
 
 
 class TestYugiohCreate(unittest.TestCase):
@@ -104,10 +103,8 @@ class TestYugiohUpdateSpells(unittest.TestCase):
         spell_names = ["Dark Hole", "Dian Keto the Cure Master", "Fissure", "Ookazi", "Book of Secret Arts",
                        "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
 
-        p1_effects = Effect(self.yugioh_game.game.get_current_player(), self.yugioh_game.game.get_other_player())
-        p2_effects = Effect(self.yugioh_game.game.get_other_player(), self.yugioh_game.game.get_current_player())
-        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
-        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+        self.p1_spells = create_deck_from_array(spell_names)
+        self.p2_spells = create_deck_from_array(spell_names)
 
         self.yugioh_game.game.get_current_player().deck.extend(self.p1_spells[:3])
         self.yugioh_game.game.get_other_player().deck.extend(self.p2_spells[:3])
@@ -289,6 +286,7 @@ class TestYugiohLogger(unittest.TestCase):
         self.assertEqual(log["message"], "Yugi tribute summoned Dark Magician by sacrificing "
                                          "Hitotsu-Me Giant and Mammoth Graveyard")
 
+
 class TestLoggerSpells(unittest.TestCase):
     def setUp(self):
         self.yugioh_game = Yugioh()
@@ -300,12 +298,10 @@ class TestLoggerSpells(unittest.TestCase):
             {"player_name": "Kaiba", "deck": self.preset_deck_string, "session_id": 1})
 
         spell_names = ["Dark Hole", "Dian Keto the Cure Master", "Fissure", "Ookazi", "Book of Secret Arts",
-                    "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
+                       "Sword of Dark Destruction", "Dark Energy", "Invigoration"]
 
-        p1_effects = Effect(self.yugioh_game.game.get_current_player(), self.yugioh_game.game.get_other_player())
-        p2_effects = Effect(self.yugioh_game.game.get_other_player(), self.yugioh_game.game.get_current_player())
-        self.p1_spells = create_deck_from_array(spell_names, p1_effects)
-        self.p2_spells = create_deck_from_array(spell_names, p2_effects)
+        self.p1_spells = create_deck_from_array(spell_names)
+        self.p2_spells = create_deck_from_array(spell_names)
 
         self.yugioh_game.game.get_current_player().deck.extend(self.p1_spells[:3])
         self.yugioh_game.game.get_other_player().deck.extend(self.p2_spells[:3])

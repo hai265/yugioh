@@ -1,7 +1,7 @@
 import csv
+import src.card_effects as effects
 from enum import Enum, unique
 from typing import Callable
-# from src.card_effects import Effect
 
 
 class Card:
@@ -146,11 +146,11 @@ class Spell:
                                                                 self.position.value)
         return str_repr
 
-    def activate_effect(self):
+    def activate_effect(self, player, opponent):
         if self.icon == Spell.Icon.EQUIP:
             self.effect(self.equipped_monster, *self.effect_args)
         else:
-            self.effect(*self.effect_args)
+            self.effect(player, opponent, *self.effect_args)
 
 
 def create_card(card_name: str, effect=None):
@@ -172,7 +172,7 @@ def create_card(card_name: str, effect=None):
                     def convert_type(arg):
                         return int(arg) if arg.isnumeric() or arg.lstrip('-').isnumeric() else arg
 
-                    return Spell(name=row[0], icon=row[2], description=row[3], effect=getattr(effect, row[4].strip()),
+                    return Spell(name=row[0], icon=row[2], description=row[3], effect=getattr(effects, row[4].strip()),
                                  effect_args=[convert_type(arg) for arg in row[5:]])
         return None
 
@@ -262,7 +262,25 @@ def monster_card_to_string(card: Monster):
         A string in format {cardName} {attack}/{defense}
     """
     return "{cardName} {attack}/{defense} {position} {level}*".format(cardName=card.name, attack=card.attack_points,
-                                                                      defense=card.attack_points,
+                                                                      defense=card.defense_points,
                                                                       position=card.battle_pos[0].upper(),
                                                                       level=card.level)
+
+
+def spell_card_to_string(card: Spell, verbose=False):
+    """
+    Args:
+        card: The card to convert to a string
+        verbose: Flag for a verbose description of the card.
+
+    Returns:
+        A string in format {card_name} {icon}
+    """
+    if verbose:
+        return "{card_name} {icon} {description}".format(card_name=card.name, icon=card.icon,
+                                                         description=card.description)
+
+    return "{card_name} {icon}".format(card_name=card.name, icon=card.icon)
+
+
 
