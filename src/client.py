@@ -10,7 +10,7 @@ import inquirer
 import websockets
 from inquirer import errors
 
-from src.card import monster_card_to_string, Monster, Card, Spell
+from src.card import monster_card_to_string, spell_card_to_string, Monster, Spell, Card
 from src.game import GameController, GameStatus
 
 
@@ -64,6 +64,14 @@ class NetworkCli:
                 else:
                     print_str += "None | "
             print(print_str)
+
+            print_str = ""
+            for card in player.spell_trap_field:
+                if card:
+                    print_str += spell_card_to_string(card) + " | "
+                else:
+                    print_str += "None | "
+            print(print_str)
         print()
         print(
             "Your cards in deck: " + str(
@@ -74,8 +82,10 @@ class NetworkCli:
         for card in self.yugioh_game.players[self.player_place].hand:
             if card is None:
                 print("None")
-            else:
+            elif isinstance(card, Monster):
                 print(monster_card_to_string(card))
+            elif isinstance(card, Spell):
+                print(spell_card_to_string(card, verbose=True))
 
     async def start_game(self) -> dict[str, Union[str, Any]]:
         """
@@ -92,11 +102,16 @@ class NetworkCli:
             {"operation": "create", "session_id": self.session_id,
              "player_name": self.name,
              "deck": self.deck, "get_pickle": True, "player_place": self.player_place}).encode('utf-8'))
+
         data = await self.client_socket.recv()
         self.yugioh_game = pickle.loads(data)
+
         while self.yugioh_game.game_status == GameStatus.WAITING:
             data = await self.client_socket.recv()
             self.yugioh_game = pickle.loads(data)
+        await self.send_data_and_update_game(
+            {"operation": "update", "player": self.player_place, "session_id": self.session_id,
+             "move": "draw_card", "args": [5], "get_pickle": True})
         while GameStatus.ONGOING:
             self.num_rounds += 1
             if self.yugioh_game.current_player != self.player_place:
@@ -226,15 +241,13 @@ class MainPhase(Phase):
             questions = [
                 inquirer.List('choice',
                               message="Choose your action",
-                              choices=['Summon a monster', "Play a Spell", 'Go to Battle Phase'],
+                              choices=['Summon a monster', 'Activate Spell', 'Go to Battle Phase'],
                               ),
             ]
             answers = inquirer.prompt(questions)
             if answers['choice'] == "Go to Battle Phase":
                 break
-            if answers['choice'] == "Play a Spell":
-                await self.play_spell()
-            elif answers['choice'] == 'Summon a monster':
+            if answers['choice'] == 'Summon a monster':
                 questions = [
                     inquirer.List('choice',
                                   message="Choose a summoning method summon",
@@ -266,8 +279,21 @@ class MainPhase(Phase):
                     await self.flip_summon()
                 else:
                     break
+            elif answers['choice'] == "Activate Spell":
+                hand_choices = generate_spell_card_question(self.context.yugioh_game.get_current_player().hand)
+                hand_choices.append(("Cancel", -1))
+                questions = [
+                    inquirer.List('choice',
+                                    message="Choose a spell from your hand to use",
+                                    choices=hand_choices,
+                                    ),
+                ]
 
-            self.context.display_board()
+                spell_to_use = inquirer.prompt(questions)["choice"]
+                if spell_to_use == -1:
+                    continue
+                await self.activate_spell(spell_to_use)
+                self.context.display_board()
         self.context.display_board()
         self.context.setState(BattlePhase())
         return True
@@ -330,51 +356,55 @@ class MainPhase(Phase):
                  [monster_to_summon, monsters_to_sacrifice[0], monsters_to_sacrifice[1]], "get_pickle": True})
         self.context.display_board()
 
-    async def play_spell(self):
-        """
-        Method that handles playing a spell
-        """
-        hand_choices = generate_card_question(self.context.yugioh_game.get_current_player().monster_field,
-                                              card_filter=lambda card: isinstance(card, Spell))
-        hand_choices.append(("Cancel", -1))
-        questions = [
-            inquirer.List('choice', message="Choose a spell from your hand to play",
-                          choices=hand_choices, ), ]
-        spell_idx = inquirer.prompt(questions)["choice"]
-        if spell_idx == -1:
-            return
-        else:
-            if self.context.yugioh_game.get_current_player().hand[spell_idx].icon == Spell.Icon.NORMAL:
-                await self.context.send_data_and_update_game(
-                    {"operation": "update", "session_id": self.context.session_id,
-                     "move": "tribute_summon", "args":
-                         [spell_idx], "get_pickle": True})
-            elif self.context.yugioh_game.get_current_player().hand[spell_idx].icon == Spell.Icon.EQUIP:
-                await self.spell_equip(spell_idx)
+    async def activate_spell(self, spell):
+        """Method that handles input to use a spell card.
 
-    async def spell_equip(self, spell_idx):
+        Args:
+            spell: Index of spell card to use.
         """
-        Method that handles playing an equip spell
-        """
-        questions = [
-            inquirer.Checkbox('choice',
-                              message="Choose to target either your monsters or the opponent's",
-                              choices=["Target your monsters", "Target opponent's monsters", "Cancel"]), ]
-        choice = inquirer.prompt(questions)["choice"]
-        if choice == "Cancel":
+        if spell == -1:
             return
-        if choice == "Target your monsters":
-            monster_targets = generate_card_question(self.context.yugioh_game.get_current_player().monster_field)
-        else:
-            monster_targets = generate_card_question(self.context.yugioh_game.get_other_player().monster_field)
-        monster_targets.append(("Cancel", -1))
-        monster_targeted = inquirer.prompt(questions)["choice"]
-        if monster_targeted == -1:
-            return
-        await self.context.send_data_and_update_game({"operation": "update", "session_id": self.context.session_id,
-                                                      "move": "equip_spell", "args":
-                                                          [monster_targeted, spell_idx], "get_pickle": True})
 
+        questions = [
+            inquirer.List('choice',
+                          message="Decide whether or not to activate the spell",
+                          choices=["Activate", "Cancel"],
+                          ),
+        ]
+
+        decision = inquirer.prompt(questions)["choice"]
+        if decision == "Cancel":
+            return
+
+        spell_icon = self.context.yugioh_game.get_current_player().hand[spell].icon
+        if spell_icon == Spell.Icon.NORMAL:
+            await self.context.send_data_and_update_game(
+                {"operation": "update", "session_id": self.context.session_id, "move": "normal_spell",
+                 "args": [spell], "get_pickle": True}
+            )
+        elif spell_icon == Spell.Icon.EQUIP:
+            required_type = get_required_type(self.context.yugioh_game.get_current_player().hand[spell].name)
+            monster_choices = generate_equip_spell_card_question(
+                self.context.yugioh_game.get_current_player().monster_field, required_type)
+            monster_choices.append(("Cancel", -1))
+
+            questions = [
+                inquirer.List('choice',
+                              message="(Press space to select and enter to finalize)",
+                              choices=monster_choices
+                              ),
+            ]
+
+            monster = inquirer.prompt(questions)["choice"]
+            if monster == "Cancel":
+                return
+
+            await self.context.send_data_and_update_game(
+                {"operation": "update", "session_id": self.context.session_id, "move": "equip_spell",
+                 "args": [monster, spell], "get_pickle": True}
+            )
+        self.context.display_board()
+        
     async def flip_summon(self):
         """
         Method that handles getting input to flip summon a face down monster from a player's field
@@ -510,3 +540,44 @@ def generate_card_question(card_choices: list[Card],
         if card_filter(card):
             monster_choices.append((card.name, field_idx))
     return monster_choices
+
+
+def generate_spell_card_question(card_choices: list) -> list[tuple[str, int]]:
+    """Generate a list of spell card questions for an inquiry
+
+    Args:
+        card_choices: A list of cards
+
+    Returns:
+        List of valid spell choices
+    """
+    return [(card.name, field_idx) for field_idx, card in enumerate(card_choices) if card and isinstance(card, Spell)]
+
+
+def generate_equip_spell_card_question(card_choices: list, required_type: str) -> list[tuple[str, int]]:
+    """Generate a list of spell card questions for an inquiry
+
+    Args:
+        card_choices: A list of cards
+
+    Returns:
+        List of valid spell choices
+    """
+    monster_choices = []
+    for field_idx, card in enumerate(card_choices):
+        if card and isinstance(card, Monster) and (card.attribute == required_type or
+                                                   card.monster_type == required_type):
+            monster_choices.append((card.name, field_idx))
+    return monster_choices
+
+
+def get_required_type(spell_name):
+    if spell_name == "Book of Secret Arts":
+        return "Spellcaster"
+    elif spell_name == "Sword of Dark Destruction":
+        return "Dark"
+    elif spell_name == "Dark Energy":
+        return "Fiend"
+    elif spell_name == "Invigoration":
+        return "Earth"
+

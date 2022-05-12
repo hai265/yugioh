@@ -101,7 +101,7 @@ class GameController:
 
     def activate_spell(self, spell_idx: int):
         current = self.get_current_player()
-        current.hand[spell_idx].activate_effect()
+        current.hand[spell_idx].activate_effect(self.get_current_player(), self.get_other_player())
         current.send_card_to_graveyard(-1, spell_idx)
 
     def equip_spell(self, target_monster_idx: int, spell_idx: int):
@@ -119,7 +119,7 @@ class GameController:
                 field_idx = current.spell_trap_field.index(None)
                 current.spell_trap_field[field_idx] = equip_spell
 
-            equip_spell.activate_effect()
+            equip_spell.activate_effect(self.get_current_player(), self.get_other_player())
         else:
             raise ValueError("Specified monster does no meet the requirements for this spell.")
 
