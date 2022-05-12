@@ -1,168 +1,89 @@
 import json
 import multiprocessing
-import pickle
-import socket
-import unittest
-
-from src.card import create_deck_from_preset
-from src.game import GameStatus
+from time import sleep
+from unittest import IsolatedAsyncioTestCase
+import websockets
 from src.server import initialize_server
+from src.card import create_deck_from_preset
+
+SERVER_IP = "167.172.152.60"
+# SERVER_IP = "127.0.0.1"
+SERVER_PORT = 5555
+
 from src.network import Network
 
+# SERVER_IP = "167.172.152.60"
+SERVER_IP = "ws://localhost:5555/"
+SERVER_PORT = 5555
 
-@unittest.skip('tests not finished')
-class TestYugiohServer(unittest.TestCase):
+
+class TestYugiohServer(IsolatedAsyncioTestCase):
     def setUp(self):
         self.preset_deck = create_deck_from_preset("sources/preset1")
         self.preset_deck_string_list = []
         for card in self.preset_deck:
             self.preset_deck_string_list.append(card.name)
+        self.network = Network()
         self.process = multiprocessing.Process(target=initialize_server)
         self.process.start()
-        self.network = Network()
+        self.sockets = []
+        sleep(1)
 
     def tearDown(self):
-        pass
+        for sock in self.sockets:
+            sock.close()
         self.process.terminate()
 
-    def test_connect_to_yugioh_server(self):
-        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock1.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock1)
-        data = json.loads(data)
-        self.assertTrue(data["player"] == 0)
-        self.assertTrue(data["session_id"] == 1)
-        sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock2.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock2)
-        data = json.loads(data)
-        self.assertTrue(data["player"] == 1)
-        self.assertTrue(data["session_id"] == 1)
-        sock3 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock3.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock3)
-        data = json.loads(data)
-        self.assertTrue(data["player"] == 0)
-        self.assertTrue(data["session_id"] == 2)
+    async def create_game(self):
+        self.sockets.append(await websockets.connect(SERVER_IP))
+        self.sockets.append(await websockets.connect(SERVER_IP))
+        player1 = json.loads(await self.sockets[0].recv())
+        player2 = json.loads(await self.sockets[1].recv())
+        self.assertEqual(player1["player"], 0)
+        self.assertEqual(player2["player"], 1)
+        self.session_id = player1["session_id"]
+        await self.network.send_data(self.sockets[0],
+                                     (json.dumps(
+                                         {"operation": "create", "session_id": self.session_id, "player_name": "Yugi",
+                                          "deck": self.preset_deck_string_list})
+                                      .encode('utf-8')))
+        await self.network.send_data(self.sockets[1],
+                                     json.dumps(
+                                         {"operation": "create", "session_id": self.session_id, "player_name": "Kaiba",
+                                          "deck": self.preset_deck_string_list}).encode('utf-8'))
 
-    def test_yugioh_server_create_game(self):
-        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock1.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock1)
-        game_state = json.loads(data)
-        player_place, session_id = game_state["player"], game_state["session_id"]
-        self.network.send_data(sock1,
-                               (json.dumps({"operation": "create", "session_id": session_id, "player_name": "Yugi",
-                                            "deck": self.preset_deck_string_list})
-                                .encode('utf-8')))
-        game_state = json.loads(self.network.recv_data(sock1))
-        self.assertTrue(game_state["session_id"] == 1)
+    async def test_yugioh_server_create_game(self):
+        await self.create_game()
+        create_game_state1 = json.loads(await self.sockets[0].recv())
+        create_game_state2 = json.loads(await self.sockets[1].recv())
+        create_game_state2 = json.loads(await self.sockets[1].recv())
+        self.assertTrue(create_game_state2["players"][create_game_state2["current_player"]]["name"] == "Yugi")
+        self.assertTrue(create_game_state2["players"][create_game_state2["other_player"]]["name"] == "Kaiba")
 
-        sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock2.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock2)
-        player_place, session_id = json.loads(data)["player"], json.loads(data)["session_id"]
-        self.network.send_data(sock2,
-                               json.dumps({"operation": "create", "session_id": session_id, "player_name": "Kaiba",
-                                           "deck": self.preset_deck_string_list}).encode('utf-8'))
-        data = self.network.recv_data(sock2)
-        game_state = json.loads(data)
-        self.assertTrue(game_state["players"][game_state["current_player"]]["name"] == "Yugi")
-        self.assertTrue(game_state["players"][game_state["other_player"]]["name"] == "Kaiba")
+    async def test_yugioh_server_read_game(self):
+        await self.create_game()
+        create_game_state1 = json.loads(await self.network.recv_data(self.sockets[0]))
+        create_game_state2 = json.loads(await self.network.recv_data(self.sockets[1]))
+        create_game_state2 = json.loads(await self.sockets[1].recv())
+        await self.network.send_data(self.sockets[0],
+                                     (json.dumps({"operation": "read", "session_id": self.session_id})
+                                      .encode('utf-8')))
+        await self.network.send_data(self.sockets[1],
+                                     (json.dumps({"operation": "read", "session_id": self.session_id}).encode('utf-8')))
+        read_game_state1 = json.loads(await self.network.recv_data(self.sockets[0]))
+        read_game_state2 = json.loads(await self.network.recv_data(self.sockets[1]))
+        self.assertEqual(read_game_state1, read_game_state2)
+        self.assertEqual(create_game_state2, read_game_state1)
+        self.assertEqual(create_game_state2, read_game_state2)
 
-    def test_yugioh_server_read_game(self):
-        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock1.connect(("127.0.0.1", 5555))
-        data = sock1.recv(8192)
-        game_state = json.loads(data)
-        player_place, session_id = game_state["player"], game_state["session_id"]
-        sock1.sendall(json.dumps({"operation": "create", "session_id": session_id, "player_name": "Yugi",
-                                  "deck": self.preset_deck_string_list})
-                      .encode('utf-8'))
-        game_state = json.loads(self.network.recv_data(sock1))
-        sock1.sendall(json.dumps({"operation": "read", "session_id": session_id})
-                      .encode('utf-8'))
-        game_state2 = json.loads(self.network.recv_data(sock1))
-        self.assertEqual(game_state, game_state2)
-
-    def test_yugioh_server_delete_game(self):
-        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock1.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock1)
-        game_state = json.loads(data)
-        player_place, session_id = game_state["player"], game_state["session_id"]
-        sock1.sendall(json.dumps({"operation": "create", "session_id": session_id, "player_name": "Yugi",
-                                  "deck": self.preset_deck_string_list})
-                      .encode('utf-8'))
-        game_state = json.loads(self.network.recv_data(sock1))
-        sock1.sendall(json.dumps({"operation": "delete", "session_id": session_id})
-                      .encode('utf-8'))
-        data = self.network.recv_data(sock1)
-        game_state = json.loads(data)
-        self.assertTrue(game_state["session_id"] == session_id)
-
-    # def test_yugioh_server_update_game_draw_card(self):
-    #     sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    #     sock1.connect(("127.0.0.1", 5555))
-    #     data = sock1.recv(8192)
-    #     game_state = json.loads(data)
-    #     player_place, session_id = game_state["player"], game_state["session_id"]
-    #     sock1.sendall(json.dumps({"operation": "create", "session_id": session_id, "player_name": "Yugi",
-    #                               "deck": self.preset_deck_string_list})
-    #                   .encode('utf-8'))
-    #     data = sock1.recv(8192)
-    #     game_state = json.loads(data)
-    #     sock1.sendall(json.dumps({"operation": "update", "session_id": session_id, "move": "draw_card",
-    #                               "args": [1]})
-    #                   .encode('utf-8'))
-    #     game_state = json.loads(sock1.recv(8192))
-    #     self.assertTrue(game_state["players"][0]["hand"][0]["name"] == "Hitotsu-Me Giant")
-
-
-@unittest.skip('tests not finished')
-class TestYugiohServerFeature(unittest.TestCase):
-    def setUp(self):
-        self.preset_deck = create_deck_from_preset("sources/preset1")
-        self.preset_deck_string_list = []
-        for card in self.preset_deck:
-            self.preset_deck_string_list.append(card.name)
-        self.process = multiprocessing.Process(target=initialize_server)
-        self.process.start()
-
-    def tearDown(self):
-        pass
-        self.process.terminate()
-        self.network = Network()
-
-    def test_create_game_send_data_to_both_students(self):
-        sock1 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock1.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock1)
-        game_state = json.loads(data)
-        player_place, session_id = game_state["player"], game_state["session_id"]
-        sock1.sendall(json.dumps({"operation": "create", "session_id": session_id, "player_name": "Yugi",
-                                  "deck": self.preset_deck_string_list, "get_pickle": True})
-                      .encode('utf-8'))
-        game_state = pickle.loads(sock1.recv(4096))
-        self.assertTrue(game_state.session_id == 1)
-        self.assertTrue(game_state.game_status == GameStatus.WAITING)
-
-        sock2 = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock2.connect(("127.0.0.1", 5555))
-        data = self.network.recv_data(sock2)
-        player_place, session_id = json.loads(data)["player"], json.loads(data)["session_id"]
-        sock2.sendall(json.dumps({"operation": "create", "session_id": session_id, "player_name": "Kaiba",
-                                  "deck": self.preset_deck_string_list, "get_pickle": True})
-                      .encode('utf-8'))
-        game_state = pickle.loads(self.network.recv_data(sock1))
-        self.assertTrue(game_state.session_id == 1)
-        self.assertTrue(game_state.game_status == GameStatus.ONGOING)
-        game_state = pickle.loads(self.network.recv_data(sock2))
-        self.assertTrue(game_state.session_id == 1)
-        self.assertTrue(game_state.game_status == GameStatus.ONGOING)
-
-        sock1.sendall(json.dumps({"operation": "delete", "session_id": session_id, "get_pickle": True}).encode('utf-8'))
-        game1 = pickle.loads(self.network.recv_data(sock1))
-        game2 = pickle.loads(self.network.recv_data(sock2))
-        self.assertEqual(game1.game_status, GameStatus.ENDED)
-        self.assertEqual(game2.game_status, GameStatus.ENDED)
+    async def test_yugioh_server_delete_game(self):
+        await self.create_game()
+        create_game_state1 = json.loads(await self.network.recv_data(self.sockets[0]))
+        create_game_state2 = json.loads(await self.network.recv_data(self.sockets[1]))
+        create_game_state2 = json.loads(await self.sockets[1].recv())
+        await self.network.send_data(self.sockets[0],
+                                     json.dumps({"operation": "delete", "session_id": self.session_id}).encode("utf-8"))
+        delete_game_data1 = json.loads(await self.network.recv_data(self.sockets[0]))
+        delete_game_data2 = json.loads(await self.network.recv_data(self.sockets[1]))
+        self.assertTrue(delete_game_data1["session_id"], create_game_state1["session_id"])
+        self.assertTrue(delete_game_data2["session_id"], create_game_state2["session_id"])
