@@ -19,7 +19,7 @@ class Player:
         self.deck = []
         self.hand = []
         self.graveyard = []
-        self.monster_field = [None] * Player.FIELD_CARD_LIMIT  # There are a total of 10 field spots in yugioh
+        self.monster_field: list[Monster] = [None] * Player.FIELD_CARD_LIMIT
         self.spell_trap_field = [None] * Player.FIELD_CARD_LIMIT
 
     def draw_card(self, quantity=1) -> None:
@@ -123,6 +123,7 @@ class Player:
                 self.normal_summon(hand_idx, field_idx)
                 return field_idx
         return -1
+
     def change_monster_battle_position(self, field_idx: int):
         """Change a monster's battle position.
 
@@ -189,3 +190,9 @@ class Player:
 
         if self.life_points <= 0:
             self.life_points = 0
+
+    def can_be_attacked(self) -> bool:
+        """
+        Determined if a player can be attacked by a monster
+        """
+        return not any(monster and monster.face_pos == Monster.FACE_UP for monster in self.monster_field)

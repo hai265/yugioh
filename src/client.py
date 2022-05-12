@@ -415,20 +415,23 @@ class BattlePhase(Phase):
             attacking_monster = inquirer.prompt(questions)["choice"]
             if attacking_monster == -1:
                 break
-            monster_choices = generate_card_question(
-                self.context.yugioh_game.get_other_player().monster_field)
-            monster_choices.append(("Attack Player", len(self.context.yugioh_game.get_other_player().monster_field)))
-            monster_choices.append(("Cancel", -1))
+            target = []
+            if not self.context.yugioh_game.get_other_player().can_be_attacked():
+                target = generate_card_question(
+                    self.context.yugioh_game.get_other_player().monster_field, card_filter=lambda monster: isinstance(monster, Monster) and monster.face_pos == Monster.FACE_UP)
+            else:   
+                target.append(("Attack Player", 5))
+            target.append(("Cancel", -1))
             questions = [
                 inquirer.List('choice',
                               message="Choose a target",
-                              choices=monster_choices),
+                              choices=target),
             ]
             targeted_monster = inquirer.prompt(questions)["choice"]
             if targeted_monster == -1:
                 continue
             else:
-                if targeted_monster == len(self.context.yugioh_game.get_current_player().monster_field):
+                if targeted_monster == 5:
                     await self.context.send_data_and_update_game(
                         {"operation": "update", "session_id": self.context.session_id,
                          "move": "attack_player", "args": [attacking_monster],
