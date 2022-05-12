@@ -119,3 +119,10 @@ pip install virtualenv`
 - Updated Sphinx documentation to include how to run the sofwtware and included all the new classes and methods written for the game.
 - Did some bug fixes and added additional functions to card.py
 
+**Aravind Ganeshan**| Effort - 100%
+
+<ins>Work completed</ins>
+- Made edits to summoning, added flip summoning. 
+- Implemented logic for spell cards. Two different types, normal and equip.
+- Assisted in allowing user to use command line to perform actions with spell cards.
+- Refactored card.py file to work with spell cards.
