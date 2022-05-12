@@ -96,3 +96,15 @@ pip install virtualenv`
 - Built a command line interface to support the various yugioh actions
 - Built a logger to log game actions
 - Built a game menu so users can access the various parts of the program
+
+
+**Pratulya Santharam**| Effort - 100%
+
+<ins>Work completed</ins>
+- Fixed login/registration prompt, included whitelist
+- Reworked database tables to include user decks and spell cards
+- Created AWS RDS instance 
+- Updated win/loss functionality to change user's stats
+- Added funcitonality for exporting decks
+- Added more database functions for reading cards, saving decks, and reading saved decks
+- Wrote tests for above functions
