@@ -114,4 +114,9 @@ pip install virtualenv`
 **Aravind Ganeshan**| Effort - 100%
 
 <ins>Work completed</ins>
+- worked on spell cards
+
+**Devak Murali**| Effort - 100%
+- worked on building cards
+<ins>Work completed</ins>
 - 
