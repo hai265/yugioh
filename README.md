@@ -89,3 +89,29 @@ pip install virtualenv`
 
 ## Sprint 3
 
+**Hai Nguyen**| Effort - 100%
+
+<ins>Work completed</ins>
+-
+
+**Devak Murali**| Effort - 100%
+
+<ins>Work completed</ins>
+- 
+
+
+**Pratulya Santharam**| Effort - 100%
+
+<ins>Work completed</ins>
+- Fixed login/registration prompt, included whitelist
+- Reworked database tables to include user decks and spell cards
+- Created AWS RDS instance 
+- Updated win/loss functionality to change user's stats
+- Added funcitonality for exporting decks
+- Added more database functions for reading cards, saving decks, and reading saved decks
+- Wrote tests for above functions
+
+**Aravind Ganeshan**| Effort - 100%
+
+<ins>Work completed</ins>
+- 
