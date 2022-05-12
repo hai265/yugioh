@@ -1,25 +1,25 @@
-from socket import socket
-import logging
+import websockets
+
 RECV_SIZE = 1024
-class Network():
+
+
+class Network:
     def __init__(self) -> None:
         self.buffer = bytearray()
+
     """Send data to the socket in appropriate socket form"""
-    def send_data(self, sock: socket, data: bytes):
-        packet = len(data).to_bytes(4, 'little') + data
-        try:
-            sock.sendall(packet)
-        except Exception as e:
-            print(e)
-    
-    def recv_data(self, sock: socket):
-        """Recieve data until have enough data in buffer to reconstruct"""
-        self.buffer += sock.recv(RECV_SIZE)
-        size = int.from_bytes(self.buffer[0:4], "little")
-        logging.debug("Recieved packet of size " + str(size))
-        self.buffer = self.buffer[4:]
-        while(len(self.buffer) < size):
-            self.buffer += sock.recv(RECV_SIZE)
-        data = self.buffer[0:size]
-        self.buffer = self.buffer[size:]
+
+    async def send_data(self, sock: websockets, data: bytes):
+        """Send data to the connection on the other side of the socket
+        :param sock: a socket
+        :param data: data in bytes to send to the socket
+        """
+        await sock.send(data)
+
+    async def recv_data(self, sock: websockets):
+        """Recieve data until have enough data in buffer to reconstruct
+        Args:
+            sock: socket for the network
+        """
+        data = await sock.recv()
         return data
