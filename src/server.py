@@ -109,19 +109,22 @@ class YugiohServer:
 
         """
         # Receive and parse the "init" event from the UI.
-        logging.info(f'Connected to: {websocket}')
-        self.id_count += 1
-        logging.info("Id count: " + str(self.id_count))
-        session_id = ((self.id_count - 1) // 2) + 1
-        self.id_to_sockets[session_id].append(websocket)
-        if self.id_count % 2 == 1:
-            await self.create_new_game(websocket)
-        else:
-            # Second player joins an existing game.
-            await self.join_existing_game(websocket, session_id)
+        try:
+            logging.info(f'Connected to: {websocket}')
+            self.id_count += 1
+            logging.info("Id count: " + str(self.id_count))
+            session_id = ((self.id_count - 1) // 2) + 1
+            self.id_to_sockets[session_id].append(websocket)
+            if self.id_count % 2 == 1:
+                await self.create_new_game(websocket)
+            else:
+                # Second player joins an existing game.
+                await self.join_existing_game(websocket, session_id)
+        finally:
+            return
 
     async def main(self):
-        async with websockets.serve(self.handler, self.server_ip, self.port):
+        async with websockets.serve(self.handler, self.server_ip, self.port, ping_timeout=160):
             await asyncio.Future()  # run forever
 
 
