@@ -132,7 +132,7 @@ class GameController:
         current = self.get_current_player()
         other = self.get_other_player()
 
-        return current.life_points == 0 or other.life_points == 0
+        return current.life_points == 0 or other.life_points == 0 or len(current.deck) == 0 or len(other.deck) == 0
 
     def get_winner(self):
         """Returns the player that won the game or None if the game was tied.
@@ -146,13 +146,14 @@ class GameController:
         other = self.get_other_player()
 
         if self.is_there_winner():
-            if current.life_points > 0:
+            self.game_status = GameStatus.ENDED
+            if current.life_points > 0 or len(other.deck) == 0:
                 return current
-            elif other.life_points > 0:
+            elif other.life_points > 0 or len(current.deck) == 0:
                 return other
             elif current.life_points == 0 and other.life_points == 0:
                 return None
-
+        return False
     def normal_summon(self, hand_idx: int):
         """Summons monster from current_players's hand onto current_player's field in face-ip attack positions.
 

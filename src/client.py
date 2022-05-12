@@ -171,12 +171,12 @@ class NetworkCli:
         self.yugioh_game.game_status = GameStatus.ENDED
         if self.yugioh_game.is_there_winner():
             self.yugioh_game.game_status = GameStatus.ENDED
-            if self.yugioh_game.players[self.player_place].life_points <= 0:
+            if self.yugioh_game.players[self.player_place].life_points <= 0 or len(self.yugioh_game.players[self.player_place].deck) <= 0:
                 print("You lost")
                 game_result = "l"
                 await self.send_data_and_update_game(
                     {"operation": "delete", "session_id": self.session_id, "get_pickle": True})
-            elif self.yugioh_game.players[self.other_player_place].life_points <= 0:
+            elif self.yugioh_game.players[self.other_player_place].life_points <= 0 or len(self.yugioh_game.players[self.other_player_place].deck) <=0:
                 print("You won!")
                 game_result = "w"
                 await self.send_data_and_update_game(
@@ -225,6 +225,8 @@ class DrawPhase(Phase):
         await self.context.send_data_and_update_game(
             {"operation": "update", "player": self._context.player_place, "session_id": self._context.session_id,
              "move": "draw_card", "args": [1], "get_pickle": True})
+        if self.context.yugioh_game.get_winner() != False:
+            return False
         self.context.display_board()
         self.context.setState(MainPhase())
         return True
