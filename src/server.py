@@ -126,7 +126,7 @@ class YugiohServer:
             await self.join_existing_game(websocket, session_id)
 
     async def main(self):
-        async with websockets.serve(self.handler, self.server_ip, self.port):
+        async with websockets.serve(self.handler, self.server_ip, self.port, ping_timeout=160):
             await asyncio.Future()  # run forever
 
 

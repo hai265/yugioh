@@ -27,6 +27,7 @@ class GameController:
         self.other_player = 1
         self.session_id = session_id
         self.game_status = GameStatus.WAITING
+        self.is_first_turn = True
 
     def determine_first_player(self):
         """Sets starting turn order.
@@ -36,7 +37,12 @@ class GameController:
     def change_turn(self):
         """Changes player turn.
         """
+        self.is_first_turn = False
+        for monster in self.get_current_player().monster_field:
+            if monster:
+                self.set_can_attack_true(monster)
         self.current_player, self.other_player = self.other_player, self.current_player
+        self.is_first_turn = False
 
     def attack_monster(self, attacking_monster: int, attacked_monster: int):
         """Conducts an attack from one of current player's monsters to one of other player's monsters.
@@ -54,7 +60,7 @@ class GameController:
             return
 
         target_monster = other.monster_field[attacked_monster]
-
+        atk_monster.can_attack = False
         if target_monster.battle_pos == Monster.ATK:
             atk_difference = atk_monster.attack_points - target_monster.attack_points
 
@@ -78,7 +84,7 @@ class GameController:
             elif atk_difference < 0:
                 current.decrease_life_points(abs(atk_difference))
 
-    def attack_player(self, attacking_monster):
+    def attack_player(self, attacking_monster: int):
         """Conducts an attack from one of current player's monsters directly towards the other player's life points.
 
         Args:
@@ -90,6 +96,7 @@ class GameController:
 
         if all([monster is None for monster in other.monster_field]) and position == Monster.ATK:
             atk = current.monster_field[attacking_monster].attack_points
+            current.monster_field[attacking_monster].can_attack = False
             other.decrease_life_points(atk)
 
     def activate_spell(self, spell_idx: int):
@@ -155,7 +162,7 @@ class GameController:
         current = self.get_current_player()
         field_idx = current.monster_field.index(None)
         current.normal_summon(hand_idx, field_idx)
-
+        self.set_can_attack_true(current.monster_field[field_idx])
     def normal_set(self, hand_idx: int):
         """Summons monster from current_players's hand onto current_player's field in face-down defense position.
 
@@ -185,7 +192,8 @@ class GameController:
                 level 7 or higher monster
         """
         current = self.get_current_player()
-        current.tribute_summon(hand_idx, tribute1_idx, tribute2_idx)
+        field_idx = current.tribute_summon(hand_idx, tribute1_idx, tribute2_idx)
+        self.set_can_attack_true(current.monster_field[field_idx])
 
     def get_current_player(self) -> Player:
         """
@@ -200,3 +208,12 @@ class GameController:
             Returns the player whose turn it currently is not.
         """
         return self.players[self.other_player]
+
+    def set_can_attack_true(self, monster: Monster):
+        """
+        Sets a monster's "can_attack" to true if it is not in defense position
+        Args:
+            monster: A monster on a field
+        """
+        if monster.battle_pos != Monster.DEF and not self.is_first_turn:
+            monster.can_attack = True
