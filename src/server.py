@@ -66,9 +66,12 @@ class YugiohServer:
                     websockets.broadcast(broadcast_sockets, json.dumps(send_data).encode("utf-8"))
 
     # TODO: Put the initializing game and join part here
-    async def create_new_game(self, websocket):
+    async def create_new_game(self, websocket, id: int):
         """
         Handle a connection from the first player: start a new game.
+        Args:
+        websocket: websocket associated with the client
+        id: id associated with the client
         """
         # Initialize a Connect Four game, the set of WebSocket connections
         # receiving moves from this game, and secret access tokens.
@@ -76,6 +79,8 @@ class YugiohServer:
         self.games[session_id] = Yugioh()
         try:
             await self.play(websocket, session_id)
+        except websockets.exceptions.ConnectionClosedError:
+            logging.info(f"Client {id} disconnected")
         finally:
             self.id_count -= 1
             self.id_to_sockets[session_id].remove(websocket)
@@ -109,19 +114,16 @@ class YugiohServer:
 
         """
         # Receive and parse the "init" event from the UI.
-        try:
-            logging.info(f'Connected to: {websocket}')
-            self.id_count += 1
-            logging.info("Id count: " + str(self.id_count))
-            session_id = ((self.id_count - 1) // 2) + 1
-            self.id_to_sockets[session_id].append(websocket)
-            if self.id_count % 2 == 1:
-                await self.create_new_game(websocket)
-            else:
-                # Second player joins an existing game.
-                await self.join_existing_game(websocket, session_id)
-        finally:
-            return
+        logging.info(f'Client {self.id_count + 1} connected')
+        self.id_count += 1
+        logging.info("Id count: " + str(self.id_count))
+        session_id = ((self.id_count - 1) // 2) + 1
+        self.id_to_sockets[session_id].append(websocket)
+        if self.id_count % 2 == 1:
+            await self.create_new_game(websocket, self.id_count)
+        else:
+            # Second player joins an existing game.
+            await self.join_existing_game(websocket, session_id)
 
     async def main(self):
         async with websockets.serve(self.handler, self.server_ip, self.port, ping_timeout=160):

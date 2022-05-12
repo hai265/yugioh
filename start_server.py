@@ -9,4 +9,5 @@ from src.server import YugiohServer
 if __name__ == "__main__":
     server = YugiohServer("0.0.0.0", 5555)
     logging.getLogger().setLevel(logging.INFO)
+    print("Starting Yugioh Server")
     asyncio.run(server.main())
