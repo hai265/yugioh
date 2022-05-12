@@ -108,3 +108,14 @@ pip install virtualenv`
 - Added funcitonality for exporting decks
 - Added more database functions for reading cards, saving decks, and reading saved decks
 - Wrote tests for above functions
+
+**Devak Murali**| Effort - 100%
+
+<ins>Work completed</ins>
+- Attempted to create a UI to host the CLI, but was unable to integrate with docker and websockets. 
+- Also tried to create a UI for starting menu, but ran into the same problems as above
+- Created additional preset decks and added more cards to the available cards for the game
+- Created and tested a deck building interface that can be called from the game_menu CLI
+- Updated Sphinx documentation to include how to run the sofwtware and included all the new classes and methods written for the game.
+- Did some bug fixes and added additional functions to card.py
+
