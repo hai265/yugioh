@@ -86,7 +86,8 @@ def load_preset_deck() -> list:
         print("Invalid option. Please try again.")
         func = input("Type 1 to load a Yugi\'s decks, or 2 to load Kiba\'s deck: ")
 
-    if func == 1:
+    # Determine which one to pick from
+    if func == '1':
         return card.create_list_from_preset('sources/preset3')
     else:
         return card.create_list_from_preset('sources/preset2')
