@@ -5,8 +5,8 @@ from src.game_menu import GameMenu
 
 
 def main():
-    # SERVER_IP = "167.172.152.60"
-    SERVER_IP = "ws://localhost"
+    SERVER_IP = "ws://167.172.152.60"
+    #SERVER_IP = "ws://localhost"
     SERVER_PORT = 5555
     logging.getLogger().setLevel(logging.INFO)
     game_menu = GameMenu(SERVER_IP, SERVER_PORT)
