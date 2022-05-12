@@ -55,6 +55,8 @@ class YugiohServer:
                     broadcast_sockets = [websocket]
                 elif data["operation"] == "update":
                     send_data = game.update_game(data)
+                    if data["move"] == "draw_card":
+                        broadcast_sockets = [websocket]
                 elif data["operation"] == "delete":
                     send_data = game.delete_game(data)
                 else:

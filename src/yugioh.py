@@ -48,6 +48,7 @@ class Yugioh:
         """
         player = Player(8000, name=request["player_name"])
         player.deck = create_deck_from_array(request["deck"])
+        # player.draw_card(5)
         if "player_place" not in request:
             self.game.players.append(player)
         else:
@@ -172,7 +173,7 @@ class GameLogger:
         elif request["move"] == "normal_spell":
             log["message"] = self.log_activate_spell_message(request)
         elif request["move"] == "equip_spell":
-            log["message"] = self.log_activate_equip_spellmessage(request)
+            log["message"] = self.log_activate_equip_spell_message(request)
         elif request["move"] == "normal_set":
             log["message"] = self.log_normal_set_message(request)
         elif request["move"] == "flip_summon":
@@ -233,20 +234,6 @@ class GameLogger:
         sacrificed2 = curr_player.monster_field[request["args"][2]].name
         return f"{curr_player.name} tribute summoned {summoned_monster} by sacrificing {sacrificed1} and {sacrificed2}"
 
-    def log_tribute_summon_message(self, request: dict) -> str:
-        """
-        Logs when a player tribute summons a monster from their hand. In format
-        Args:
-            request: a request to yugioh
-        :returns
-            a formatted log message
-        """
-        curr_player = self.game_controller.get_current_player()
-        summoned_monster = curr_player.hand[request["args"][0]].name
-        sacrificed1 = curr_player.monster_field[request["args"][1]].name
-        sacrificed2 = curr_player.monster_field[request["args"][2]].name
-        return f"{curr_player.name} tribute summoned {summoned_monster} by sacrificing {sacrificed1} and {sacrificed2}"
-
     def log_activate_spell_message(self, request) -> str:
         """
         Logs when a player activates a spell
@@ -258,7 +245,7 @@ class GameLogger:
         played_spell = player.hand[request["args"][0]].name
         return f"{player.name} played spell {played_spell}"
 
-    def log_activate_equip_spellmessage(self, request) -> str:
+    def log_activate_equip_spell_message(self, request) -> str:
         """
         Logs when a player activates an equip spell
             request: a request to yugioh

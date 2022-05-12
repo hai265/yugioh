@@ -5,9 +5,10 @@ import inquirer
 from src import database_functions
 
 from src.account_menu import display_prompt
-from src.card import deck_to_card_name_list, create_deck_from_preset
+from src.card import deck_to_card_name_list, create_deck_from_preset, create_list_from_preset
 from src.client import NetworkCli
 from src.database_functions import update_win_loss_draw
+from src.deck_builder import display_prompt as deck_display_prompt
 import os
 
 
@@ -49,6 +50,7 @@ class GameMenu:
         self.name = None
         self.user_info = None
         self.name: str
+        self.deck = []
         self.deck_list: list[dict[str: list[str]]]
         self.server_ip = server_ip
         self.server_port = server_port
@@ -70,7 +72,7 @@ class GameMenu:
             if answers['choice'] == "Play a game":
                 asyncio.run(self.play_game())
             elif answers['choice'] == "Create and view decks":
-                pass
+                self.deck = deck_display_prompt(self.name)
             elif answers['choice'] == "Exit Game":
                 print("Have a nice day!")
                 return
@@ -93,9 +95,14 @@ class GameMenu:
         Runs the yugioh command line game and updates stats according to the game result
         """
         # Use preset decks for now
-        preset_deck = create_deck_from_preset("sources/preset1")
-        preset_deck = deck_to_card_name_list(preset_deck)
-        cli = NetworkCli(self.server_ip, self.server_port, self.name, preset_deck)
+        if len(self.deck) == 0:
+            path = "sources/preset4"
+            self.deck = create_list_from_preset(path)
+            print("Using %s deck" % path)
+
+        # preset_deck = create_deck_from_preset("sources/preset4")
+        # preset_deck = deck_to_card_name_list(preset_deck)
+        cli = NetworkCli(self.server_ip, self.server_port, self.name, self.deck)
         game_result = await cli.start_game()
         self.game_actions = game_result["game_actions"]
         if game_result["game_result"] == "l":
