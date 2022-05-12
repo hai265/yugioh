@@ -37,6 +37,7 @@ before_script:
   - source venv/bin/activate
   - pip install -r requirements.txt
   - pip install pytest-cov flake8
+  - pip install -r requirements.txt
 
 test:
     image: python:3.9
