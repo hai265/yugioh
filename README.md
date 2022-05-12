@@ -14,7 +14,7 @@ To run the server , run `docker build --tag yugioh-server -f Dockerfile.server .
 `docker run -p 5555:5555 -it yugioh-server`  
 To run the client , run `docker build --tag yugioh-client -f Dockerfile.client .`, and then after building the image, run 
 `docker run -it yugioh-client`  
-To run the tests, run:  
+To run the tests, first go to `database.py` and change the variable DATABASE_URI to the uri starting with "sqlite:". Then run:  
 `
 pip install virtualenv`  
 `virtualenv venv`  
