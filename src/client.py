@@ -111,7 +111,7 @@ class NetworkCli:
             self.yugioh_game = pickle.loads(data)
         await self.send_data_and_update_game(
             {"operation": "update", "player": self.player_place, "session_id": self.session_id,
-             "move": "draw_card", "args": [5], "get_pickle": True})
+             "move": "draw_card", "args": [3], "get_pickle": True})
         while GameStatus.ONGOING:
             self.num_rounds += 1
             if self.yugioh_game.current_player != self.player_place:
