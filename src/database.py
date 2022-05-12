@@ -12,9 +12,9 @@ and https://docs.sqlalchemy.org/en/14/index.html
 """
 
 Base = declarative_base()
-DATABASE_URI = "mysql+pymysql://root:$MYSQL_ROOT_PASSWORD@mysql/$MYSQL_DATABASE"
+#DATABASE_URI = "mysql+pymysql://root:$MYSQL_ROOT_PASSWORD@mysql/$MYSQL_DATABASE"
 #DATABASE_URI = "mysql+pymysql://admin:$upr3meK1ng@dbinstance-1.c9lngznprt4c.us-east-1.rds.amazonaws.com:3306/yugiohdb"
-#DATABASE_URI ="sqlite:///./test_database.db"
+DATABASE_URI ="sqlite:///./test_database.db"
 #DATABASE_URI = "mysql+pymysql://root:$upr3me1@localhost/yugioh_test"
 # MILESTONE DB: "mysql+pymysql://admin:$upr3meK1ng@dbinstance-1.c9lngznprt4c.us-east-1.rds.amazonaws.com:3306/yugiohdb"
 # GITLAB RUNNER DB: "mysql+pymysql://root:$MYSQL_ROOT_PASSWORD@mysql/$MYSQL_DATABASE"

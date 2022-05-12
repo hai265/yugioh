@@ -43,7 +43,6 @@ class TestGameController(unittest.TestCase):
         self.game.normal_summon(0)
         self.assertEqual(1, current.get_hand_size())
         self.assertEqual(self.player1_card1, current.monster_field[0])
-
         # change turn
         self.game.change_turn()
 
@@ -256,7 +255,7 @@ class TestGameController(unittest.TestCase):
         # attacked player will lose 1200 lp but since they only have 1000 lp their new total should be 0
         self.assertEqual(1000, current.life_points)
         self.assertEqual(0, other.life_points)
-
+    
     def test_is_there_winner(self):
         self.player2.life_points = 0
         self.assertTrue(self.game.is_there_winner())
@@ -266,6 +265,86 @@ class TestGameController(unittest.TestCase):
         self.assertEqual(self.player1, self.game.get_winner())
 
 
+class TestCanAttack(unittest.TestCase):
+    def setUp(self) -> None:
+        # ATK for Curtain of the Dark One is 600 and ATK for Hitotsu-Me Giant 1200
+        self.player1_card1 = create_card('Curtain of the Dark One')
+        self.player1_card2 = create_card('Hitotsu-Me Giant')
+        self.player1_card3 = create_card('Dark Magician')
+
+        self.player2_card1 = create_card('Curtain of the Dark One')
+        self.player2_card2 = create_card('Hitotsu-Me Giant')
+        self.player2_card3 = create_card('Dark Magician')
+        self.player1 = Player(5000, 'Yugi')
+        self.player2 = Player(5000, 'Kaiba')
+
+        self.player1.hand = [self.player1_card1, self.player1_card2, self.player1_card3]
+        self.player2.hand = [self.player2_card1, self.player2_card2, self.player1_card3]
+
+        self.game = GameController(None)
+        self.game.players = [self.player1, self.player2]
+    
+    def test_can_attack_normal_summon(self):
+        # player1 summon
+        current = self.game.get_current_player()
+        self.game.normal_summon(0)
+        self.assertFalse(current.monster_field[0].can_attack)
+        # change turn
+        self.game.change_turn()
+        current = self.game.get_current_player()
+        # player2 summon
+        self.game.normal_summon(1)
+        self.assertTrue(current.monster_field[0].can_attack)
+
+    def test_can_attack_change_turn(self):
+        current = self.game.get_current_player()
+        self.game.normal_summon(0)
+        self.game.change_turn()
+        self.assertTrue(current.monster_field[0].can_attack)
+        current = self.game.get_current_player()
+        self.game.normal_summon(0)
+        self.game.change_turn()
+        self.assertTrue(current.monster_field[0].can_attack)
+
+    def test_can_attack_tribute_summon(self):
+        # player1 summon
+        current = self.game.get_current_player()
+        self.game.normal_summon(0)
+        self.game.normal_summon(0)
+        self.game.tribute_summon_monster(0, 0, 1)
+        self.assertFalse(current.monster_field[0].can_attack)
+        # change turn
+        self.game.change_turn()
+        current = self.game.get_current_player()
+        self.game.normal_summon(0)
+        self.game.normal_summon(0)
+        self.game.tribute_summon_monster(0, 0, 1)
+        self.assertTrue(current.monster_field[0].can_attack)
+
+    def test_can_attack_attack_player(self):
+        self.game.change_turn()
+        current = self.game.get_current_player()
+        self.game.normal_summon(0)
+        self.game.attack_player(0)
+        self.assertFalse(current.monster_field[0].can_attack)
+    
+    def test_can_attack_attack_monster(self):
+        self.game.normal_summon(0)
+        self.game.change_turn()
+        self.game.normal_summon(1)
+        self.game.attack_monster(0, 0)
+        self.assertFalse(self.game.get_current_player().monster_field[0].can_attack)
+
+    def test_can_attack_normal_set(self):
+        self.game.normal_set(0)
+        self.assertFalse(self.game.get_current_player().monster_field[0].can_attack)
+        self.game.change_turn()
+        self.assertFalse(self.game.get_other_player().monster_field[0].can_attack)
+        self.game.normal_set(0)
+        self.assertFalse(self.game.get_current_player().monster_field[0].can_attack)
+
+
+        self.game.attack_monster(0, 0)
 class TestNormalSpellCards(unittest.TestCase):
     def setUp(self):
         self.player1 = Player(5000, 'Yugi')

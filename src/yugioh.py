@@ -103,7 +103,11 @@ class Yugioh:
             self.game_logger.log_action(request, self.current_turn)
             self.game.normal_summon(*request["args"])
         elif request["move"] == "normal_set":
+            self.game_logger.log_action(request, self.current_turn)
             self.game.normal_set(*request["args"])
+        elif request["move"] == "flip_summon":
+            self.game_logger.log_action(request, self.current_turn)
+            self.game.flip_summon(*request["args"])
         elif request["move"] == "tribute_summon":
             self.game_logger.log_action(request, self.current_turn)
             self.game.tribute_summon_monster(*request["args"])
@@ -169,6 +173,10 @@ class GameLogger:
             log["message"] = self.log_activate_spell_message(request)
         elif request["move"] == "equip_spell":
             log["message"] = self.log_activate_equip_spellmessage(request)
+        elif request["move"] == "normal_set":
+            log["message"] = self.log_normal_set_message(request)
+        elif request["move"] == "flip_summon":
+            log["message"] = self.log_flip_summon_message(request)
         self.game_actions.append(log)
 
     def log_normal_summon_message(self, request: dict) -> str:
@@ -262,8 +270,30 @@ class GameLogger:
         targeted_monster = curr_player.monster_field[request["args"][0]]
         return f"{curr_player.name} used {spell} on {targeted_monster.name}"
 
+    def log_normal_set_message(self, request) -> str:
+        """
+        Logs when a player summons a monster face down
+            request: a request to yugioh
+        :returns
+            a formatted log message
+        """
+        player = self.game_controller.get_current_player()
+        summoned_monster = player.hand[request["args"][0]].name
+        return f"{player.name} summoned {summoned_monster} face down"
+
+    def log_flip_summon_message(self, request) -> str:
+        """
+        Logs when a player summons a monster face down
+            request: a request to yugioh
+        :returns
+            a formatted log message
+        """
+        player = self.game_controller.get_current_player()
+        summoned_monster = player.monster_field[request["args"][0]].name
+        return f"{player.name} flipped summoned {summoned_monster}"
+
     def get_logs(self) -> list[dict]:
         """
-        Returns the list of logs
+        returns the list of logs
         """
         return self.game_actions
